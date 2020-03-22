@@ -154,7 +154,7 @@ function updateChart()
 		        pan: {
 			        enabled: true,
 			        mode: 'x',
-			        rangeMin: { x: null, y: null },
+			        rangeMin: { x: null, y: 0 },
 			        rangeMax: { x: null, y: null },
 			        speed: 20,		// On category scale, factor of pan velocity
 			        threshold: 10, // Minimal pan distance required before actually applying pan
@@ -165,7 +165,7 @@ function updateChart()
 			        enabled: true,
 			        drag: false, // Enable drag-to-zoom behavior
 			        mode: 'x',
-			        rangeMin: { x: null, y: null },
+			        rangeMin: { x: null, y: 0 },
 			        rangeMax: { x: null, y: null },
 			        speed: 0.1, // (percentage of zoom on a wheel event)	        
 			        sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
@@ -176,51 +176,12 @@ function updateChart()
 			}
 		};
 		
-  chart = new Chart(ctx, chart_config);
-  
-//  var chart = new Chart(ctx, {
-//      // The type of chart we want to create
-//      type: 'line',
-
-//      // The data for our dataset
-//      data: {
-//          fill: false,
-//          datasets: [{
-//              label: 'Sri Lanka',
-//              data: readData()
-//          }]
-//      },
-
-//      // Configuration options go here
-//      options: {
-//        responsive: false,
-//        maintainAspectRatio: false,
-//        title: {
-//					text: 'Reported COVID-19 cases'
-//				},
-//        scales: {
-//          xAxes: [{
-//						  scaleLabel: {
-//							  display: true,
-//							  labelString: 'No. of days'
-//						  }
-//					}],
-//          yAxes: [{
-//            type: 'linear',
-//            scaleLabel: {
-//							  display: true,
-//							  labelString: 'No. of reported cases'
-//						  }
-//          }]
-//        }
-//    }
-//  });
-  
+  chart = new Chart(ctx, chart_config);  
 };
 
 function setLogYAxis(is_log)  
 {
-  var logarithmic_ticks = {
+  let logarithmic_ticks = {
     min: 0,
     max: 100000,
     callback: function (value, index, values) {
@@ -237,16 +198,36 @@ function setLogYAxis(is_log)
   
   if (is_log)
   {
-    chart.options.scales.yAxes[0].type = 'logarithmic';
-    chart.options.scales.yAxes[0].ticks = logarithmic_ticks;
+    chart_config.options.scales.yAxes[0].type = 'logarithmic';
+    chart_config.options.scales.yAxes[0].ticks = logarithmic_ticks;
   }
   else
   {
-    chart.options.scales.yAxes[0].type = 'linear';
-    chart.options.scales.yAxes[0].ticks = {display: true};
+    chart_config.options.scales.yAxes[0].type = 'linear';
+    chart_config.options.scales.yAxes[0].ticks = {display: true};
   }
   chart.update();
 };
+
+function setDataOverlayItaly(overlay)  
+{
+  chart_config.data.datasets[1].hidden = !overlay;
+  chart.update();
+}
+
+function alignTimelines(align)
+{
+  if (align)
+  {
+    for (let datapair of chart_config.data.datasets[1].data)
+      datapair.t.add(41,'days'); //Add offset to Italy dataset
+  }
+  else //load original datasets
+  {
+    chart_config.data.datasets[1].data = getDataItaly();
+  }
+  chart.update();
+}
 
 function resetZoom()
 {
