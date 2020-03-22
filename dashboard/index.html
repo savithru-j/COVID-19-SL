@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+
+<link rel="stylesheet" href="styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
+
+<script src="plot_data.js"></script>
+
+<title>COVID-19 Dashboard - Sri Lanka</title>
+<meta name="description" content="Dashboard for COVID-19 cases in Sri Lanka"/>
+<meta name="keywords" content="COVID-19, Coronavirus, Sri Lanka">
+
+</head>
+<body>
+
+
+<div class="block" id="chart_controls">
+<br>
+<b>Chart controls</b>
+<br>
+<div style="margin-top:10px;">
+  <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
+</div>
+<div style="margin-top:10px;">
+  <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Reset chart</button>
+</div>
+
+</div>
+<div class="block">
+<canvas id="chart_canvas" ></canvas>
+</div>
+
+<br>Data obtained from...
+
+</body>
+</html>

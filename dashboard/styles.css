@@ -1,0 +1,21 @@
+body {
+  height: 100%;
+  font-family: "Trebuchet MS", sans-serif;
+}
+
+span.block {
+  display: inline-block;
+}
+
+div.block {
+  display: inline-block;
+  vertical-align: text-top;
+}
+
+button.small {
+  width: 100px;
+  height: 30px;
+  font-family: inherit;
+  font-size: 90%;
+}
+
