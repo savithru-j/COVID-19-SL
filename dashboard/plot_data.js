@@ -108,7 +108,7 @@ function updateChart()
 			type: 'linear',
 			scaleLabel: {
 				display: true,
-				labelString: 'No. of confirmed cases',
+				labelString: 'No. of cases',
 				fontSize: 15
 			}
 		};
@@ -124,7 +124,7 @@ function updateChart()
 	chart_config = {
 			data: {
 				datasets: [{
-					label: 'Sri Lanka',
+					label: 'Sri Lanka - confirmed cases',
 					borderColor: '#66b3ff',
 					data: dataSL,
 					type: 'line',
@@ -132,7 +132,7 @@ function updateChart()
 					borderWidth: 2
 				},
 				{
-					label: 'Italy',
+					label: 'Italy - confirmed cases',
 					borderColor: '#fcaf3e',
 					data: dataIT,
 					type: 'line',
@@ -232,4 +232,18 @@ function alignTimelines(align)
 function resetZoom()
 {
   chart.resetZoom();
+}
+
+function getModelPrediction(days)
+{
+  let IncubPeriod = 5;
+  let DurMild     = 6;
+  let DurSevere   = 4;
+  let DurICU      = 10;
+  
+  let prob_I1_E = 1;
+  let prob_R_I1 = 0.81*prob_I1_E;
+  
+
+
 }
