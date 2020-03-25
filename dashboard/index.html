@@ -9,6 +9,9 @@
 <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
 
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 <script src="plot_data.js"></script>
 
 <title>COVID-19 Dashboard - Sri Lanka</title>
@@ -23,17 +26,52 @@
 <br>
 <b>Chart controls</b>
 <br>
-<div style="margin-top:10px;">
+<div class="control">
   <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
 </div>
-<div style="margin-top:10px;">
+<div class="control">
   <input type="checkbox" id="check_overlay_italy" onchange="setDataOverlayItaly(this.checked)">Show data from Italy</input>
 </div>
-<div style="margin-top:10px;">
+<div class="control">
   <input type="checkbox" id="check_align_timelines" onchange="alignTimelines(this.checked)">Align timelines</input>
 </div>
-<div style="margin-top:10px;">
+<div class="control">
   <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
+</div>
+
+<br>
+<hr style="margin-top:10px;">
+
+<br>
+<b>Simulation controls</b>
+<br>
+<br>
+
+<div class="control full">
+<center>
+<input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.5></input>
+<br><div class="small tooltip">Tranmission rate beta<sub>1</sub>
+<span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
+</font>
+</center>
+</div>
+
+<div class="control full">
+<center>
+<input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
+<br><div class="small tooltip">Tranmission rate beta<sub>2</sub>
+<span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
+</font>
+</center>
+</div>
+
+<div class="control full">
+<center>
+<input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
+<br><div class="small tooltip">Tranmission rate beta<sub>3</sub>
+<span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
+</font>
+</center>
 </div>
 
 </div>

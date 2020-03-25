@@ -12,6 +12,14 @@ div.block {
   vertical-align: text-top;
 }
 
+div.control {
+  margin-top:10px;
+}
+
+div.full {
+  width: 100%;
+}
+
 button.small {
   width: 150px;
   height: 30px;
@@ -19,3 +27,38 @@ button.small {
   font-size: 90%;
 }
 
+input.control {
+  width: 80%;
+}
+
+.small {
+  font-size: 16px;
+}
+
+.tiny {
+  font-size: 14px;
+}
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 150px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}

@@ -19,6 +19,7 @@ function getDataSriLanka()
   data.push({t: moment('21-03-2020', date_format), y: 72});
   data.push({t: moment('22-03-2020', date_format), y: 78});
   data.push({t: moment('23-03-2020', date_format), y: 87});
+  data.push({t: moment('24-03-2020', date_format), y: 97});
   return data;
 }
 
@@ -61,6 +62,12 @@ function getDataItaly()
   return data;
 }
 
+var dataSL = getDataSriLanka();
+var dataIT = getDataItaly();
+
+var sim_params = initializeSimulationParameters(dataSL.length);
+var dataSLpredicted = getPredictionData(dataSL[0].t);
+
 var chart = [];
 var chart_config = [];
 
@@ -81,12 +88,7 @@ function updateChart()
   div_controls.style.width = (0.15*window.innerWidth) + "px";
   
   let check_logy = document.getElementById('check_log_y');
- 
-  let dataSL = getDataSriLanka();
-  let dataIT = getDataItaly();
-  
-  let dataSLpredicted = getPredictionData(dataSL[0].t, 20);
-  
+     
   let xaxis_config = {
 	    type: 'time',
 			distribution: 'linear',
@@ -254,10 +256,55 @@ function resetZoom()
   chart.resetZoom();
 }
 
-function getPredictionData(start_date, days)
+function initializeSimulationParameters(hist_length)
+{
+  const pred_length = 7; //no. of days to predict
+  const total_length = hist_length + pred_length;
+  let params = {
+    T_hist: hist_length,
+    T_pred: pred_length,
+    dt: 24,        //timestep size [hrs]
+    b1N: new Array(total_length).fill(0.5), //transmission rate from mild to susceptible
+    b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
+    b3N: new Array(total_length).fill(0.0)  //transmission rate from critical to susceptible
+  }
+  return params;
+}
+
+function updateParameters()
+{
+  let requires_update = false;
+  
+  let slider_element_ids = ["slider_b1", "slider_b2", "slider_b3"];
+  let param_arrays = [sim_params.b1N, sim_params.b2N, sim_params.b3N];
+  
+  for (let i = 0; i < 3; ++i)
+  {
+    let slider = document.getElementById(slider_element_ids[i]);
+    if (slider)
+    {
+      let val = Number(slider.value);
+      for (let j = 0; j < param_arrays[i].length; ++j)
+        if (param_arrays[i][j] != val)
+        {
+          param_arrays[i][j] = val;
+          requires_update = true;
+        }
+    }
+  }
+  
+  if (requires_update)
+  {
+    dataSLpredicted = getPredictionData(dataSL[0].t);
+    chart_config.data.datasets[1].data = dataSLpredicted;
+    chart.update();
+  }
+}
+
+function getPredictionData(start_date)
 {
   let data = [];
-  let sol_history = predictModel(days);
+  let sol_history = predictModel(sim_params);
   
   for (let i = 0; i < sol_history.length; i++)
   {
@@ -271,7 +318,7 @@ function getPredictionData(start_date, days)
   return data;
 }
 
-function predictModel(days)
+function predictModel(params)
 {
   //Periods [days]
   let T_incub  = 5;
@@ -298,17 +345,13 @@ function predictModel(days)
   let u   = (1/T_icu)    * prob_D_I3;
 
   //Transmission rates: beta values are always scaled by the population N
+
   let b1N = 0.5; //rate at which mildly infected individuals transmit to susceptible people
   let b2N = 0;   //rate at which severely infected individuals transmit to susceptible people
   let b3N = 0;   //rate at which critically infected individuals transmit to susceptible people
   
   let N = 21.4e6; //Population of Sri Lanka
-  
-  //Normalized transmission rates
-  let b1 = b1N/N;
-  let b2 = b2N/N;
-  let b3 = b3N/N;
-  
+   
   //Initial solution
   let E0 = 20;
   let S0 = N - E0;
@@ -321,9 +364,15 @@ function predictModel(days)
   //Solution vector: [S, E, I1, I2, I3, R, D] 
   let solution_hist = [[S0, E0, I1_0, I2_0, I3_0, R0, D0]];
   
-  for (let i = 0; i < days; i++) 
+  const nt = params.T_hist + params.T_pred;
+  
+  for (let i = 0; i < nt; i++) 
   {
     let sol = solution_hist[i];
+    
+    let b1 = params.b1N[i] / N;
+    let b2 = params.b2N[i] / N;
+    let b3 = params.b3N[i] / N;
     
     let dS = -(b1*sol[2] + b2*sol[3] + b3*sol[4])*sol[0]; 
     let dsol = [dS,                                //dS
