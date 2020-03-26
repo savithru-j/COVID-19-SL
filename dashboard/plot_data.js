@@ -6,20 +6,21 @@ var date_format = 'DD-MM-YYYY';
 function getDataSriLanka()
 {
   let data = [];
-  data.push({t: moment('11-03-2020', date_format), y: 1});
-  data.push({t: moment('12-03-2020', date_format), y: 2});
-  data.push({t: moment('13-03-2020', date_format), y: 3});
-  data.push({t: moment('14-03-2020', date_format), y: 6});
-  data.push({t: moment('15-03-2020', date_format), y: 11});
-  data.push({t: moment('16-03-2020', date_format), y: 19});
-  data.push({t: moment('17-03-2020', date_format), y: 29});
-  data.push({t: moment('18-03-2020', date_format), y: 42});
-  data.push({t: moment('19-03-2020', date_format), y: 53});
-  data.push({t: moment('20-03-2020', date_format), y: 66});
-  data.push({t: moment('21-03-2020', date_format), y: 72});
-  data.push({t: moment('22-03-2020', date_format), y: 78});
-  data.push({t: moment('23-03-2020', date_format), y: 87});
-  data.push({t: moment('24-03-2020', date_format), y: 97});
+  data.push({t: moment('10-03-2020', date_format), y: 1});
+  data.push({t: moment('11-03-2020', date_format), y: 2});
+  data.push({t: moment('12-03-2020', date_format), y: 3});
+  data.push({t: moment('13-03-2020', date_format), y: 6});
+  data.push({t: moment('14-03-2020', date_format), y: 11});
+  data.push({t: moment('15-03-2020', date_format), y: 19});
+  data.push({t: moment('16-03-2020', date_format), y: 29});
+  data.push({t: moment('17-03-2020', date_format), y: 42});
+  data.push({t: moment('18-03-2020', date_format), y: 53});
+  data.push({t: moment('19-03-2020', date_format), y: 66});
+  data.push({t: moment('20-03-2020', date_format), y: 72});
+  data.push({t: moment('21-03-2020', date_format), y: 78});
+  data.push({t: moment('22-03-2020', date_format), y: 87});
+  data.push({t: moment('23-03-2020', date_format), y: 97});
+  data.push({t: moment('24-03-2020', date_format), y: 102});
   return data;
 }
 
@@ -62,10 +63,31 @@ function getDataItaly()
   return data;
 }
 
+function getDataStacked()
+{
+  let data0 = [];
+  data0.push({t: moment('10-03-2020', date_format), y: 20});
+  data0.push({t: moment('11-03-2020', date_format), y: 30});
+  data0.push({t: moment('12-03-2020', date_format), y: 40});
+  
+  let data1 = [];
+  data1.push({t: moment('10-03-2020', date_format), y: 40});
+  data1.push({t: moment('11-03-2020', date_format), y: 60});
+  data1.push({t: moment('12-03-2020', date_format), y: 80});
+  
+  let data2 = [];
+  data2.push({t: moment('10-03-2020', date_format), y: 60});
+  data2.push({t: moment('11-03-2020', date_format), y: 50});
+  data2.push({t: moment('12-03-2020', date_format), y: 90});
+  return [data0, data1, data2];
+}
+
 var dataSL = getDataSriLanka();
 var dataIT = getDataItaly();
 
 var sim_params = initializeSimulationParameters(dataSL.length);
+
+var dataSLpredstack = [];
 var dataSLpredicted = getPredictionData(dataSL[0].t);
 
 var chart = [];
@@ -75,7 +97,6 @@ window.onload = function()
 {
   updateChart();
 }
-
 
 function updateChart()
 {
@@ -104,7 +125,8 @@ function updateChart()
 			  display: true,
 			  labelString: 'Date',
 			  fontSize: 15
-			}
+			},
+			stacked: true
 		};
 		
   let yaxis_config = {
@@ -116,10 +138,8 @@ function updateChart()
 				display: true,
 				labelString: 'No. of cases',
 				fontSize: 15
-			}
+			}			
 		};
-
-
   
   if (check_logy.checked)
   {
@@ -157,7 +177,58 @@ function updateChart()
 					fill: true,
 					borderWidth: 2,
 					hidden: true
-				}]
+				},
+				{
+					label: 'Susceptible',
+					backgroundColor: '#d3d7cf',
+					data: dataSLpredstack[0],
+					type: 'bar',
+					stack: 'stack0',
+					hidden: true
+				},
+				{
+					label: 'Exposed',
+					backgroundColor: '#e9b96e',
+					data: dataSLpredstack[1],
+					type: 'bar',
+					stack: 'stack0'
+				},
+				{
+					label: 'Mildly infected',
+					backgroundColor: '#edd400',
+					data: dataSLpredstack[2],
+					type: 'bar',
+					stack: 'stack0'
+				},
+				{
+					label: 'Severely infected',
+					backgroundColor: '#f57900',
+					data: dataSLpredstack[3],
+					type: 'bar',
+					stack: 'stack0'
+				},
+				{
+					label: 'Critically infected',
+					backgroundColor: '#cc0000',
+					data: dataSLpredstack[4],
+					type: 'bar',
+					stack: 'stack0'
+				},
+				{
+					label: 'Recovered',
+					backgroundColor: '#73d216',
+					data: dataSLpredstack[5],
+					type: 'bar',
+					stack: 'stack0'
+				},
+				{
+					label: 'Fatal',
+					backgroundColor: '#555753',
+					data: dataSLpredstack[6],
+					type: 'bar',
+					stack: 'stack0'
+				}
+				]
 			},
 			options: {
 			  responsive: false,
@@ -170,6 +241,25 @@ function updateChart()
             display: true,
             boxWidth: 10,
         },
+//        tooltips: {
+//          callbacks: {
+//                label: function(tooltipItem, data) {
+//                    //var type = data.datasets[tooltipItem.datasetIndex].label;
+//                    //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
+
+//                    // Loop through all datasets to get the actual total of the index
+//                    var total = 0;
+//                    let labels = [];
+//                    for (var i = 3; i < data.datasets.length; i++)
+//                    {
+//                      labels.push(data.datasets[i].label + ": " + data.datasets[i].data[tooltipItem.index].y);
+//                      total += data.datasets[i].data[tooltipItem.index].y;
+//                    }
+//                    labels.push("Total: " + total);
+//                    return labels;
+//                }
+//            }
+//        },
 				plugins: {
 	        zoom: {
 		        // Container for pan options
@@ -263,7 +353,7 @@ function initializeSimulationParameters(hist_length)
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
-    dt: 24,        //timestep size [hrs]
+    dt: 0.5/24.0,        //timestep size [days]
     b1N: new Array(total_length).fill(0.5), //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
     b3N: new Array(total_length).fill(0.0)  //transmission rate from critical to susceptible
@@ -293,6 +383,17 @@ function updateParameters()
     }
   }
   
+//  let slider_dt = document.getElementById("slider_dt");
+//  if (slider_dt)
+//  {
+//    let val = 1.0/Math.pow(2,Number(slider_dt.value));
+//    if (sim_params.dt != val)
+//    {
+//      sim_params.dt = val;
+//      requires_update = true;
+//    }
+//  }
+  
   if (requires_update)
   {
     dataSLpredicted = getPredictionData(dataSL[0].t);
@@ -306,13 +407,20 @@ function getPredictionData(start_date)
   let data = [];
   let sol_history = predictModel(sim_params);
   
+  dataSLpredstack = new Array(7).fill([]);
+  
   for (let i = 0; i < sol_history.length; i++)
   {
+    let date = start_date.clone().add(i,'days');
+    
     let num_cases = 0;
     for (let j = 1; j < 7; ++j)
       num_cases += sol_history[i][j];
       
-    data.push({t: start_date.clone().add(i,'days'), y: Math.round(num_cases)});
+    data.push({t: date, y: Math.round(num_cases)});
+    
+    //for (let j = 0; j < 7; ++j)
+    //  dataSLpredstack[j].push({t: date, y: Math.round(sol_history[i][j])});
   }
   
   return data;
@@ -365,30 +473,33 @@ function predictModel(params)
   let solution_hist = [[S0, E0, I1_0, I2_0, I3_0, R0, D0]];
   
   const nt = params.T_hist + params.T_pred;
+  const nt_sub = 1.0/params.dt;
   
   for (let i = 0; i < nt; i++) 
   {
-    let sol = solution_hist[i];
+    let sol = solution_hist[i].slice(); //copy last solution vector
     
     let b1 = params.b1N[i] / N;
     let b2 = params.b2N[i] / N;
     let b3 = params.b3N[i] / N;
     
-    let dS = -(b1*sol[2] + b2*sol[3] + b3*sol[4])*sol[0]; 
-    let dsol = [dS,                                //dS
-                -dS - a*sol[1],                    //dE
-                a*sol[1] - (g1 + p1)*sol[2],       //dI1
-                p1*sol[2] - (g2 + p2)*sol[3],      //dI2
-                p2*sol[3] - (g3 + u)*sol[4],       //dI3
-                g1*sol[2] + g2*sol[3] + g3*sol[4], //dR
-                u*sol[4]                           //dD
-               ];
-    
-    let new_sol = new Array(7);
-    for (let j = 0; j < 7; j++)
-      new_sol[j] = sol[j] + dsol[j];
+    for (let j = 0; j < nt_sub; j++)
+    {
+      let dS = -(b1*sol[2] + b2*sol[3] + b3*sol[4])*sol[0]; 
+      let dsol = [dS,                                //dS
+                  -dS - a*sol[1],                    //dE
+                  a*sol[1] - (g1 + p1)*sol[2],       //dI1
+                  p1*sol[2] - (g2 + p2)*sol[3],      //dI2
+                  p2*sol[3] - (g3 + u)*sol[4],       //dI3
+                  g1*sol[2] + g2*sol[3] + g3*sol[4], //dR
+                  u*sol[4]                           //dD
+                 ];
+      
+      for (let k = 0; k < sol.length; k++)
+        sol[k] += dsol[k]*params.dt;
+    } //sub-timestepping [hrs]
 
-    solution_hist.push(new_sol);
+    solution_hist.push(sol); //save solution daily
   }
   
   return solution_hist;

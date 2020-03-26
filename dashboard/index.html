@@ -50,7 +50,7 @@
 <div class="control full">
 <center>
 <input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.5></input>
-<br><div class="small tooltip">Tranmission rate beta<sub>1</sub>
+<br><div class="small tooltip">Tranmission rate \(\beta_1\)
 <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
 </font>
 </center>
@@ -59,7 +59,7 @@
 <div class="control full">
 <center>
 <input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
-<br><div class="small tooltip">Tranmission rate beta<sub>2</sub>
+<br><div class="small tooltip">Tranmission rate \(\beta_2\)
 <span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
 </font>
 </center>
@@ -68,9 +68,15 @@
 <div class="control full">
 <center>
 <input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
-<br><div class="small tooltip">Tranmission rate beta<sub>3</sub>
+<br><div class="small tooltip">Tranmission rate \(\beta_3\)
 <span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
 </font>
+</center>
+</div>
+
+<div class="control full">
+<center>
+<input class="control" type="range" id="slider_dt" onmousemove="updateParameters()" min=0 max=8 step=1 value=0></input>
 </center>
 </div>
 
