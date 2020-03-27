@@ -3,7 +3,7 @@ body {
   font-family: "Trebuchet MS", sans-serif;
 }
 
-span.block {
+.block {
   display: inline-block;
 }
 

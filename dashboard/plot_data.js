@@ -21,6 +21,8 @@ function getDataSriLanka()
   data.push({t: moment('22-03-2020', date_format), y: 87});
   data.push({t: moment('23-03-2020', date_format), y: 97});
   data.push({t: moment('24-03-2020', date_format), y: 102});
+  data.push({t: moment('25-03-2020', date_format), y: 102});
+  data.push({t: moment('26-03-2020', date_format), y: 106});
   return data;
 }
 
@@ -82,13 +84,12 @@ function getDataStacked()
   return [data0, data1, data2];
 }
 
-var dataSL = getDataSriLanka();
-var dataIT = getDataItaly();
+var data_SL = getDataSriLanka();
+var data_IT = getDataItaly();
 
-var sim_params = initializeSimulationParameters(dataSL.length);
+var sim_params = initializeSimulationParameters(data_SL.length);
 
-var dataSLpredstack = [];
-var dataSLpredicted = getPredictionData(dataSL[0].t);
+var data_predicted = getPredictionData(data_SL[0].t);
 
 var chart = [];
 var chart_config = [];
@@ -146,88 +147,107 @@ function updateChart()
     yaxis_config.type = 'logarithmic';
     yaxis_config.ticks = logarithmic_ticks;
   }
+
+  const bar_width_frac = 1.0;
+  const cat_width_frac = 0.9;  
   
 	chart_config = {
 			data: {
-				datasets: [{
-					label: 'Sri Lanka - confirmed cases',
-					backgroundColor: 'rgba(1,1,1,0)',
-					borderColor: '#66b3ff',
-					data: dataSL,
-					type: 'line',
-					fill: true,
-					borderWidth: 2
-				},
-				{
-					label: 'Sri Lanka - predicted',
-					backgroundColor: 'rgba(1,1,1,0)',
-					borderColor: '#66b3ff',
-					borderDash: [5, 5],
-					data: dataSLpredicted,
-					type: 'line',
-					fill: true,
-					borderWidth: 2
-				},
-				{
-					label: 'Italy - confirmed cases',
-					backgroundColor: 'rgba(1,1,1,0)',
-					borderColor: '#fcaf3e',
-					data: dataIT,
-					type: 'line',
-					fill: true,
-					borderWidth: 2,
-					hidden: true
-				},
+				datasets: [
 				{
 					label: 'Susceptible',
-					backgroundColor: '#d3d7cf',
-					data: dataSLpredstack[0],
+					backgroundColor: '#eeeeec',
+					data: data_predicted.categorized[0],
 					type: 'bar',
 					stack: 'stack0',
-					hidden: true
+					hidden: true,
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
 				},
 				{
 					label: 'Exposed',
-					backgroundColor: '#e9b96e',
-					data: dataSLpredstack[1],
+					backgroundColor: 'rgba(255, 220, 160, 0.75)', //'#e9b96e',
+					data: data_predicted.categorized[1],
 					type: 'bar',
-					stack: 'stack0'
+					stack: 'stack0',
+					hidden: true,
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
 				},
 				{
 					label: 'Mildly infected',
-					backgroundColor: '#edd400',
-					data: dataSLpredstack[2],
+					backgroundColor: 'rgba(255, 200, 0, 0.75)',
+					data: data_predicted.categorized[2],
 					type: 'bar',
-					stack: 'stack0'
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
 				},
 				{
 					label: 'Severely infected',
-					backgroundColor: '#f57900',
-					data: dataSLpredstack[3],
+					backgroundColor: 'rgba(240, 150, 40, 0.75)',
+					data: data_predicted.categorized[3],
 					type: 'bar',
-					stack: 'stack0'
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
 				},
 				{
 					label: 'Critically infected',
-					backgroundColor: '#cc0000',
-					data: dataSLpredstack[4],
+					backgroundColor: 'rgba(200, 0, 0, 0.75)',
+					data: data_predicted.categorized[4],
 					type: 'bar',
-					stack: 'stack0'
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
 				},
 				{
 					label: 'Recovered',
-					backgroundColor: '#73d216',
-					data: dataSLpredstack[5],
+					backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
+					data: data_predicted.categorized[5],
 					type: 'bar',
-					stack: 'stack0'
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
 				},
 				{
 					label: 'Fatal',
-					backgroundColor: '#555753',
-					data: dataSLpredstack[6],
+					backgroundColor: 'rgba(10, 10, 10, 0.75)',
+					data: data_predicted.categorized[6],
 					type: 'bar',
-					stack: 'stack0'
-				}
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac
+				},
+				{
+					label: 'Sri Lanka - confirmed cases',
+					backgroundColor: 'rgba(1,1,1,0)',
+					borderColor: '#66b3ff',
+					data: data_SL,
+					type: 'line',
+					fill: true,
+					borderWidth: 2
+				},
+//				{
+//					label: 'Sri Lanka - predicted',
+//					backgroundColor: 'rgba(1,1,1,0)',
+//					borderColor: '#66b3ff',
+//					borderDash: [5, 5],
+//					data: data_predicted.aggregated,
+//					type: 'line',
+//					fill: true,
+//					borderWidth: 2
+//				},
+//				{
+//					label: 'Italy - confirmed cases',
+//					backgroundColor: 'rgba(1,1,1,0)',
+//					borderColor: '#fcaf3e',
+//					data: data_IT,
+//					type: 'line',
+//					fill: true,
+//					borderWidth: 2,
+//					hidden: true
+//				}
 				]
 			},
 			options: {
@@ -241,25 +261,28 @@ function updateChart()
             display: true,
             boxWidth: 10,
         },
-//        tooltips: {
-//          callbacks: {
-//                label: function(tooltipItem, data) {
-//                    //var type = data.datasets[tooltipItem.datasetIndex].label;
-//                    //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
+        tooltips: {
+          callbacks: {
+                label: function(tooltipItem, data) {
+                    //var type = data.datasets[tooltipItem.datasetIndex].label;
+                    //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
+                    
+                    if (tooltipItem.datasetIndex == 7)
+                      return (data.datasets[7].label + ": " + data.datasets[7].data[tooltipItem.index].y);
 
-//                    // Loop through all datasets to get the actual total of the index
-//                    var total = 0;
-//                    let labels = [];
-//                    for (var i = 3; i < data.datasets.length; i++)
-//                    {
-//                      labels.push(data.datasets[i].label + ": " + data.datasets[i].data[tooltipItem.index].y);
-//                      total += data.datasets[i].data[tooltipItem.index].y;
-//                    }
-//                    labels.push("Total: " + total);
-//                    return labels;
-//                }
-//            }
-//        },
+                    // Loop through all datasets to get the actual total of the index
+                    var total = 0;
+                    let labels = [];
+                    for (var i = 2; i < 7; i++)
+                    {
+                      labels.push(data.datasets[i].label + ": " + data.datasets[i].data[tooltipItem.index].y);
+                      total += data.datasets[i].data[tooltipItem.index].y;
+                    }
+                    labels.push("Total: " + total);
+                    return labels;
+                }
+            }
+        },
 				plugins: {
 	        zoom: {
 		        // Container for pan options
@@ -295,12 +318,12 @@ function setLogYAxis(is_log)
 {
   let logarithmic_ticks = {
     min: 0,
-    max: 100000,
+    //max: 100000,
     callback: function (value, index, values) {
-      if (value === 1000000) return "1000000";
-      if (value === 100000) return "100000";
-      if (value === 10000) return "10000";
-      if (value === 1000) return "1000";
+      if (value === 1000000) return "1M";
+      if (value === 100000) return "100k";
+      if (value === 10000) return "10k";
+      if (value === 1000) return "1k";
       if (value === 100) return "100";
       if (value === 10) return "10";
       if (value === 0) return "0";
@@ -323,7 +346,7 @@ function setLogYAxis(is_log)
 
 function setDataOverlayItaly(overlay)  
 {
-  chart_config.data.datasets[2].hidden = !overlay;
+  chart_config.data.datasets[9].hidden = !overlay;
   chart.update();
 }
 
@@ -331,12 +354,12 @@ function alignTimelines(align)
 {
   if (align)
   {
-    for (let datapair of chart_config.data.datasets[2].data)
+    for (let datapair of chart_config.data.datasets[9].data)
       datapair.t.add(41,'days'); //Add offset to Italy dataset
   }
   else //load original datasets
   {
-    chart_config.data.datasets[2].data = getDataItaly();
+    chart_config.data.datasets[9].data = getDataItaly();
   }
   chart.update();
 }
@@ -349,7 +372,7 @@ function resetZoom()
 function initializeSimulationParameters(hist_length)
 {
   const pred_length = 7; //no. of days to predict
-  const total_length = hist_length + pred_length;
+  const total_length = hist_length + 200; //pred_length;
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
@@ -379,51 +402,57 @@ function updateParameters()
         {
           param_arrays[i][j] = val;
           requires_update = true;
+          document.getElementById(slider_element_ids[i] + "_value").innerHTML = val.toFixed(2);
         }
     }
   }
   
-//  let slider_dt = document.getElementById("slider_dt");
-//  if (slider_dt)
-//  {
-//    let val = 1.0/Math.pow(2,Number(slider_dt.value));
-//    if (sim_params.dt != val)
-//    {
-//      sim_params.dt = val;
-//      requires_update = true;
-//    }
-//  }
+  let slider_finalT = document.getElementById("slider_finalT");
+  if (slider_finalT)
+  {
+    let val = Number(slider_finalT.value);
+    if (sim_params.T_pred != val)
+    {
+      sim_params.T_pred = val;
+      requires_update = true;
+      document.getElementById("slider_finalT_text").innerHTML = "Predict for " + val + " days";
+    }
+  }
   
   if (requires_update)
   {
-    dataSLpredicted = getPredictionData(dataSL[0].t);
-    chart_config.data.datasets[1].data = dataSLpredicted;
+    data_predicted = getPredictionData(data_SL[0].t);
+    for (let i = 0; i < 7; ++i)
+      chart_config.data.datasets[i].data = data_predicted.categorized[i];
+      
+    //chart_config.data.datasets[8].data = data_predicted.aggregated;
     chart.update();
   }
 }
 
 function getPredictionData(start_date)
 {
-  let data = [];
   let sol_history = predictModel(sim_params);
-  
-  dataSLpredstack = new Array(7).fill([]);
-  
+
+  let data_agg = [];  
+  let data_cat = new Array(7);
+  for (let i = 0; i < 7; ++i)
+    data_cat[i] = new Array();
+    
   for (let i = 0; i < sol_history.length; i++)
   {
     let date = start_date.clone().add(i,'days');
-    
     let num_cases = 0;
-    for (let j = 1; j < 7; ++j)
-      num_cases += sol_history[i][j];
-      
-    data.push({t: date, y: Math.round(num_cases)});
-    
-    //for (let j = 0; j < 7; ++j)
-    //  dataSLpredstack[j].push({t: date, y: Math.round(sol_history[i][j])});
+    for (let j = 0; j < 7; ++j)
+    {
+      data_cat[j].push({t: date, y: Math.round(sol_history[i][j])});
+      if (j >= 2)
+        num_cases += sol_history[i][j];
+    }
+    data_agg.push({t: date, y: Math.round(num_cases)});
   }
   
-  return data;
+  return {aggregated: data_agg, categorized: data_cat};
 }
 
 function predictModel(params)
