@@ -3,26 +3,51 @@
 
 var date_format = 'DD-MM-YYYY';
 
+function getRawDataSriLanka()
+{
+  //Data array: [in_ward, recovered, deaths, foreign_input_to_quarantine]
+  let data = [];
+  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('09-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('10-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('11-03-2020', date_format), y: [1, 1, 0, 0]});
+  data.push({t: moment('12-03-2020', date_format), y: [2, 1, 0, 0]});
+  data.push({t: moment('13-03-2020', date_format), y: [5, 1, 0, 2]});
+  data.push({t: moment('14-03-2020', date_format), y: [10, 1, 0, 2]});
+  data.push({t: moment('15-03-2020', date_format), y: [18, 1, 0, 7]});
+  data.push({t: moment('16-03-2020', date_format), y: [28, 1, 0, 6]});
+  data.push({t: moment('17-03-2020', date_format), y: [41, 1, 0, 4]});
+  data.push({t: moment('18-03-2020', date_format), y: [52, 1, 0, 1]});
+  data.push({t: moment('19-03-2020', date_format), y: [65, 1, 0, 2]});
+  data.push({t: moment('20-03-2020', date_format), y: [71, 1, 0, 3]});
+  data.push({t: moment('21-03-2020', date_format), y: [77, 1, 0, 6]});
+  data.push({t: moment('22-03-2020', date_format), y: [86, 1, 0, 0]});
+  data.push({t: moment('23-03-2020', date_format), y: [95, 2, 0, 0]});
+  data.push({t: moment('24-03-2020', date_format), y: [99, 3, 0, 0]});
+  data.push({t: moment('25-03-2020', date_format), y: [99, 3, 0, 0]});
+  data.push({t: moment('26-03-2020', date_format), y: [99, 7, 0, 0]});
+  data.push({t: moment('27-03-2020', date_format), y: [97, 9, 0, 0]});
+  data.push({t: moment('28-03-2020', date_format), y: [103, 9, 1, 0]});
+  return data;
+}
+
 function getDataSriLanka()
 {
   let data = [];
-  data.push({t: moment('10-03-2020', date_format), y: 1});
-  data.push({t: moment('11-03-2020', date_format), y: 2});
-  data.push({t: moment('12-03-2020', date_format), y: 3});
-  data.push({t: moment('13-03-2020', date_format), y: 6});
-  data.push({t: moment('14-03-2020', date_format), y: 11});
-  data.push({t: moment('15-03-2020', date_format), y: 19});
-  data.push({t: moment('16-03-2020', date_format), y: 29});
-  data.push({t: moment('17-03-2020', date_format), y: 42});
-  data.push({t: moment('18-03-2020', date_format), y: 53});
-  data.push({t: moment('19-03-2020', date_format), y: 66});
-  data.push({t: moment('20-03-2020', date_format), y: 72});
-  data.push({t: moment('21-03-2020', date_format), y: 78});
-  data.push({t: moment('22-03-2020', date_format), y: 87});
-  data.push({t: moment('23-03-2020', date_format), y: 97});
-  data.push({t: moment('24-03-2020', date_format), y: 102});
-  data.push({t: moment('25-03-2020', date_format), y: 102});
-  data.push({t: moment('26-03-2020', date_format), y: 106});
+  for (let i = 0; i < data_raw_SL.length; ++i)
+  {
+    let num_confirmed_cases = 0;
+    for (let j = 0; j < 3; ++j)
+      num_confirmed_cases += data_raw_SL[i].y[j];
+    data.push({t: data_raw_SL[i].t, y: num_confirmed_cases});
+  }
   return data;
 }
 
@@ -65,25 +90,7 @@ function getDataItaly()
   return data;
 }
 
-function getDataStacked()
-{
-  let data0 = [];
-  data0.push({t: moment('10-03-2020', date_format), y: 20});
-  data0.push({t: moment('11-03-2020', date_format), y: 30});
-  data0.push({t: moment('12-03-2020', date_format), y: 40});
-  
-  let data1 = [];
-  data1.push({t: moment('10-03-2020', date_format), y: 40});
-  data1.push({t: moment('11-03-2020', date_format), y: 60});
-  data1.push({t: moment('12-03-2020', date_format), y: 80});
-  
-  let data2 = [];
-  data2.push({t: moment('10-03-2020', date_format), y: 60});
-  data2.push({t: moment('11-03-2020', date_format), y: 50});
-  data2.push({t: moment('12-03-2020', date_format), y: 90});
-  return [data0, data1, data2];
-}
-
+var data_raw_SL = getRawDataSriLanka();
 var data_SL = getDataSriLanka();
 var data_IT = getDataItaly();
 
@@ -162,7 +169,8 @@ function updateChart()
 					stack: 'stack0',
 					hidden: true,
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 2
 				},
 				{
 					label: 'Exposed',
@@ -172,7 +180,8 @@ function updateChart()
 					stack: 'stack0',
 					hidden: true,
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 3
 				},
 				{
 					label: 'Mildly infected',
@@ -181,7 +190,8 @@ function updateChart()
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 4
 				},
 				{
 					label: 'Severely infected',
@@ -190,7 +200,8 @@ function updateChart()
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 5
 				},
 				{
 					label: 'Critically infected',
@@ -199,7 +210,8 @@ function updateChart()
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 6
 				},
 				{
 					label: 'Recovered',
@@ -208,7 +220,8 @@ function updateChart()
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 7
 				},
 				{
 					label: 'Fatal',
@@ -217,27 +230,30 @@ function updateChart()
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac
+					categoryPercentage: cat_width_frac,
+					order: 8
 				},
 				{
-					label: 'Sri Lanka - confirmed cases',
+					label: 'Sri Lanka - actual diagnosed',
 					backgroundColor: 'rgba(1,1,1,0)',
-					borderColor: '#66b3ff',
+					borderColor: '#3465a4',
 					data: data_SL,
 					type: 'line',
 					fill: true,
-					borderWidth: 2
+					borderWidth: 2,
+					order: 0
 				},
-//				{
-//					label: 'Sri Lanka - predicted',
-//					backgroundColor: 'rgba(1,1,1,0)',
-//					borderColor: '#66b3ff',
-//					borderDash: [5, 5],
-//					data: data_predicted.aggregated,
-//					type: 'line',
-//					fill: true,
-//					borderWidth: 2
-//				},
+				{
+					label: 'Sri Lanka - predicted diagnosed',
+					backgroundColor: 'rgba(1,1,1,0)',
+					borderColor: '#729fcf',
+					borderDash: [5, 5],
+					data: data_predicted.aggregated,
+					type: 'line',
+					fill: true,
+					borderWidth: 2,
+					order: 1
+				},
 //				{
 //					label: 'Italy - confirmed cases',
 //					backgroundColor: 'rgba(1,1,1,0)',
@@ -267,8 +283,9 @@ function updateChart()
                     //var type = data.datasets[tooltipItem.datasetIndex].label;
                     //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
                     
-                    if (tooltipItem.datasetIndex == 7)
-                      return (data.datasets[7].label + ": " + data.datasets[7].data[tooltipItem.index].y);
+                    if (tooltipItem.datasetIndex >= 7)
+                      return (data.datasets[tooltipItem.datasetIndex].label + 
+                              ": " + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
 
                     // Loop through all datasets to get the actual total of the index
                     var total = 0;
@@ -320,6 +337,7 @@ function setLogYAxis(is_log)
     min: 0,
     //max: 100000,
     callback: function (value, index, values) {
+      if (value === 10000000) return "10M";
       if (value === 1000000) return "1M";
       if (value === 100000) return "100k";
       if (value === 10000) return "10k";
@@ -373,13 +391,21 @@ function initializeSimulationParameters(hist_length)
 {
   const pred_length = 7; //no. of days to predict
   const total_length = hist_length + 200; //pred_length;
+  
+  let q_input = new Array(total_length).fill(0.0);
+  for (let i = 0; i < data_raw_SL.length; ++i)
+    q_input[i] = data_raw_SL[i].y[3];
+  
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
-    dt: 0.5/24.0,        //timestep size [days]
+    dt: 0.5/24.0,                           //timestep size [days]
     b1N: new Array(total_length).fill(0.5), //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
-    b3N: new Array(total_length).fill(0.0)  //transmission rate from critical to susceptible
+    b3N: new Array(total_length).fill(0.0), //transmission rate from critical to susceptible
+    quarantine_input: q_input,              //no. of patients added directly to quarantine
+    diag_frac: 0.75,                        //fraction of I1 patients that are diagnosed
+    E_0: 5                                  //number of individiuals exposed at start
   }
   return params;
 }
@@ -425,7 +451,7 @@ function updateParameters()
     for (let i = 0; i < 7; ++i)
       chart_config.data.datasets[i].data = data_predicted.categorized[i];
       
-    //chart_config.data.datasets[8].data = data_predicted.aggregated;
+    chart_config.data.datasets[8].data = data_predicted.aggregated;
     chart.update();
   }
 }
@@ -439,17 +465,25 @@ function getPredictionData(start_date)
   for (let i = 0; i < 7; ++i)
     data_cat[i] = new Array();
     
+  const report_sum_indices = [2, 4, 5, 6, 7, 9];
+       
   for (let i = 0; i < sol_history.length; i++)
   {
     let date = start_date.clone().add(i,'days');
-    let num_cases = 0;
-    for (let j = 0; j < 7; ++j)
-    {
-      data_cat[j].push({t: date, y: Math.round(sol_history[i][j])});
-      if (j >= 2)
-        num_cases += sol_history[i][j];
-    }
-    data_agg.push({t: date, y: Math.round(num_cases)});
+    
+    //Accumulate data into categories for plotting
+    data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //S
+    data_cat[1].push({t: date, y: Math.round(sol_history[i][1])}); //E
+    data_cat[2].push({t: date, y: Math.round(sol_history[i][2] + sol_history[i][3] + sol_history[i][4])}); //I1
+    data_cat[3].push({t: date, y: Math.round(sol_history[i][5])}); //I2
+    data_cat[4].push({t: date, y: Math.round(sol_history[i][6])}); //I3
+    data_cat[5].push({t: date, y: Math.round(sol_history[i][7] + sol_history[i][8])}); //R
+    data_cat[6].push({t: date, y: Math.round(sol_history[i][9])}); //D
+    
+    let num_confirmed_cases = 0;
+    for (let j = 0; j < report_sum_indices.length; ++j)
+      num_confirmed_cases += sol_history[i][report_sum_indices[j]];
+    data_agg.push({t: date, y: Math.round(num_confirmed_cases)});
   }
   
   return {aggregated: data_agg, categorized: data_cat};
@@ -479,7 +513,7 @@ function predictModel(params)
   let g2  = (1/T_severe) * prob_R_I2;
   let p2  = (1/T_severe) * prob_I3_I2;
   let g3  = (1/T_icu)    * prob_R_I3;
-  let u   = (1/T_icu)    * prob_D_I3;
+  let mu  = (1/T_icu)    * prob_D_I3;
 
   //Transmission rates: beta values are always scaled by the population N
 
@@ -490,19 +524,23 @@ function predictModel(params)
   let N = 21.4e6; //Population of Sri Lanka
    
   //Initial solution
-  let E0 = 20;
-  let S0 = N - E0;
-  let I1_0 = 0;
+  let E_0 = params.E_0;
+  let I1d_0 = 0;
+  let I1h_0 = 0;
+  let I1q_0 = 0;
   let I2_0 = 0;
   let I3_0 = 0;
-  let R0 = 0;
-  let D0 = 0;
+  let Rd_0 = 1;  //One patient had already recovered in SL
+  let Rh_0 = 0;
+  let D_0 = 0;
+  let S_0 = N - E_0 - I1d_0 - I1h_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Rh_0 - D_0;
   
-  //Solution vector: [S, E, I1, I2, I3, R, D] 
-  let solution_hist = [[S0, E0, I1_0, I2_0, I3_0, R0, D0]];
+  //Solution vector: [S, E, I1d, I1h, I1q, I2, I3, Rd, Rh, D] 
+  let solution_hist = [[S_0, E_0, I1d_0, I1h_0, I1q_0, I2_0, I3_0, Rd_0, Rh_0, D_0]];
   
   const nt = params.T_hist + params.T_pred;
   const nt_sub = 1.0/params.dt;
+  const c = params.diag_frac;
   
   for (let i = 0; i < nt; i++) 
   {
@@ -511,17 +549,21 @@ function predictModel(params)
     let b1 = params.b1N[i] / N;
     let b2 = params.b2N[i] / N;
     let b3 = params.b3N[i] / N;
+    let q_input = params.quarantine_input[i];
     
     for (let j = 0; j < nt_sub; j++)
     {
-      let dS = -(b1*sol[2] + b2*sol[3] + b3*sol[4])*sol[0]; 
-      let dsol = [dS,                                //dS
-                  -dS - a*sol[1],                    //dE
-                  a*sol[1] - (g1 + p1)*sol[2],       //dI1
-                  p1*sol[2] - (g2 + p2)*sol[3],      //dI2
-                  p2*sol[3] - (g3 + u)*sol[4],       //dI3
-                  g1*sol[2] + g2*sol[3] + g3*sol[4], //dR
-                  u*sol[4]                           //dD
+      let dS = -(b1*(sol[2] + sol[3]) + b2*sol[5] + b3*sol[6])*sol[0]; 
+      let dsol = [dS,                                               //S
+                  -dS - a*sol[1],                                   //E
+                  a*c*sol[1]     - (g1 + p1)*sol[2],                //I1d
+                  a*(1-c)*sol[1] - (g1 + p1)*sol[3],                //I1h
+                  q_input        - (g1 + p1)*sol[4],                //I1q
+                  p1*(sol[2] + sol[3] + sol[4]) - (g2 + p2)*sol[5], //I2
+                  p2*sol[5] - (g3 + mu)*sol[6],                     //I3
+                  g1*(sol[2] + sol[4]) + g2*sol[5] + g3*sol[6],     //Rd
+                  g1*(sol[3]),                                      //Rh
+                  mu*sol[6]                                         //D
                  ];
       
       for (let k = 0; k < sol.length; k++)
