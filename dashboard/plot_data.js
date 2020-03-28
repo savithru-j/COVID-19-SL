@@ -106,6 +106,10 @@ window.onload = function()
   updateChart();
 }
 
+function formatNumber(num) {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+}
+
 function updateChart()
 {
   let canvas = document.getElementById('chart_canvas');
@@ -285,17 +289,17 @@ function updateChart()
                     
                     if (tooltipItem.datasetIndex >= 7)
                       return (data.datasets[tooltipItem.datasetIndex].label + 
-                              ": " + data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
+                              ": " + formatNumber(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y));
 
                     // Loop through all datasets to get the actual total of the index
                     var total = 0;
                     let labels = [];
                     for (var i = 2; i < 7; i++)
                     {
-                      labels.push(data.datasets[i].label + ": " + data.datasets[i].data[tooltipItem.index].y);
+                      labels.push(data.datasets[i].label + ": " + formatNumber(data.datasets[i].data[tooltipItem.index].y));
                       total += data.datasets[i].data[tooltipItem.index].y;
                     }
-                    labels.push("Total: " + total);
+                    labels.push("Total: " + formatNumber(total));
                     return labels;
                 }
             }
