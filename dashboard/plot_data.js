@@ -7,14 +7,14 @@ function getRawDataSriLanka()
 {
   //Data array: [in_ward, recovered, deaths, foreign_input_to_quarantine]
   let data = [];
-  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
+//  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
   data.push({t: moment('09-03-2020', date_format), y: [0, 1, 0, 0]});
   data.push({t: moment('10-03-2020', date_format), y: [0, 1, 0, 0]});
   data.push({t: moment('11-03-2020', date_format), y: [1, 1, 0, 0]});
@@ -106,7 +106,7 @@ window.onload = function()
   updateChart();
   
   let slider_intervention = document.getElementById('slider_intervention');
-  slider_intervention.max = sim_params.T_hist + sim_params.T_pred + 1;
+  slider_intervention.max = sim_params.T_hist + sim_params.T_pred;
   slider_intervention.value = slider_intervention.max;
   document.getElementById('slider_intervention_value').innerHTML = slider_intervention.value;
 }
@@ -438,11 +438,11 @@ function updateParameters()
     if (j >= sim_params.T_intervention)
       val = b1_intervene;
     
-    if (sim_params.b1N[j] != val)
-    {
-      sim_params.b1N[j] = val;
-      requires_update = true;
-    }
+//    if (sim_params.b1N[j] != val)
+//    {
+//      sim_params.b1N[j] = val;
+//      requires_update = true;
+//    }
   }
   
   let slider_element_ids = ["slider_b2", "slider_b3"];
@@ -473,7 +473,7 @@ function updateParameters()
       sim_params.T_pred = val;
       requires_update = true;
       document.getElementById("slider_finalT_text").innerHTML = "Predict for " + val + " days";
-      document.getElementById("slider_intervention").max = sim_params.T_hist + sim_params.T_pred + 1;
+      document.getElementById("slider_intervention").max = sim_params.T_hist + sim_params.T_pred;
     }
   }
     
@@ -547,12 +547,6 @@ function predictModel(params)
   let g3  = (1/T_icu)    * prob_R_I3;
   let mu  = (1/T_icu)    * prob_D_I3;
 
-  //Transmission rates: beta values are always scaled by the population N
-
-  let b1N = 0.5; //rate at which mildly infected individuals transmit to susceptible people
-  let b2N = 0;   //rate at which severely infected individuals transmit to susceptible people
-  let b3N = 0;   //rate at which critically infected individuals transmit to susceptible people
-  
   let N = 21.4e6; //Population of Sri Lanka
    
   //Initial solution
@@ -570,7 +564,7 @@ function predictModel(params)
   //Solution vector: [S, E, I1d, I1h, I1q, I2, I3, Rd, Rh, D] 
   let solution_hist = [[S_0, E_0, I1d_0, I1h_0, I1q_0, I2_0, I3_0, Rd_0, Rh_0, D_0]];
   
-  const nt = params.T_hist + params.T_pred;
+  const nt = params.T_hist + params.T_pred - 1;
   const nt_sub = 1.0/params.dt;
   const c = params.diag_frac;
   
@@ -606,4 +600,158 @@ function predictModel(params)
   }
   
   return solution_hist;
+}
+
+
+function optimizeParameters()
+{
+  let params = initializeSimulationParameters(data_SL.length);
+  let T_pred_init = params.T_pred;
+  params.T_pred = 0;
+  
+  let res = getFitResidual(params);
+  let resnorm = getL2Norm(res);
+    
+  let m = res.length;
+  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
+  let n = n_b1 + 1; //beta_1 values, diagnose_fraction
+  
+  let param_vec = new Array(n).fill(0);
+  for (let i = 0; i < n_b1; ++i)
+    param_vec[i] = params.b1N[i];
+  param_vec[n_b1] = params.diag_frac;
+  
+  let dparam_vec = new Array(n).fill(0);
+  let param_vec0 = new Array(n).fill(0);
+      
+  for (let iter = 0; iter < 50; ++iter)
+  {
+    console.log("Iter " + iter + ": " + resnorm);
+    
+    let jac = getFitJacobian(params);
+    
+    //Update parameter vector using gradient descent: 
+    //u(n+1) = u(n) - eta * (dR/du)^T R(u(n))
+    for (let i = 0; i < n; ++i)
+    {
+      let dp = 0.0;
+      for (let j = 0; j < m; ++j)
+        dp += jac[j*n + i] * res[j]
+      dparam_vec[i] = dp;
+      param_vec0[i] = param_vec[i];
+    }
+    
+    let eta = 0.5;
+    
+    while (eta >= 1e-7)
+    {
+      for (let i = 0; i < n; ++i)
+      {
+        param_vec[i] = param_vec0[i] - eta*dparam_vec[i];
+        
+        if (i < n_b1)
+        {
+          if (param_vec[i] < 0.0)
+            param_vec[i] = 0.0;
+          params.b1N[i] = param_vec[i];
+        }
+        else if (i == n_b1)
+        {
+          if (param_vec[i] < 0.0)
+            param_vec[i] = 0.0;
+          else if (param_vec[i] > 1.0)
+            param_vec[i] = 1.0;
+          params.diag_frac = param_vec[i];
+        }
+      }
+      
+      //Evaluate new residual
+      res = getFitResidual(params);
+      let resnorm_new = getL2Norm(res);
+      //console.log("  " + eta + ", " + getL2Norm(res));
+      
+      if (resnorm_new < resnorm)
+      {
+        resnorm = resnorm_new;
+        break;
+      }
+      
+      eta /= 2.0;
+    } //linesearch
+  } //gradient descent
+  
+  for (let i = 0; i < n_b1; ++i)
+    sim_params.b1N[i] = params.b1N[i];
+  sim_params.diag_frac = params.diag_frac;
+  
+  for (let i = n_b1; i < sim_params.b1N.length; ++i)
+    sim_params.b1N[i] = sim_params.b1N[n_b1-1];
+
+  updateParameters();
+  return params;
+}
+
+function getFitResidual(params)
+{
+  const num_eq = 1;
+  let sol_hist = predictModel(params);
+  let residual = new Array(num_eq*sol_hist.length).fill(0);
+  
+  for (let i = 0; i < sol_hist.length; ++i)
+  {
+    //I1d + I1q + I2 + I3 = no. of diagnosed patients in hospitals
+    //residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] - data_raw_SL[i].y[0];
+    residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7]
+                         - data_raw_SL[i].y[0] - data_raw_SL[i].y[1];
+    
+    //Rd = no. of recovered patients
+    //residual[num_eq*i + 1] = sol_hist[i][7] - data_raw_SL[i].y[1];
+    
+    //D = no. of fatalities
+    //residual[num_eq*i + 2] = sol_hist[i][9] - data_raw_SL[i].y[2];
+  }
+  return residual;
+}
+
+function getFitJacobian(params)
+{
+  let m = 1*params.T_hist;
+  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
+  let n = n_b1 + 1; //beta_1 values, diagnose_fraction
+  let jac = new Array(m*n).fill(0);
+  
+  const delta_b1 = 1e-5;
+  const delta_df = 1e-5;
+  
+  for (let j = 0; j < n_b1; ++j)
+  {
+    //Compute finite difference
+    params.b1N[j] += delta_b1;
+    let Rp = getFitResidual(params);
+    params.b1N[j] -= 2*delta_b1;
+    let Rm = getFitResidual(params);
+    params.b1N[j] += delta_b1;
+    
+    for (let i = 0; i < m; ++i)
+      jac[i*n + j] = (Rp[i] - Rm[i])/(2*delta_b1);
+  }
+  
+  params.diag_frac += delta_df;
+  let Rp = getFitResidual(params);
+  params.diag_frac -= 2*delta_df;
+  let Rm = getFitResidual(params);
+  params.diag_frac += delta_df;
+  
+  for (let i = 0; i < m; ++i)
+    jac[i*n + n_b1] = (Rp[i] - Rm[i])/(2*delta_df);
+  
+  return jac;
+}
+
+function getL2Norm(vec)
+{
+  let norm = 0.0;
+  for (let i = 0; i < vec.length; ++i)
+    norm += vec[i]*vec[i];
+  return Math.sqrt(norm);
 }
