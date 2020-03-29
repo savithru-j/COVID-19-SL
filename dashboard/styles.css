@@ -20,15 +20,25 @@ div.full {
   width: 100%;
 }
 
+div.filler {
+  display: block;
+  overflow: hidden;
+  background: green;
+}
+
 button.small {
-  width: 150px;
-  height: 30px;
+  min-height: 35px;
   font-family: inherit;
-  font-size: 90%;
 }
 
 input.control {
   width: 80%;
+}
+
+input.control.intervention {
+  width: 93.5%;
+  margin-left: 5.5%;
+  margin-right: 1%;
 }
 
 .small {

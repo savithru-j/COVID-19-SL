@@ -104,6 +104,11 @@ var chart_config = [];
 window.onload = function()
 {
   updateChart();
+  
+  let slider_intervention = document.getElementById('slider_intervention');
+  slider_intervention.max = sim_params.T_hist + sim_params.T_pred + 1;
+  slider_intervention.value = slider_intervention.max;
+  document.getElementById('slider_intervention_value').innerHTML = slider_intervention.value;
 }
 
 function formatNumber(num) {
@@ -403,6 +408,7 @@ function initializeSimulationParameters(hist_length)
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
+    T_intervention: 0,
     dt: 0.5/24.0,                           //timestep size [days]
     b1N: new Array(total_length).fill(0.5), //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
@@ -418,10 +424,31 @@ function updateParameters()
 {
   let requires_update = false;
   
-  let slider_element_ids = ["slider_b1", "slider_b2", "slider_b3"];
-  let param_arrays = [sim_params.b1N, sim_params.b2N, sim_params.b3N];
+  let b1 = Number(document.getElementById("slider_b1").value);
+  let b1_intervene = Number(document.getElementById("slider_b1_intervene").value);
+  sim_params.T_intervention = Number(document.getElementById("slider_intervention").value);
   
-  for (let i = 0; i < 3; ++i)
+  document.getElementById("slider_b1_value").innerHTML = b1.toFixed(2);
+  document.getElementById("slider_b1_intervene_value").innerHTML = b1_intervene.toFixed(2); 
+  document.getElementById("slider_intervention_value").innerHTML = sim_params.T_intervention;
+  
+  for (let j = 0; j < sim_params.b1N.length; ++j)
+  {
+    let val = b1;
+    if (j >= sim_params.T_intervention)
+      val = b1_intervene;
+    
+    if (sim_params.b1N[j] != val)
+    {
+      sim_params.b1N[j] = val;
+      requires_update = true;
+    }
+  }
+  
+  let slider_element_ids = ["slider_b2", "slider_b3"];
+  let param_arrays = [sim_params.b2N, sim_params.b3N];
+  
+  for (let i = 0; i < 2; ++i)
   {
     let slider = document.getElementById(slider_element_ids[i]);
     if (slider)
@@ -446,9 +473,10 @@ function updateParameters()
       sim_params.T_pred = val;
       requires_update = true;
       document.getElementById("slider_finalT_text").innerHTML = "Predict for " + val + " days";
+      document.getElementById("slider_intervention").max = sim_params.T_hist + sim_params.T_pred + 1;
     }
   }
-  
+    
   if (requires_update)
   {
     data_predicted = getPredictionData(data_SL[0].t);
