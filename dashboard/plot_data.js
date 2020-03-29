@@ -7,14 +7,14 @@ function getRawDataSriLanka()
 {
   //Data array: [in_ward, recovered, deaths, foreign_input_to_quarantine]
   let data = [];
-//  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
-//  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
+  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
   data.push({t: moment('09-03-2020', date_format), y: [0, 1, 0, 0]});
   data.push({t: moment('10-03-2020', date_format), y: [0, 1, 0, 0]});
   data.push({t: moment('11-03-2020', date_format), y: [1, 1, 0, 0]});
@@ -104,11 +104,15 @@ var chart_config = [];
 window.onload = function()
 {
   updateChart();
-  
-  let slider_intervention = document.getElementById('slider_intervention');
-  slider_intervention.max = sim_params.T_hist + sim_params.T_pred;
-  slider_intervention.value = slider_intervention.max;
-  document.getElementById('slider_intervention_value').innerHTML = slider_intervention.value;
+
+  let slider_interv1_T = document.getElementById('slider_interv1_T');
+  let slider_interv2_T = document.getElementById('slider_interv2_T');
+  slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
+  slider_interv2_T.max = sim_params.T_hist + sim_params.T_pred;
+  slider_interv1_T.value = slider_interv1_T.max;
+  slider_interv2_T.value = slider_interv1_T.max;
+  document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
+  document.getElementById('slider_interv2_T_value').innerHTML = slider_interv2_T.value;
 }
 
 function formatNumber(num) {
@@ -118,15 +122,15 @@ function formatNumber(num) {
 function updateChart()
 {
   let canvas = document.getElementById('chart_canvas');
-  canvas.width = 0.7*window.innerWidth;
+  //canvas.width = 0.7*window.innerWidth;
   canvas.height = 0.65*window.innerHeight;
   let ctx = canvas.getContext('2d');
-    
-  let div_controls = document.getElementById('chart_controls');
-  div_controls.style.width = (0.15*window.innerWidth) + "px";
-  
+
+  //let div_controls = document.getElementById('chart_controls');
+  //div_controls.style.width = (0.15*window.innerWidth) + "px";
+
   let check_logy = document.getElementById('check_log_y');
-     
+
   let xaxis_config = {
 	    type: 'time',
 			distribution: 'linear',
@@ -145,7 +149,7 @@ function updateChart()
 			},
 			stacked: true
 		};
-		
+
   let yaxis_config = {
 			gridLines: {
 				drawBorder: false
@@ -155,9 +159,9 @@ function updateChart()
 				display: true,
 				labelString: 'No. of cases',
 				fontSize: 15
-			}			
+			}
 		};
-  
+
   if (check_logy.checked)
   {
     yaxis_config.type = 'logarithmic';
@@ -165,8 +169,8 @@ function updateChart()
   }
 
   const bar_width_frac = 1.0;
-  const cat_width_frac = 0.9;  
-  
+  const cat_width_frac = 0.9;
+
 	chart_config = {
 			data: {
 				datasets: [
@@ -291,9 +295,9 @@ function updateChart()
                 label: function(tooltipItem, data) {
                     //var type = data.datasets[tooltipItem.datasetIndex].label;
                     //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
-                    
+
                     if (tooltipItem.datasetIndex >= 7)
-                      return (data.datasets[tooltipItem.datasetIndex].label + 
+                      return (data.datasets[tooltipItem.datasetIndex].label +
                               ": " + formatNumber(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y));
 
                     // Loop through all datasets to get the actual total of the index
@@ -328,19 +332,19 @@ function updateChart()
 			        mode: 'x',
 			        rangeMin: { x: null, y: 0 },
 			        rangeMax: { x: null, y: null },
-			        speed: 0.1, // (percentage of zoom on a wheel event)	        
+			        speed: 0.1, // (percentage of zoom on a wheel event)
 			        sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
 		        }
 	        }
         }
-				
+
 			}
 		};
-		
-  chart = new Chart(ctx, chart_config);  
+
+  chart = new Chart(ctx, chart_config);
 };
 
-function setLogYAxis(is_log)  
+function setLogYAxis(is_log)
 {
   let logarithmic_ticks = {
     min: 0,
@@ -357,7 +361,7 @@ function setLogYAxis(is_log)
       return null;
     }
   };
-  
+
   if (is_log)
   {
     chart_config.options.scales.yAxes[0].type = 'logarithmic';
@@ -371,7 +375,7 @@ function setLogYAxis(is_log)
   chart.update();
 };
 
-function setDataOverlayItaly(overlay)  
+function setDataOverlayItaly(overlay)
 {
   chart_config.data.datasets[9].hidden = !overlay;
   chart.update();
@@ -400,11 +404,11 @@ function initializeSimulationParameters(hist_length)
 {
   const pred_length = 7; //no. of days to predict
   const total_length = hist_length + 200; //pred_length;
-  
+
   let q_input = new Array(total_length).fill(0.0);
   for (let i = 0; i < data_raw_SL.length; ++i)
     q_input[i] = data_raw_SL[i].y[3];
-  
+
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
@@ -423,31 +427,48 @@ function initializeSimulationParameters(hist_length)
 function updateParameters()
 {
   let requires_update = false;
-  
+
   let b1 = Number(document.getElementById("slider_b1").value);
-  let b1_intervene = Number(document.getElementById("slider_b1_intervene").value);
-  sim_params.T_intervention = Number(document.getElementById("slider_intervention").value);
-  
+  let b1_intervene1 = Number(document.getElementById("slider_interv1_b1").value);
+  let b1_intervene2 = Number(document.getElementById("slider_interv2_b1").value);
+
   document.getElementById("slider_b1_value").innerHTML = b1.toFixed(2);
-  document.getElementById("slider_b1_intervene_value").innerHTML = b1_intervene.toFixed(2); 
-  document.getElementById("slider_intervention_value").innerHTML = sim_params.T_intervention;
-  
+  document.getElementById("slider_interv1_b1_value").innerHTML = b1_intervene1.toFixed(2);
+  document.getElementById("slider_interv2_b1_value").innerHTML = b1_intervene2.toFixed(2);
+
+  let slider_interv1_T = document.getElementById("slider_interv1_T");
+  let slider_interv2_T = document.getElementById("slider_interv2_T");
+
+  let T1 = Number(slider_interv1_T.value);
+  let T2 = Number(slider_interv2_T.value);
+
+  if (T2 <= T1)
+  {
+    T2 = T1+1;
+    slider_interv2_T.value = T2;
+  }
+
+  document.getElementById("slider_interv1_T_value").innerHTML = T1;
+  document.getElementById("slider_interv2_T_value").innerHTML = T2;
+
   for (let j = 0; j < sim_params.b1N.length; ++j)
   {
     let val = b1;
-    if (j >= sim_params.T_intervention)
-      val = b1_intervene;
-    
-//    if (sim_params.b1N[j] != val)
-//    {
-//      sim_params.b1N[j] = val;
-//      requires_update = true;
-//    }
+    if (j >= T1)
+      val = b1_intervene1;
+    if (j >= T2)
+      val = b1_intervene2;
+
+    if (sim_params.b1N[j] != val)
+    {
+      sim_params.b1N[j] = val;
+      requires_update = true;
+    }
   }
-  
+
   let slider_element_ids = ["slider_b2", "slider_b3"];
   let param_arrays = [sim_params.b2N, sim_params.b3N];
-  
+
   for (let i = 0; i < 2; ++i)
   {
     let slider = document.getElementById(slider_element_ids[i]);
@@ -463,7 +484,7 @@ function updateParameters()
         }
     }
   }
-  
+
   let slider_finalT = document.getElementById("slider_finalT");
   if (slider_finalT)
   {
@@ -473,16 +494,17 @@ function updateParameters()
       sim_params.T_pred = val;
       requires_update = true;
       document.getElementById("slider_finalT_text").innerHTML = "Predict for " + val + " days";
-      document.getElementById("slider_intervention").max = sim_params.T_hist + sim_params.T_pred;
+      slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
+      slider_interv2_T.max = sim_params.T_hist + sim_params.T_pred;
     }
   }
-    
+
   if (requires_update)
   {
     data_predicted = getPredictionData(data_SL[0].t);
     for (let i = 0; i < 7; ++i)
       chart_config.data.datasets[i].data = data_predicted.categorized[i];
-      
+
     chart_config.data.datasets[8].data = data_predicted.aggregated;
     chart.update();
   }
@@ -492,17 +514,17 @@ function getPredictionData(start_date)
 {
   let sol_history = predictModel(sim_params);
 
-  let data_agg = [];  
+  let data_agg = [];
   let data_cat = new Array(7);
   for (let i = 0; i < 7; ++i)
     data_cat[i] = new Array();
-    
+
   const report_sum_indices = [2, 4, 5, 6, 7, 9];
-       
+
   for (let i = 0; i < sol_history.length; i++)
   {
     let date = start_date.clone().add(i,'days');
-    
+
     //Accumulate data into categories for plotting
     data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //S
     data_cat[1].push({t: date, y: Math.round(sol_history[i][1])}); //E
@@ -511,13 +533,13 @@ function getPredictionData(start_date)
     data_cat[4].push({t: date, y: Math.round(sol_history[i][6])}); //I3
     data_cat[5].push({t: date, y: Math.round(sol_history[i][7] + sol_history[i][8])}); //R
     data_cat[6].push({t: date, y: Math.round(sol_history[i][9])}); //D
-    
+
     let num_confirmed_cases = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
       num_confirmed_cases += sol_history[i][report_sum_indices[j]];
     data_agg.push({t: date, y: Math.round(num_confirmed_cases)});
   }
-  
+
   return {aggregated: data_agg, categorized: data_cat};
 }
 
@@ -528,7 +550,7 @@ function predictModel(params)
   let T_mild   = 6;
   let T_severe = 4;
   let T_icu    = 10;
-  
+
   //Probabilities
   let prob_I1_E   = 1;  //exposed to mildly infected
   let prob_R_I1   = 0.81*prob_I1_E; //mild to recovered
@@ -537,7 +559,7 @@ function predictModel(params)
   let prob_I3_I2  = 1 - prob_R_I2; //severe to critical
   let prob_D_I3   = 0.02/(prob_I3_I2*prob_I2_I1); //critical to dead
   let prob_R_I3   = 1 - prob_D_I3; //critical to recovered
-  
+
   //Rates [1/day]
   let a   = (1/T_incub)  *prob_I1_E;
   let g1  = (1/T_mild)   * prob_R_I1;
@@ -548,7 +570,7 @@ function predictModel(params)
   let mu  = (1/T_icu)    * prob_D_I3;
 
   let N = 21.4e6; //Population of Sri Lanka
-   
+
   //Initial solution
   let E_0 = params.E_0;
   let I1d_0 = 0;
@@ -560,26 +582,26 @@ function predictModel(params)
   let Rh_0 = 0;
   let D_0 = 0;
   let S_0 = N - E_0 - I1d_0 - I1h_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Rh_0 - D_0;
-  
-  //Solution vector: [S, E, I1d, I1h, I1q, I2, I3, Rd, Rh, D] 
+
+  //Solution vector: [S, E, I1d, I1h, I1q, I2, I3, Rd, Rh, D]
   let solution_hist = [[S_0, E_0, I1d_0, I1h_0, I1q_0, I2_0, I3_0, Rd_0, Rh_0, D_0]];
-  
+
   const nt = params.T_hist + params.T_pred - 1;
   const nt_sub = 1.0/params.dt;
   const c = params.diag_frac;
-  
-  for (let i = 0; i < nt; i++) 
+
+  for (let i = 0; i < nt; i++)
   {
     let sol = solution_hist[i].slice(); //copy last solution vector
-    
+
     let b1 = params.b1N[i] / N;
     let b2 = params.b2N[i] / N;
     let b3 = params.b3N[i] / N;
     let q_input = params.quarantine_input[i];
-    
+
     for (let j = 0; j < nt_sub; j++)
     {
-      let dS = -(b1*(sol[2] + sol[3]) + b2*sol[5] + b3*sol[6])*sol[0]; 
+      let dS = -(b1*(sol[2] + sol[3]) + b2*sol[5] + b3*sol[6])*sol[0];
       let dsol = [dS,                                               //S
                   -dS - a*sol[1],                                   //E
                   a*c*sol[1]     - (g1 + p1)*sol[2],                //I1d
@@ -591,14 +613,14 @@ function predictModel(params)
                   g1*(sol[3]),                                      //Rh
                   mu*sol[6]                                         //D
                  ];
-      
+
       for (let k = 0; k < sol.length; k++)
         sol[k] += dsol[k]*params.dt;
     } //sub-timestepping [hrs]
 
     solution_hist.push(sol); //save solution daily
   }
-  
+
   return solution_hist;
 }
 
@@ -608,29 +630,29 @@ function optimizeParameters()
   let params = initializeSimulationParameters(data_SL.length);
   let T_pred_init = params.T_pred;
   params.T_pred = 0;
-  
+
   let res = getFitResidual(params);
   let resnorm = getL2Norm(res);
-    
+
   let m = res.length;
   let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
   let n = n_b1 + 1; //beta_1 values, diagnose_fraction
-  
+
   let param_vec = new Array(n).fill(0);
   for (let i = 0; i < n_b1; ++i)
     param_vec[i] = params.b1N[i];
   param_vec[n_b1] = params.diag_frac;
-  
+
   let dparam_vec = new Array(n).fill(0);
   let param_vec0 = new Array(n).fill(0);
-      
+
   for (let iter = 0; iter < 50; ++iter)
   {
     console.log("Iter " + iter + ": " + resnorm);
-    
+
     let jac = getFitJacobian(params);
-    
-    //Update parameter vector using gradient descent: 
+
+    //Update parameter vector using gradient descent:
     //u(n+1) = u(n) - eta * (dR/du)^T R(u(n))
     for (let i = 0; i < n; ++i)
     {
@@ -640,15 +662,15 @@ function optimizeParameters()
       dparam_vec[i] = dp;
       param_vec0[i] = param_vec[i];
     }
-    
+
     let eta = 0.5;
-    
+
     while (eta >= 1e-7)
     {
       for (let i = 0; i < n; ++i)
       {
         param_vec[i] = param_vec0[i] - eta*dparam_vec[i];
-        
+
         if (i < n_b1)
         {
           if (param_vec[i] < 0.0)
@@ -664,26 +686,26 @@ function optimizeParameters()
           params.diag_frac = param_vec[i];
         }
       }
-      
+
       //Evaluate new residual
       res = getFitResidual(params);
       let resnorm_new = getL2Norm(res);
       //console.log("  " + eta + ", " + getL2Norm(res));
-      
+
       if (resnorm_new < resnorm)
       {
         resnorm = resnorm_new;
         break;
       }
-      
+
       eta /= 2.0;
     } //linesearch
   } //gradient descent
-  
+
   for (let i = 0; i < n_b1; ++i)
     sim_params.b1N[i] = params.b1N[i];
   sim_params.diag_frac = params.diag_frac;
-  
+
   for (let i = n_b1; i < sim_params.b1N.length; ++i)
     sim_params.b1N[i] = sim_params.b1N[n_b1-1];
 
@@ -696,17 +718,17 @@ function getFitResidual(params)
   const num_eq = 1;
   let sol_hist = predictModel(params);
   let residual = new Array(num_eq*sol_hist.length).fill(0);
-  
+
   for (let i = 0; i < sol_hist.length; ++i)
   {
     //I1d + I1q + I2 + I3 = no. of diagnosed patients in hospitals
-    //residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] - data_raw_SL[i].y[0];
-    residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7]
-                         - data_raw_SL[i].y[0] - data_raw_SL[i].y[1];
-    
+    //residual[num_eq*i] = 0*sol_hist[i][2] + 0*sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] - data_raw_SL[i].y[0];
+    //residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7]
+    //                     - data_raw_SL[i].y[0] - data_raw_SL[i].y[1];
+
     //Rd = no. of recovered patients
-    //residual[num_eq*i + 1] = sol_hist[i][7] - data_raw_SL[i].y[1];
-    
+    residual[num_eq*i + 0*1] = sol_hist[i][7] - data_raw_SL[i].y[1];
+
     //D = no. of fatalities
     //residual[num_eq*i + 2] = sol_hist[i][9] - data_raw_SL[i].y[2];
   }
@@ -719,10 +741,10 @@ function getFitJacobian(params)
   let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
   let n = n_b1 + 1; //beta_1 values, diagnose_fraction
   let jac = new Array(m*n).fill(0);
-  
+
   const delta_b1 = 1e-5;
   const delta_df = 1e-5;
-  
+
   for (let j = 0; j < n_b1; ++j)
   {
     //Compute finite difference
@@ -731,20 +753,20 @@ function getFitJacobian(params)
     params.b1N[j] -= 2*delta_b1;
     let Rm = getFitResidual(params);
     params.b1N[j] += delta_b1;
-    
+
     for (let i = 0; i < m; ++i)
       jac[i*n + j] = (Rp[i] - Rm[i])/(2*delta_b1);
   }
-  
+
   params.diag_frac += delta_df;
   let Rp = getFitResidual(params);
   params.diag_frac -= 2*delta_df;
   let Rm = getFitResidual(params);
   params.diag_frac += delta_df;
-  
+
   for (let i = 0; i < m; ++i)
     jac[i*n + n_b1] = (Rp[i] - Rm[i])/(2*delta_df);
-  
+
   return jac;
 }
 

@@ -1,136 +1,160 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-<link rel="stylesheet" href="styles.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@0.7.4"></script>
 
-<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-<script src="plot_data.js"></script>
+  <script src="plot_data.js"></script>
 
-<title>COVID-19 Dashboard - Sri Lanka</title>
-<meta name="description" content="Dashboard for COVID-19 cases in Sri Lanka"/>
-<meta name="keywords" content="COVID-19, Coronavirus, Sri Lanka">
+  <title>COVID-19 Dashboard - Sri Lanka</title>
+  <meta name="description" content="Dashboard for COVID-19 cases in Sri Lanka"/>
+  <meta name="keywords" content="COVID-19, Coronavirus, Sri Lanka">
 
 </head>
 <body>
 
-<h2>Simulating the Coronavirus pandemic in Sri Lanka</h2>
+  <div style="margin:0 auto; width:80%">
 
-<div class="block" id="chart_controls">
-<br>
-<b>Chart controls</b>
-<br>
-<div class="control">
-  <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
-</div>
-<!--
-<div class="control">
-  <input type="checkbox" id="check_overlay_italy" onchange="setDataOverlayItaly(this.checked)">Show data from Italy</input>
-</div>
-<div class="control">
-  <input type="checkbox" id="check_align_timelines" onchange="alignTimelines(this.checked)">Align timelines</input>
-</div>
+    <h2>Simulating the Coronavirus pandemic in Sri Lanka</h2>
+
+    <div class="para">
+      <p>The COVID-19 pandemic has interrupted the day-to-day life of all Sri Lankans. At the time of writing, the entire country is in lockdown. As of now, due to strict interventions, the disease spread seems to have slowed down. However, it is not completely clear what we should expect in the future, especially when interventions change. To shed some light, we have developed an interactive tool to model the spread of COVID-19 in Sri Lanka using a classical SEIR (<b>S</b>usceptible → <b>E</b>xposed → <b>I</b>nfected → <b>R</b>emoved (i.e recovered and fatal) infectious disease model. We also modified the model to account for the Sri Lankan setting.
+      </p>
+    </div>
+
+    <hr>
+
+    <div class="clearfix">
+    <div class="column" id="chart_controls" style="width:20%;">
+      <br>
+      <b>Chart controls</b>
+      <br>
+      <div class="control">
+        <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
+      </div>
+      <!--
+      <div class="control">
+      <input type="checkbox" id="check_overlay_italy" onchange="setDataOverlayItaly(this.checked)">Show data from Italy</input>
+    </div>
+    <div class="control">
+    <input type="checkbox" id="check_align_timelines" onchange="alignTimelines(this.checked)">Align timelines</input>
+  </div>
 -->
-<div class="control">
-  <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
-</div>
+  <div class="control">
+    <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
+  </div>
 
-<br>
-<hr style="margin-top:10px;">
-
-<br>
-<b>Simulation controls</b>
-<br>
-<br>
-
-<div class="control full">
-<center>
-<input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1 value=7></input>
-<br><div class="small" id="slider_finalT_text">Predict for 7 days</div>
-</center>
-</div>
-
-<div class="control full">
-<center>
-<input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.5></input>
-<br><div class="small tooltip">Transmission rate \(\beta_1\) = 
-<span id="slider_b1_value">0.50</span>
-<span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
-</div>
-</center>
-</div>
-
-<div class="control full">
-<center>
-<input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
-<br><div class="small tooltip">Transmission rate \(\beta_2\) = 
-<span id="slider_b2_value">0.00</span>
-<span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
-</div>
-</center>
-</div>
-
-<div class="control full">
-<center>
-<input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
-<br><div class="small tooltip">Transmission rate \(\beta_3\) =
-<span id="slider_b3_value">0.00</span>
-<span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
-</div>
-</center>
-</div>
-
-<div class="control">
-  <center>
   <br>
-  <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
+  <hr style="margin-top:10px;">
+
+  <br>
+  <b>Simulation controls</b>
+  <br>
+  <br>
+
+  <div class="control full">
+    <center>
+      <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1 value=7></input>
+      <br><div class="small" id="slider_finalT_text">Predict for 7 days</div>
+    </center>
+  </div>
+
+  <div class="control full">
+    <center>
+      <input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.5></input>
+      <br><div class="small tooltip">Transmission rate \(\beta_1\) =
+        <span id="slider_b1_value">0.50</span>
+        <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
+      </div>
+    </center>
+  </div>
+
+  <div class="control full">
+    <center>
+      <input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
+      <br><div class="small tooltip">Transmission rate \(\beta_2\) =
+        <span id="slider_b2_value">0.00</span>
+        <span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
+      </div>
+    </center>
+  </div>
+
+  <div class="control full">
+    <center>
+      <input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
+      <br><div class="small tooltip">Transmission rate \(\beta_3\) =
+        <span id="slider_b3_value">0.00</span>
+        <span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
+      </div>
+    </center>
+  </div>
+
+  <div class="control">
+    <center>
+      <br>
+      <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
+    </center>
+  </div>
+
+  <!--
+  <div class="control full">
+  <center>
+  <input class="control" type="range" id="slider_dt" onmousemove="updateParameters()" min=0 max=8 step=1 value=0></input>
   </center>
+  </div>
+  -->
+
+  </div>
+  <div class="column" style="width:80%;">
+
+    <canvas class="full" id="chart_canvas" ></canvas>
+
+    <div class="control full">
+        <div class="control full">
+          <center>
+            <input class="control intervention" type="range" id="slider_interv1_T" onmousemove="updateParameters()" min=1 max=30 step=1 value=30></input>
+            <span class="small">First intervention on day</span>
+            <span class="small" id="slider_interv1_T_value">30</span>
+            <span class="small"> to change \(\beta_1\) to </span>
+            <span id="slider_interv1_b1_value">0.25</span>
+            <input class="block" type="range" id="slider_interv1_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.25></input>
+          </center>
+        </div>
+
+        <div class="control full" style="margin-top:20px;">
+          <center>
+            <input class="control intervention" type="range" id="slider_interv2_T" onmousemove="updateParameters()" min=1 max=30 step=1 value=30></input>
+            <span class="small">Second intervention on day</span>
+            <span class="small" id="slider_interv2_T_value">30</span>
+            <span class="small"> to change \(\beta_1\) to </span>
+            <span id="slider_interv2_b1_value">0.10</span>
+            <input class="block" type="range" id="slider_interv2_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.1></input>
+          </center>
+        </div>
+    </div>
+
+  </div>
+
 </div>
-
-<!--
-<div class="control full">
-<center>
-<input class="control" type="range" id="slider_dt" onmousemove="updateParameters()" min=0 max=8 step=1 value=0></input>
-</center>
-</div>
--->
-
-</div>
-<div class="block">
-
-<canvas id="chart_canvas" ></canvas>
-
-<div class="control full">
-<center>
-<input class="control intervention" type="range" id="slider_intervention" onmousemove="updateParameters()" min=1 max=30 step=1 value=30></input>
-<span class="small">Intervene on day</span>
-<span class="small" id="slider_intervention_value">30</span>
-<span class="small"> to change \(\beta_1\) to </span>
-<span id="slider_b1_intervene_value">0.10</span>
-<input class="block" type="range" id="slider_b1_intervene" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.1></input>
-</center>
-</div>
-
-</div>
-
 <hr>
-
-<br>
 Data sources:
 <p style="font-size:15px">
   <a href="http://www.epid.gov.lk/web/index.php?option=com_content&view=article&id=225&Itemid=518&lang=en">Situation reports</a> - Epidemiology unit, Ministry of Health, Sri Lanka
   <!--
   <br>
   <a href="https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_Italy">2020 Coronavirus Pandemic in Italy</a> - Wikipedia
-  -->
+-->
 </p>
+
+</div>
 
 </body>
 </html>

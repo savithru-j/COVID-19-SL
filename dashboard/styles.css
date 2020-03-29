@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   height: 100%;
   font-family: "Trebuchet MS", sans-serif;
@@ -7,23 +11,37 @@ body {
   display: inline-block;
 }
 
+.clearfix::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.column {
+  float: left;
+  padding: 10px;
+}
+
+.full {
+  width: 100%;
+}
+
 div.block {
   display: inline-block;
   vertical-align: text-top;
+}
+
+div.float {
+  float:left;
 }
 
 div.control {
   margin-top:10px;
 }
 
-div.full {
-  width: 100%;
-}
-
-div.filler {
-  display: block;
-  overflow: hidden;
-  background: green;
+div.para {
+  margin-top:20px;
+  margin-bottom:20px;
 }
 
 button.small {
