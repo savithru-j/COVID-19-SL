@@ -110,7 +110,7 @@ window.onload = function()
   let slider_interv2_T = document.getElementById('slider_interv2_T');
   slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
   slider_interv2_T.max = sim_params.T_hist + sim_params.T_pred;
-  slider_interv1_T.value = slider_interv1_T.max;
+  slider_interv1_T.value = 18; //slider_interv1_T.max;
   slider_interv2_T.value = slider_interv1_T.max;
   document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
   document.getElementById('slider_interv2_T_value').innerHTML = slider_interv2_T.value;
@@ -283,6 +283,9 @@ function updateChart()
 			options: {
 			  responsive: false,
         maintainAspectRatio: false,
+        animation: {
+            duration: 500 // general animation time
+        },
 				scales: {
 					xAxes: [xaxis_config],
 					yAxes: [yaxis_config]
@@ -324,7 +327,7 @@ function updateChart()
             type: 'line',
             mode: 'vertical',
             scaleID: 'x-axis-0',
-            value: data_predicted.aggregated[data_predicted.aggregated.length-1].t,
+            value: data_predicted.aggregated[18-1].t,
             borderColor: 'rgba(50,50,50,0.5)',
             borderWidth: 2,
             borderDash: [2, 2]
@@ -442,7 +445,7 @@ function initializeSimulationParameters(hist_length)
     T_pred: pred_length,
     T_intervention: 0,
     dt: 0.5/24.0,                           //timestep size [days]
-    b1N: new Array(total_length).fill(0.5), //transmission rate from mild to susceptible
+    b1N: new Array(total_length).fill(0.6), //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
     b3N: new Array(total_length).fill(0.0), //transmission rate from critical to susceptible
     quarantine_input: q_input,              //no. of patients added directly to quarantine
@@ -450,6 +453,10 @@ function initializeSimulationParameters(hist_length)
     E_0: 5,                                 //number of individiuals exposed at start
     I1h_0: 0                                //number of hidden mildly infected people at start
   }
+  
+  for (let i = 18; i < total_length; ++i)
+    params.b1N[i] = 0.1;
+  
   return params;
 }
 
@@ -650,6 +657,9 @@ function predictModel(params)
       for (let k = 0; k < sol.length; k++)
         sol[k] += dsol[k]*params.dt;
     } //sub-timestepping [hrs]
+
+    if (sol[1] < 0.5)
+      sol[1] = 0.0;
 
     solution_hist.push(sol); //save solution daily
   }
