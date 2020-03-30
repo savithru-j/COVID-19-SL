@@ -146,8 +146,8 @@
           <li>\(S\) - Susceptible individuals</li>
           <li>\(E\) - Exposed individuals who have contracted the disease</li>
           <li>\(I_1\) - Infected individuals with mild symptoms (sub-division is discussed later)</li>
-          <li>\(I_2\) - Infected individuals with severe symptoms (hospitalization is needed at this stage)</li>
-          <li>\(I_3\) - Infected individuals at critical stage (i.e. require ICU admission)</li>
+          <li>\(I_2\) - Infected individuals with severe symptoms (require hospitalization)</li>
+          <li>\(I_3\) - Infected individuals at critical stage (require ICU admission)</li>
           <li>\(R\) - Recovered individuals (sub-division is discussed later)</li>
           <li>\(D\) - Fatalities</li>
         </ul>
@@ -166,7 +166,7 @@
         Next, we had a significant number of infected individuals (tested positive) who entered the country from abroad, but were strictly quarantined before they could infect others. We added another sub-category for those quarantined index (coming from abroad) individuals (\(I_{1Q}\)). We assumed that all these cases enter the country at the mildly infected stage \(I_1\), although it is possible that they enter duing the exposed (\(E\)) period as well. When we run the model, we add these cases to the population based on the date they tested positive.
       </p>
       <p>
-        Finally, we calibrated the model parameters, \(\beta_1\) for each day in the data history, and \(c\), mostly using the daily diagnosed cases in Sri Lanka. We also used the individuals in the \(I_3\) class and the \(R_D\) (diagnosed and recovered cases) class for calibration at later dates, when those numbers became available.
+        Finally, we calibrated the model parameters, \(\beta_1\) for each day in the data history, and \(c\), mostly using the daily diagnosed cases in Sri Lanka. We also used the individuals in the \(I_3\) class and the \(R_D\) class (diagnosed and recovered) for calibration at later dates, when those numbers became available.
       </p>
     </div>
 
