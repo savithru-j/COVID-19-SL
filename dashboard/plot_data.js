@@ -35,6 +35,7 @@ function getRawDataSriLanka()
   data.push({t: moment('26-03-2020', date_format), y: [99, 7, 0, 0]});
   data.push({t: moment('27-03-2020', date_format), y: [97, 9, 0, 0]});
   data.push({t: moment('28-03-2020', date_format), y: [103, 9, 1, 0]});
+  data.push({t: moment('29-03-2020', date_format), y: [105, 11, 1, 0]});
   return data;
 }
 
