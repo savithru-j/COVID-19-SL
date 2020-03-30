@@ -90,3 +90,7 @@ input.control.intervention {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+ul li {
+  padding: 3px;
+}

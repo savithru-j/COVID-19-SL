@@ -36,6 +36,7 @@ function getRawDataSriLanka()
   data.push({t: moment('27-03-2020', date_format), y: [97, 9, 0, 0]});
   data.push({t: moment('28-03-2020', date_format), y: [103, 9, 1, 0]});
   data.push({t: moment('29-03-2020', date_format), y: [105, 11, 1, 0]});
+  data.push({t: moment('30-03-2020', date_format), y: [106, 14, 2, 0]});
   return data;
 }
 
@@ -543,7 +544,6 @@ function updateParameters()
 
     chart_config.data.datasets[8].data = data_predicted.aggregated;
 
-    //chart_config.options.annotation.annotations[0].value = data_predicted.aggregated[T1-1].t;
     chart.annotation.elements['vertline_T1'].options.value = data_predicted.aggregated[T1-1].t;
     chart.annotation.elements['vertline_T2'].options.value = data_predicted.aggregated[T2-1].t;
     chart.update();
