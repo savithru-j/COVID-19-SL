@@ -314,6 +314,33 @@ function updateChart()
                 }
             }
         },
+        annotation: {
+          drawTime: 'afterDatasetsDraw',
+          // Array of annotation configuration objects
+          // See below for detailed descriptions of the annotation options
+          annotations: [{
+            drawTime: 'afterDraw', // overrides annotation.drawTime if set
+            id: 'vertline_T1', // optional
+            type: 'line',
+            mode: 'vertical',
+            scaleID: 'x-axis-0',
+            value: data_predicted.aggregated[data_predicted.aggregated.length-1].t,
+            borderColor: 'rgba(50,50,50,0.5)',
+            borderWidth: 2,
+            borderDash: [2, 2]
+          },
+          {
+            drawTime: 'afterDraw', // overrides annotation.drawTime if set
+            id: 'vertline_T2', // optional
+            type: 'line',
+            mode: 'vertical',
+            scaleID: 'x-axis-0',
+            value: data_predicted.aggregated[data_predicted.aggregated.length-1].t,
+            borderColor: 'rgba(75,75,75,0.5)',
+            borderWidth: 2,
+            borderDash: [2, 2]
+          }]
+        },
 				plugins: {
 	        zoom: {
 		        // Container for pan options
@@ -419,8 +446,9 @@ function initializeSimulationParameters(hist_length)
     b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
     b3N: new Array(total_length).fill(0.0), //transmission rate from critical to susceptible
     quarantine_input: q_input,              //no. of patients added directly to quarantine
-    diag_frac: 0.75,                        //fraction of I1 patients that are diagnosed
-    E_0: 5                                  //number of individiuals exposed at start
+    diag_frac: 0.7,                         //fraction of I1 patients that are diagnosed
+    E_0: 5,                                 //number of individiuals exposed at start
+    I1h_0: 0                                //number of hidden mildly infected people at start
   }
   return params;
 }
@@ -443,9 +471,9 @@ function updateParameters()
   let T1 = Number(slider_interv1_T.value);
   let T2 = Number(slider_interv2_T.value);
 
-  if (T2 <= T1)
+  if (T2 < T1)
   {
-    T2 = T1+1;
+    T2 = T1;
     slider_interv2_T.value = T2;
   }
 
@@ -507,6 +535,10 @@ function updateParameters()
       chart_config.data.datasets[i].data = data_predicted.categorized[i];
 
     chart_config.data.datasets[8].data = data_predicted.aggregated;
+
+    //chart_config.options.annotation.annotations[0].value = data_predicted.aggregated[T1-1].t;
+    chart.annotation.elements['vertline_T1'].options.value = data_predicted.aggregated[T1-1].t;
+    chart.annotation.elements['vertline_T2'].options.value = data_predicted.aggregated[T2-1].t;
     chart.update();
   }
 }
@@ -562,7 +594,7 @@ function predictModel(params)
   let prob_R_I3   = 1 - prob_D_I3; //critical to recovered
 
   //Rates [1/day]
-  let a   = (1/T_incub)  *prob_I1_E;
+  let a   = (1/T_incub)  * prob_I1_E;
   let g1  = (1/T_mild)   * prob_R_I1;
   let p1  = (1/T_mild)   * prob_I2_I1;
   let g2  = (1/T_severe) * prob_R_I2;
@@ -575,7 +607,7 @@ function predictModel(params)
   //Initial solution
   let E_0 = params.E_0;
   let I1d_0 = 0;
-  let I1h_0 = 0;
+  let I1h_0 = params.I1h_0;
   let I1q_0 = 0;
   let I2_0 = 0;
   let I3_0 = 0;
@@ -637,17 +669,18 @@ function optimizeParameters()
 
   let m = res.length;
   let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n = n_b1 + 1; //beta_1 values, diagnose_fraction
+  let n = n_b1 + 2; //beta_1 values, E_0, I1h_0
 
   let param_vec = new Array(n).fill(0);
   for (let i = 0; i < n_b1; ++i)
     param_vec[i] = params.b1N[i];
-  param_vec[n_b1] = params.diag_frac;
+  param_vec[n_b1] = params.E_0;
+  param_vec[n_b1 + 1] = params.I1h_0;
 
   let dparam_vec = new Array(n).fill(0);
   let param_vec0 = new Array(n).fill(0);
 
-  for (let iter = 0; iter < 50; ++iter)
+  for (let iter = 0; iter < 100; ++iter)
   {
     console.log("Iter " + iter + ": " + resnorm);
 
@@ -682,9 +715,13 @@ function optimizeParameters()
         {
           if (param_vec[i] < 0.0)
             param_vec[i] = 0.0;
-          else if (param_vec[i] > 1.0)
-            param_vec[i] = 1.0;
-          params.diag_frac = param_vec[i];
+          params.E_0 = param_vec[i];
+        }
+        else if (i == n_b1+1)
+        {
+          if (param_vec[i] < 0.0)
+            param_vec[i] = 0.0;
+          params.I1h_0 = param_vec[i];
         }
       }
 
@@ -705,7 +742,8 @@ function optimizeParameters()
 
   for (let i = 0; i < n_b1; ++i)
     sim_params.b1N[i] = params.b1N[i];
-  sim_params.diag_frac = params.diag_frac;
+  sim_params.E_0 = params.E_0;
+  sim_params.I1h_0 = params.I1h_0;
 
   for (let i = n_b1; i < sim_params.b1N.length; ++i)
     sim_params.b1N[i] = sim_params.b1N[n_b1-1];
@@ -716,19 +754,19 @@ function optimizeParameters()
 
 function getFitResidual(params)
 {
-  const num_eq = 1;
+  const num_eq = 2;
   let sol_hist = predictModel(params);
   let residual = new Array(num_eq*sol_hist.length).fill(0);
 
   for (let i = 0; i < sol_hist.length; ++i)
   {
     //I1d + I1q + I2 + I3 = no. of diagnosed patients in hospitals
-    //residual[num_eq*i] = 0*sol_hist[i][2] + 0*sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] - data_raw_SL[i].y[0];
+    residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] - data_raw_SL[i].y[0];
     //residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7]
     //                     - data_raw_SL[i].y[0] - data_raw_SL[i].y[1];
 
     //Rd = no. of recovered patients
-    residual[num_eq*i + 0*1] = sol_hist[i][7] - data_raw_SL[i].y[1];
+    residual[num_eq*i + 1] = sol_hist[i][7] - data_raw_SL[i].y[1];
 
     //D = no. of fatalities
     //residual[num_eq*i + 2] = sol_hist[i][9] - data_raw_SL[i].y[2];
@@ -738,13 +776,14 @@ function getFitResidual(params)
 
 function getFitJacobian(params)
 {
-  let m = 1*params.T_hist;
+  let m = 2*params.T_hist;
   let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n = n_b1 + 1; //beta_1 values, diagnose_fraction
+  let n = n_b1 + 2; //beta_1 values, E_0, I1h_0
   let jac = new Array(m*n).fill(0);
 
   const delta_b1 = 1e-5;
-  const delta_df = 1e-5;
+  const delta_E0 = 1e-5;
+  const delta_I1h0 = 1e-5;
 
   for (let j = 0; j < n_b1; ++j)
   {
@@ -759,14 +798,23 @@ function getFitJacobian(params)
       jac[i*n + j] = (Rp[i] - Rm[i])/(2*delta_b1);
   }
 
-  params.diag_frac += delta_df;
+  params.E_0 += delta_E0;
   let Rp = getFitResidual(params);
-  params.diag_frac -= 2*delta_df;
+  params.E_0 -= 2*delta_E0;
   let Rm = getFitResidual(params);
-  params.diag_frac += delta_df;
+  params.E_0 += delta_E0;
 
   for (let i = 0; i < m; ++i)
-    jac[i*n + n_b1] = (Rp[i] - Rm[i])/(2*delta_df);
+    jac[i*n + n_b1] = (Rp[i] - Rm[i])/(2*delta_E0);
+
+  params.I1h_0 += delta_I1h0;
+  Rp = getFitResidual(params);
+  params.I1h_0 -= 2*delta_I1h0;
+  Rm = getFitResidual(params);
+  params.I1h_0 += delta_I1h0;
+
+  for (let i = 0; i < m; ++i)
+    jac[i*n + n_b1 + 1] = (Rp[i] - Rm[i])/(2*delta_I1h0);
 
   return jac;
 }
