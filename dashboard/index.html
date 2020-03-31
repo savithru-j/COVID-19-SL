@@ -31,70 +31,63 @@
 
     <div class="clearfix">
       <div class="column" id="chart_controls" style="width:20%;">
-        <h3>Chart controls</h3>
-        <div class="control">
-          <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
-        </div>
+        <center>
+          <h3>Chart controls</h3>
+          <div class="control">
+            <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
+          </div>
 
-        <!-- <div class="control">
-          <input type="checkbox" id="check_overlay_italy" onchange="setDataOverlayItaly(this.checked)">Show data from Italy</input>
-        </div>
-        <div class="control">
-          <input type="checkbox" id="check_align_timelines" onchange="alignTimelines(this.checked)">Align timelines</input>
-        </div> -->
+          <!-- <div class="control">
+            <input type="checkbox" id="check_overlay_italy" onchange="setDataOverlayItaly(this.checked)">Show data from Italy</input>
+          </div>
+          <div class="control">
+            <input type="checkbox" id="check_align_timelines" onchange="alignTimelines(this.checked)">Align timelines</input>
+          </div> -->
 
-        <div class="control">
-          <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
-        </div>
+          <div class="control">
+            <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
+          </div>
+        </center>
 
         <br>
         <hr style="margin-top:10px;">
 
-        <h3>Simulation controls</h3>
-        <div class="control full">
-          <center>
-            <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1 value=7></input>
-            <br><div class="small" id="slider_finalT_text">Predict for 7 days</div>
-          </center>
-        </div>
+        <center>
+          <h3>Simulation controls</h3>
+          <div class="control full">
+              <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1 value=7></input>
+              <br><div class="small" id="slider_finalT_text">Predict for 7 days</div>
+          </div>
 
-        <div class="control full">
-          <center>
-            <input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.6></input>
-            <br><div class="small tooltip">Transmission rate \(\beta_1\) =
-              <span id="slider_b1_value">0.60</span>
-              <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
-            </div>
-          </center>
-        </div>
+          <div class="control full">
+              <input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.6></input>
+              <br><div class="small tooltip">Transmission rate \(\beta_1\) =
+                <span id="slider_b1_value">0.60</span>
+                <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
+              </div>
+          </div>
 
-        <div class="control full">
-          <center>
-            <input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
-            <br><div class="small tooltip">Transmission rate \(\beta_2\) =
-              <span id="slider_b2_value">0.00</span>
-              <span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
-            </div>
-          </center>
-        </div>
+          <div class="control full">
+              <input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
+              <br><div class="small tooltip">Transmission rate \(\beta_2\) =
+                <span id="slider_b2_value">0.00</span>
+                <span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
+              </div>
+          </div>
 
-        <div class="control full">
-          <center>
-            <input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
-            <br><div class="small tooltip">Transmission rate \(\beta_3\) =
-              <span id="slider_b3_value">0.00</span>
-              <span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
-            </div>
-          </center>
-        </div>
+          <div class="control full">
+              <input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.0></input>
+              <br><div class="small tooltip">Transmission rate \(\beta_3\) =
+                <span id="slider_b3_value">0.00</span>
+                <span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
+              </div>
+          </div>
 
-        <!-- <div class="control">
-          <center>
-            <br>
-            <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
-          </center>
-        </div> -->
-
+          <!-- <div class="control">
+              <br>
+              <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
+          </div> -->
+        </center>
       </div>
       <div class="column" style="width:80%;">
         <canvas class="full" id="chart_canvas" ></canvas>
@@ -102,23 +95,29 @@
         <div class="control full">
             <div class="control full">
               <center>
-                <input class="control intervention" type="range" id="slider_interv1_T" onmousemove="updateParameters()" min=1 max=30 step=1 value=18></input>
-                <span class="small">First intervention on day</span>
-                <span class="small" id="slider_interv1_T_value">18</span>
-                <span class="small"> to change \(\beta_1\) to </span>
-                <span id="slider_interv1_b1_value">0.10</span>
-                <input class="block" type="range" id="slider_interv1_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.10></input>
+                <span id="container_interv0">
+                  <input class="control intervention" type="range" id="slider_interv0_T" onmousemove="updateParameters(true)" min=1 max=30 step=1 value=18></input>
+                  <span><input type="checkbox" id="check_interv0" onchange="updateInterventions(0)" checked></input></span>
+                  <span class="small">Add intervention on day</span>
+                  <span class="small" id="slider_interv0_T_value">18</span>
+                  <span class="small"> to change \(\beta_1\) to </span>
+                  <span id="slider_interv0_b1_value">0.10</span>
+                  <input class="block" type="range" id="slider_interv0_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.10></input>
+                </span>
               </center>
             </div>
 
             <div class="control full" style="margin-top:20px;">
               <center>
-                <input class="control intervention" type="range" id="slider_interv2_T" onmousemove="updateParameters()" min=1 max=30 step=1 value=30></input>
-                <span class="small">Second intervention on day</span>
-                <span class="small" id="slider_interv2_T_value">30</span>
-                <span class="small"> to change \(\beta_1\) to </span>
-                <span id="slider_interv2_b1_value">0.10</span>
-                <input class="block" type="range" id="slider_interv2_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.1></input>
+                <span id="container_interv1" style="color:grey">
+                  <input class="control intervention" type="range" id="slider_interv1_T" onmousemove="updateParameters(true)" min=1 max=30 step=1 value=30 disabled=true></input>
+                  <span><input type="checkbox" id="check_interv1" onchange="updateInterventions(1)"></input></span>
+                  <span class="small">Add intervention on day</span>
+                  <span class="small" id="slider_interv1_T_value">30</span>
+                  <span class="small"> to change \(\beta_1\) to </span>
+                  <span id="slider_interv1_b1_value">0.10</span>
+                  <input class="block" type="range" id="slider_interv1_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.1 disabled=true></input>
+                </span>
               </center>
             </div>
         </div>
@@ -159,7 +158,7 @@
       </div>
 
       <p>
-        Susceptible (\(S\)) individuals contract the disease from infected individuals in the \(I_1\) class. We assume that severe (\(I_2\)) and critical (\(I_3\)) cases do not infect others after hospitalization, due to higher caution and preventive measures in hospitals. Susceptible individuals then move to the exposed class (\(E\)). After an incubation period (~5 days) in \(E\), they move to a mildly symptomatic class (\(I_1\)).
+        Susceptible (\(S\)) individuals contract the disease from infected individuals in classes \(I_1, I_2,\) and \(I_3\). We assume that severe (\(I_2\)) and critical (\(I_3\)) cases do not infect others after hospitalization, due to higher caution and preventive measures in hospitals. Susceptible individuals then move to the exposed class (\(E\)). After an incubation period (~5 days) in \(E\), they move to a mildly symptomatic class (\(I_1\)).
       </p>
       <p>
         According to literature, roughly 81% of the population recover after mild symptoms (in ~6 days) and move on to the recovered class (\(R\)). The remaining 19% in \(I_1\) develop severe symptoms and move to the \(I_2\) class. These severe cases require hospitalization. About three-fourths in \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China, and were used to calculate the rate parameters, \(a, \gamma_1, \gamma_2, \gamma_3, p_1, p_2,\) and \(\mu\).
@@ -172,7 +171,7 @@
         Next, we had a significant number of infected individuals (tested positive) who entered the country from abroad, but were strictly quarantined before they could infect others. We added another sub-category for those quarantined index (coming from abroad) individuals (\(I_{1Q}\)). We assumed that all these cases enter the country at the mildly infected stage \(I_1\), although it is possible that they enter duing the exposed (\(E\)) period as well. When we run the model, we add these cases to the population based on the date they tested positive.
       </p>
       <p>
-        Finally, we calibrated the model parameters, \(\beta_1\) for each day in the data history, and \(c\), mostly using the daily diagnosed cases in Sri Lanka. We also used the individuals in the \(I_3\) class and the \(R_D\) class (diagnosed and recovered) for calibration at later dates, when those numbers became available.
+        Finally, we calibrated the model parameters, \(\beta_1\) for each day in the data history, and \(c\), mostly using the daily diagnosed cases in Sri Lanka. We also used the individuals in the \(I_3\) class and the \(R_D\) class (diagnosed and recovered) to validate the calibration at later dates, when those numbers became available.
       </p>
     </div>
 

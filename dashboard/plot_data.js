@@ -107,14 +107,14 @@ window.onload = function()
 {
   updateChart();
 
+  let slider_interv0_T = document.getElementById('slider_interv0_T');
   let slider_interv1_T = document.getElementById('slider_interv1_T');
-  let slider_interv2_T = document.getElementById('slider_interv2_T');
+  slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
   slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
-  slider_interv2_T.max = sim_params.T_hist + sim_params.T_pred;
-  slider_interv1_T.value = 18; //slider_interv1_T.max;
-  slider_interv2_T.value = slider_interv1_T.max;
+  slider_interv0_T.value = 18; //slider_interv1_T.max;
+  slider_interv1_T.value = slider_interv0_T.max;
+  document.getElementById('slider_interv0_T_value').innerHTML = slider_interv0_T.value;
   document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
-  document.getElementById('slider_interv2_T_value').innerHTML = slider_interv2_T.value;
 }
 
 function formatNumber(num) {
@@ -127,9 +127,6 @@ function updateChart()
   //canvas.width = 0.7*window.innerWidth;
   canvas.height = 0.65*window.innerHeight;
   let ctx = canvas.getContext('2d');
-
-  //let div_controls = document.getElementById('chart_controls');
-  //div_controls.style.width = (0.15*window.innerWidth) + "px";
 
   let check_logy = document.getElementById('check_log_y');
 
@@ -324,7 +321,7 @@ function updateChart()
           // See below for detailed descriptions of the annotation options
           annotations: [{
             drawTime: 'afterDraw', // overrides annotation.drawTime if set
-            id: 'vertline_T1', // optional
+            id: 'vertline_T0', // optional
             type: 'line',
             mode: 'vertical',
             scaleID: 'x-axis-0',
@@ -335,14 +332,15 @@ function updateChart()
           },
           {
             drawTime: 'afterDraw', // overrides annotation.drawTime if set
-            id: 'vertline_T2', // optional
+            id: 'vertline_T1', // optional
             type: 'line',
             mode: 'vertical',
             scaleID: 'x-axis-0',
             value: data_predicted.aggregated[data_predicted.aggregated.length-1].t,
-            borderColor: 'rgba(75,75,75,0.5)',
+            borderColor: 'rgba(50,50,50,0.0)',
             borderWidth: 2,
-            borderDash: [2, 2]
+            borderDash: [2, 2],
+            hidden: true
           }]
         },
 				plugins: {
@@ -444,7 +442,6 @@ function initializeSimulationParameters(hist_length)
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
-    T_intervention: 0,
     dt: 0.5/24.0,                           //timestep size [days]
     b1N: new Array(total_length).fill(0.6), //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
@@ -461,40 +458,60 @@ function initializeSimulationParameters(hist_length)
   return params;
 }
 
-function updateParameters()
+function updateInterventions(ind)
 {
-  let requires_update = false;
+  let container = document.getElementById("container_interv" + ind);
+
+  if (document.getElementById("check_interv" + ind).checked)
+  {
+    container.style.color = "black";
+    document.getElementById("slider_interv" + ind + "_T").disabled = false;
+    document.getElementById("slider_interv" + ind + "_b1").disabled = false;
+    chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.5)";
+  }
+  else
+  {
+    container.style.color = "grey";
+    document.getElementById("slider_interv" + ind + "_T").disabled = true;
+    document.getElementById("slider_interv" + ind + "_b1").disabled = true;
+    chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.0)";
+  }
+  updateParameters(true);
+}
+
+function updateParameters(force = false)
+{
+  let requires_update = force;
 
   let b1 = Number(document.getElementById("slider_b1").value);
-  let b1_intervene1 = Number(document.getElementById("slider_interv1_b1").value);
-  let b1_intervene2 = Number(document.getElementById("slider_interv2_b1").value);
-
   document.getElementById("slider_b1_value").innerHTML = b1.toFixed(2);
-  document.getElementById("slider_interv1_b1_value").innerHTML = b1_intervene1.toFixed(2);
-  document.getElementById("slider_interv2_b1_value").innerHTML = b1_intervene2.toFixed(2);
 
-  let slider_interv1_T = document.getElementById("slider_interv1_T");
-  let slider_interv2_T = document.getElementById("slider_interv2_T");
+  let interv_params = [{t: Infinity, val: 0}, {t: Infinity, val: 0}];
 
-  let T1 = Number(slider_interv1_T.value);
-  let T2 = Number(slider_interv2_T.value);
-
-  if (T2 < T1)
+  for (let i = 0; i < 2; ++i)
   {
-    T2 = T1;
-    slider_interv2_T.value = T2;
+    if (document.getElementById("check_interv" + i).checked)
+    {
+      interv_params[i].t = Number(document.getElementById("slider_interv" + i + "_T").value);
+      interv_params[i].val = Number(document.getElementById("slider_interv" + i + "_b1").value);
+      document.getElementById("slider_interv" + i + "_T_value").innerHTML = interv_params[i].t;
+      document.getElementById("slider_interv" + i + "_b1_value").innerHTML = interv_params[i].val.toFixed(2);
+    }
   }
-
-  document.getElementById("slider_interv1_T_value").innerHTML = T1;
-  document.getElementById("slider_interv2_T_value").innerHTML = T2;
 
   for (let j = 0; j < sim_params.b1N.length; ++j)
   {
     let val = b1;
-    if (j >= T1)
-      val = b1_intervene1;
-    if (j >= T2)
-      val = b1_intervene2;
+
+    let largest_t = -1;
+    for (let k = 0; k < 2; ++k)
+    {
+      if (j >= interv_params[k].t && interv_params[k].t > largest_t)
+      {
+        largest_t = interv_params[k].t;
+        val = interv_params[k].val;
+      }
+    }
 
     if (sim_params.b1N[j] != val)
     {
@@ -531,8 +548,8 @@ function updateParameters()
       sim_params.T_pred = val;
       requires_update = true;
       document.getElementById("slider_finalT_text").innerHTML = "Predict for " + val + " days";
+      slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
       slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
-      slider_interv2_T.max = sim_params.T_hist + sim_params.T_pred;
     }
   }
 
@@ -544,8 +561,11 @@ function updateParameters()
 
     chart_config.data.datasets[8].data = data_predicted.aggregated;
 
-    chart.annotation.elements['vertline_T1'].options.value = data_predicted.aggregated[T1-1].t;
-    chart.annotation.elements['vertline_T2'].options.value = data_predicted.aggregated[T2-1].t;
+    for (let i = 0; i < 2; ++i)
+    {
+      if (interv_params[i].t != Infinity)
+        chart.annotation.elements["vertline_T" + i].options.value = data_predicted.aggregated[interv_params[i].t-1].t;
+    }
     chart.update();
   }
 }
