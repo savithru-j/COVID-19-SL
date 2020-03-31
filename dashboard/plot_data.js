@@ -454,10 +454,10 @@ function initializeSimulationParameters(hist_length)
     E_0: 5,                                 //number of individiuals exposed at start
     I1h_0: 0                                //number of hidden mildly infected people at start
   }
-  
+
   for (let i = 18; i < total_length; ++i)
     params.b1N[i] = 0.1;
-  
+
   return params;
 }
 

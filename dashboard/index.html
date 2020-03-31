@@ -26,18 +26,12 @@
 
     <h2>Simulating the Coronavirus pandemic in Sri Lanka</h2>
 
-    <div class="para">
-      <p>The COVID-19 pandemic has interrupted the day-to-day life of all Sri Lankans. At the time of writing, the entire country is in lockdown. As of now, due to strict interventions, the disease spread seems to have slowed down. However, it is not completely clear what we should expect in the future, especially when interventions change. To shed some light, we have developed an interactive tool to model the spread of COVID-19 in Sri Lanka using a classical SEIR (<b>S</b>usceptible → <b>E</b>xposed → <b>I</b>nfected → <b>R</b>emoved (i.e recovered and fatal) infectious disease model. We also modified the model to account for the Sri Lankan setting.
-      </p>
-    </div>
-
-    <hr>
+    <div class="small" style="color:gray;"><b>Disclaimer</b>: This simulation is for research and public awareness purposes only and is not intended to be a tool for decision-making. There are many uncertainties about the infection and transmission of COVID-19 and there are many limitations to this simple model.</div>
+    <br>
 
     <div class="clearfix">
       <div class="column" id="chart_controls" style="width:20%;">
-        <br>
-        <b>Chart controls</b>
-        <br>
+        <h3>Chart controls</h3>
         <div class="control">
           <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
         </div>
@@ -56,11 +50,7 @@
         <br>
         <hr style="margin-top:10px;">
 
-        <br>
-        <b>Simulation controls</b>
-        <br>
-        <br>
-
+        <h3>Simulation controls</h3>
         <div class="control full">
           <center>
             <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1 value=7></input>
@@ -127,36 +117,52 @@
                 <span class="small">Second intervention on day</span>
                 <span class="small" id="slider_interv2_T_value">30</span>
                 <span class="small"> to change \(\beta_1\) to </span>
-                <span id="slider_interv2_b1_value">0.25</span>
-                <input class="block" type="range" id="slider_interv2_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.25></input>
+                <span id="slider_interv2_b1_value">0.10</span>
+                <input class="block" type="range" id="slider_interv2_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.1></input>
               </center>
             </div>
         </div>
       </div>
     </div>
 
-    <hr>
+    <br>
 
+    <div class="para">
+      <p>The COVID-19 pandemic has interrupted the day-to-day life of all Sri Lankans. At the time of writing, the entire country is in lockdown. As of now, due to strict interventions, the disease spread seems to have slowed down. However, it is not completely clear what we should expect in the future, especially when interventions change. To shed some light, we have developed an interactive tool to model the spread of COVID-19 in Sri Lanka using a classical SEIR (<b>S</b>usceptible → <b>E</b>xposed → <b>I</b>nfected → <b>R</b>emoved (i.e recovered and fatal) infectious disease model. We also modified the model to account for the Sri Lankan setting.
+      </p>
+    </div>
+
+    <br>
     <h3>Model description</h3>
 
     <div class="para">
-      <p>
-        In our model, the entire population is divided into the following classes:
-        <ul>
-          <li>\(S\) - Susceptible individuals</li>
-          <li>\(E\) - Exposed individuals who have contracted the disease</li>
-          <li>\(I_1\) - Infected individuals with mild symptoms (sub-division is discussed later)</li>
-          <li>\(I_2\) - Infected individuals with severe symptoms (require hospitalization)</li>
-          <li>\(I_3\) - Infected individuals at critical stage (require ICU admission)</li>
-          <li>\(R\) - Recovered individuals (sub-division is discussed later)</li>
-          <li>\(D\) - Fatalities</li>
-        </ul>
-      </p>
+
+      <div class="clearfix">
+        <div class="column" style="width:50%;">
+          <p>
+            In our model, the entire population is divided into the following classes:
+            <ul>
+              <li>\(S\) - Susceptible individuals</li>
+              <li>\(E\) - Exposed individuals who have contracted the disease</li>
+              <li>\(I_1\) - Infected individuals with mild symptoms (sub-division is discussed later)</li>
+              <li>\(I_2\) - Infected individuals with severe symptoms (require hospitalization)</li>
+              <li>\(I_3\) - Infected individuals at critical stage (require ICU admission)</li>
+              <li>\(R\) - Recovered individuals (sub-division is discussed later)</li>
+              <li>\(D\) - Fatalities</li>
+            </ul>
+          </p>
+        </div>
+        <div class="column" style="width:50%;">
+          <img src="./model_schematic.png" style="width:100%"></img>
+          <center><figcaption class="tiny" style="margin-top:10px;">Schematic of model classes and rate parameters</figcaption></center>
+        </div>
+      </div>
+
       <p>
         Susceptible (\(S\)) individuals contract the disease from infected individuals in the \(I_1\) class. We assume that severe (\(I_2\)) and critical (\(I_3\)) cases do not infect others after hospitalization, due to higher caution and preventive measures in hospitals. Susceptible individuals then move to the exposed class (\(E\)). After an incubation period (~5 days) in \(E\), they move to a mildly symptomatic class (\(I_1\)).
       </p>
       <p>
-        According to literature, roughly 81% of the population recover after mild symptoms (in ~6 days) and move on to the recovered class (\(R\)). The remaining 19% in \(I_1\) develop severe symptoms and move to the \(I_2\) class. These severe cases require hospitalization. About three-fourths in \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China [ref], and were used to calculate the rate parameters, \(a, g1, g2, g3, p1, p2,\) and \(\mu\).
+        According to literature, roughly 81% of the population recover after mild symptoms (in ~6 days) and move on to the recovered class (\(R\)). The remaining 19% in \(I_1\) develop severe symptoms and move to the \(I_2\) class. These severe cases require hospitalization. About three-fourths in \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China, and were used to calculate the rate parameters, \(a, \gamma_1, \gamma_2, \gamma_3, p_1, p_2,\) and \(\mu\).
       </p>
 
       <p>
@@ -170,24 +176,32 @@
       </p>
     </div>
 
-    <center>
+    <!-- <center>
       <img src="./model_schematic.png" style="width:70%"></img>
       <figcaption style="margin-top:10px;">Schematic of model classes and rate parameters</figcaption>
-    </center>
+    </center> -->
 
     <br>
-    <hr>
+    <h3> Data sources</h3>
 
-    Data sources:
-    <p style="font-size:15px">
-      <a href="http://www.epid.gov.lk/web/index.php?option=com_content&view=article&id=225&Itemid=518&lang=en">Situation reports</a> - Epidemiology unit, Ministry of Health, Sri Lanka
-      <!--
-      <br>
-      <a href="https://en.wikipedia.org/wiki/2020_coronavirus_pandemic_in_Italy">2020 Coronavirus Pandemic in Italy</a> - Wikipedia
-    -->
+    <p class="small">
+      <a href="http://www.epid.gov.lk/web/index.php?option=com_content&view=article&id=225&Itemid=518&lang=en" target="_blank">Situation reports</a> - Epidemiology unit, Ministry of Health, Sri Lanka
+      <br><br>
+      <a href="https://alhill.shinyapps.io/COVID19seir/" target="_blank">COVID-10 modeling app by Allison Hill</a>
+    </p>
+
+    <br>
+    <h3>About</h3>
+
+    <p class="small">
+      This model was developed by <a href="https://wadduwagelab.com/" target="_blank">Dushan Wadduwage</a> (<a href="mailto:wadduwage@fas.harvard.edu">wadduwage@fas.harvard.edu</a>), <a href="https://www.linkedin.com/in/savithru/" target="_blank">Savithru Jayasinghe</a> (<a href="mailto:savithru@mit.edu">savithru@mit.edu</a>), and <a href="https://medicine.yale.edu/profile/suneth_agampodi/" target="_blank">Suneth Agampodi</a> (<a href="mailto:suneth.agampodi@yale.edu">suneth.agampodi@yale.edu</a>).
+      <br><br>
+      The Javascript code behind this web application is available on <a href="https://github.com/savithru-j/COVID-19-SL" target="_blank">Github</a> under an <a href="https://opensource.org/licenses/MIT" target="_blank">MIT license</a>.
     </p>
 
   </div>
+
+  <div style="height:30px"></div>
 
 </body>
 </html>

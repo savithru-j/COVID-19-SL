@@ -4,7 +4,7 @@
 
 body {
   height: 100%;
-  font-family: "Trebuchet MS", sans-serif;
+  font-family: "Helvetica", sans-serif;
 }
 
 .block {
@@ -42,7 +42,9 @@ div.control {
 div.para {
   margin-top:20px;
   margin-bottom:20px;
+  text-align: justify;
 }
+
 
 button.small {
   min-height: 35px;
