@@ -1,3 +1,6 @@
+// COVID-19 Simulation Tool in JavaScript
+// Copyright 2020 Savithru Jayasinghe and Dushan Wadduwage
+// Licensed under the MIT License (LICENSE.txt)
 
 'use strict';
 
