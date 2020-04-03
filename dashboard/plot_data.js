@@ -102,6 +102,15 @@ var data_raw_SL = getRawDataSriLanka();
 var data_SL = getDataSriLanka();
 var data_IT = getDataItaly();
 
+var default_controls = {
+  b1N_init: 0.92,   //initial beta_1 value
+  b2N_init: 0.00,   //initial beta_2 value
+  b3N_init: 0.00,   //initial beta_3 value
+  b1N_T0: 0.05,     //beta_1 after intervention 0
+  T0: 13,           //time of intervention 0
+  diag_frac: 0.1
+}
+
 var sim_params = initializeSimulationParameters(data_SL.length, 7); //predict for 7 days by default
 
 var data_predicted = getPredictionData(data_SL[0].t);
@@ -117,7 +126,7 @@ window.onload = function()
   let slider_interv1_T = document.getElementById('slider_interv1_T');
   slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
   slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
-  slider_interv0_T.value = 18; //slider_interv1_T.max;
+  slider_interv0_T.value = default_controls.T0;
   slider_interv1_T.value = slider_interv0_T.max;
   document.getElementById('slider_interv0_T_value').innerHTML = slider_interv0_T.value;
   document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
@@ -469,7 +478,7 @@ function resetZoom()
 function initializeSimulationParameters(hist_length, pred_length)
 {
   //allocate maximum possible through sliders so that we don't have to resize later
-  let total_length = hist_length + 300;
+  let total_length = hist_length + 200;
 
   let q_input = new Array(total_length).fill(0.0);
   for (let i = 0; i < data_raw_SL.length; ++i)
@@ -478,17 +487,17 @@ function initializeSimulationParameters(hist_length, pred_length)
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
-    dt: 0.5/24.0,                                 //timestep size [days]
-    b1N: new Array(total_length).fill(0.6),       //transmission rate from mild to susceptible
-    b2N: new Array(total_length).fill(0.0),       //transmission rate from severe to susceptible
-    b3N: new Array(total_length).fill(0.0),       //transmission rate from critical to susceptible
-    quarantine_input: q_input,                    //no. of patients added directly to quarantine
-    diag_frac: new Array(total_length).fill(0.5), //fraction of I1 patients that are diagnosed
-    E0_0: 5,                                      //number of non-infectious exposed individuals at start
+    dt: 0.5/24.0,                                                       //timestep size [days]
+    b1N: new Array(total_length).fill(default_controls.b1N_init),       //transmission rate from mild to susceptible
+    b2N: new Array(total_length).fill(default_controls.b2N_init),       //transmission rate from severe to susceptible
+    b3N: new Array(total_length).fill(default_controls.b3N_init),       //transmission rate from critical to susceptible
+    quarantine_input: q_input,                                          //no. of patients added directly to quarantine
+    diag_frac: new Array(total_length).fill(default_controls.diag_frac),//fraction of I1 patients that are diagnosed
+    E0_0: 5,                                                            //number of non-infectious exposed individuals at start
   }
 
-  for (let i = 18; i < total_length; ++i)
-    params.b1N[i] = 0.1; //To simulate curfew
+  for (let i = default_controls.T0; i < total_length; ++i)
+    params.b1N[i] = default_controls.b1N_T0; //To simulate curfew
 
   return params;
 }
