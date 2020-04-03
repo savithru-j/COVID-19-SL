@@ -45,6 +45,38 @@ div.para {
   text-align: justify;
 }
 
+#canvas_container {
+  position: relative;
+}
+#legend {
+  position: absolute;
+  left: 90px;
+  top: 12%;
+  z-index: 1;
+  background-color: rgba(250, 250, 250, 0.7);
+  opacity: 1.0;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.legend_column {
+  float: left;
+  padding: 0px;
+}
+
+.legend_value {
+  text-align:right;
+}
+
+.exposed { color: rgb(196, 163, 106); }
+.asymptomatic { color: rgb(83, 181, 207); }
+.mild_hidden { color: rgb(230, 183, 44); }
+.mild { color: rgb(204, 163, 39); }
+.severe { color: rgb(240, 150, 40); }
+.critical { color: rgb(200, 0, 0); }
+.recovered_hidden { color: rgb(127, 204, 49); }
+.recovered { color: rgb(111, 179, 43); }
+.infected { color: rgb(52, 101, 164); }
 
 button.small {
   min-height: 35px;
@@ -67,6 +99,10 @@ input.control.intervention {
 
 .tiny {
   font-size: 14px;
+}
+
+.teeny {
+  font-size: 13px;
 }
 
 .tooltip {

@@ -42,7 +42,8 @@ function getRawDataSriLanka()
   data.push({t: moment('30-03-2020', date_format), y: [106, 14, 2, 0]});
   data.push({t: moment('31-03-2020', date_format), y: [124, 17, 2, 0]});
   data.push({t: moment('01-04-2020', date_format), y: [124, 21, 3, 0]});
-  data.push({t: moment('02-04-2020', date_format), y: [126, 21, 4, 0]});
+  data.push({t: moment('02-04-2020', date_format), y: [125, 22, 4, 0]});
+  data.push({t: moment('03-04-2020', date_format), y: [131, 24, 4, 0]});
   return data;
 }
 
@@ -114,6 +115,7 @@ window.onload = function()
   document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
 
   updateChart();
+  updateLegend(0);
 }
 
 function formatNumber(num) {
@@ -204,30 +206,50 @@ function updateChart()
           categoryPercentage: cat_width_frac,
           order: 9
         },
-				{
-					label: 'Mildly infected',
-					backgroundColor: 'rgba(255, 200, 0, 0.75)',
-					data: data_predicted.categorized[3],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 5
-				},
         {
           label: 'Mildly infected - hidden',
           backgroundColor: 'rgba(255, 200, 0, 0.5)',
-          data: data_predicted.categorized[4],
+          data: data_predicted.categorized[3],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
           order: 8
         },
+        {
+          label: 'Recovered - hidden',
+          backgroundColor: 'rgba(130, 210, 50, 0.4)',
+          data: data_predicted.categorized[4],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 7
+        },
+        {
+          label: 'Recovered',
+          backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
+          data: data_predicted.categorized[5],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 6
+        },
+				{
+					label: 'Mildly infected',
+					backgroundColor: 'rgba(255, 200, 0, 0.75)',
+					data: data_predicted.categorized[6],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 5
+				},
 				{
 					label: 'Severely infected',
 					backgroundColor: 'rgba(240, 150, 40, 0.75)',
-					data: data_predicted.categorized[5],
+					data: data_predicted.categorized[7],
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
@@ -237,33 +259,13 @@ function updateChart()
 				{
 					label: 'Critically infected',
 					backgroundColor: 'rgba(200, 0, 0, 0.75)',
-					data: data_predicted.categorized[6],
+					data: data_predicted.categorized[8],
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
 					order: 3
 				},
-				{
-					label: 'Recovered',
-					backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
-					data: data_predicted.categorized[7],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 6
-				},
-        {
-          label: 'Recovered - hidden',
-          backgroundColor: 'rgba(130, 210, 50, 0.4)',
-          data: data_predicted.categorized[8],
-          type: 'bar',
-          stack: 'stack0',
-          barPercentage: bar_width_frac,
-          categoryPercentage: cat_width_frac,
-          order: 7
-        },
 				{
 					label: 'Fatal',
 					backgroundColor: 'rgba(10, 10, 10, 0.75)',
@@ -294,17 +296,7 @@ function updateChart()
 					fill: true,
 					borderWidth: 2,
 					order: 1
-				},
-//				{
-//					label: 'Italy - confirmed cases',
-//					backgroundColor: 'rgba(1,1,1,0)',
-//					borderColor: '#fcaf3e',
-//					data: data_IT,
-//					type: 'line',
-//					fill: true,
-//					borderWidth: 2,
-//					hidden: true
-//				}
+				}
 				]
 			},
 			options: {
@@ -327,20 +319,22 @@ function updateChart()
                     //var type = data.datasets[tooltipItem.datasetIndex].label;
                     //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
 
-                    if (tooltipItem.datasetIndex >= 9)
+                    updateLegend(tooltipItem.index);
+
+                    if (tooltipItem.datasetIndex >= 10)
                       return (data.datasets[tooltipItem.datasetIndex].label +
                               ": " + formatNumber(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y));
 
                     // Loop through all datasets to get the actual total of the index
-                    var total = 0;
-                    let labels = [];
-                    for (var i = 2; i < 10; i++)
-                    {
-                      labels.push(data.datasets[i].label + ": " + formatNumber(data.datasets[i].data[tooltipItem.index].y));
-                      total += data.datasets[i].data[tooltipItem.index].y;
-                    }
-                    labels.push("Total: " + formatNumber(total));
-                    return labels;
+                    // var total = 0;
+                    // let labels = [];
+                    // for (var i = 2; i < 10; i++)
+                    // {
+                    //   labels.push(data.datasets[i].label + ": " + formatNumber(data.datasets[i].data[tooltipItem.index].y));
+                    //   total += data.datasets[i].data[tooltipItem.index].y;
+                    // }
+                    // labels.push("Total: " + formatNumber(total));
+                    // return labels;
                 }
             }
         },
@@ -457,6 +451,32 @@ function alignTimelines(align)
 function resetZoom()
 {
   chart.resetZoom();
+}
+
+function updateLegend(day)
+{
+  if (day < 0 || day >= data_predicted.aggregated.length)
+    return;
+
+  document.getElementById("legend_date").innerHTML = data_predicted.aggregated[day].t.format("MMM-DD-YYYY");
+
+  for (let i = 1; i < data_predicted.categorized.length; ++i)
+    document.getElementById("legend_pred" + i).innerHTML = formatNumber(data_predicted.categorized[i][day].y);
+  document.getElementById("legend_pred_infected").innerHTML = formatNumber(data_predicted.categorized[6][day].y + data_predicted.categorized[7][day].y + data_predicted.categorized[8][day].y);
+  document.getElementById("legend_pred_total").innerHTML = formatNumber(data_predicted.aggregated[day].y);
+
+  let true_data = ['-', '-', '-', '-'];
+  if (day < data_raw_SL.length)
+  {
+    true_data[0] = formatNumber(data_raw_SL[day].y[0]);
+    true_data[1] = formatNumber(data_raw_SL[day].y[1]);
+    true_data[2] = formatNumber(data_raw_SL[day].y[2]);
+    true_data[3] = formatNumber(data_raw_SL[day].y[0] + data_raw_SL[day].y[1] + data_raw_SL[day].y[2]);
+  }
+  document.getElementById("legend_true_infected").innerHTML = true_data[0];
+  document.getElementById("legend_true_recovered").innerHTML = true_data[1];
+  document.getElementById("legend_true_fatal").innerHTML = true_data[2];
+  document.getElementById("legend_true_total").innerHTML = true_data[3];
 }
 
 function initializeSimulationParameters(hist_length, pred_length)
@@ -616,21 +636,21 @@ function getPredictionData(start_date)
 
     //Accumulate data into categories for plotting
     data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //S
-    data_cat[1].push({t: date, y: Math.round(sol_history[i][1] + sol_history[i][2])}); //E0 + E1
+    data_cat[1].push({t: date, y: Math.round(sol_history[i][1]) + Math.round(sol_history[i][2])}); //E0 + E1
     data_cat[2].push({t: date, y: Math.round(sol_history[i][3])}); //I0
-    data_cat[3].push({t: date, y: Math.round(c*sol_history[i][4] + sol_history[i][5])}); //mild diagnosed: c*I1 + Iq
-    data_cat[4].push({t: date, y: Math.round((1-c)*sol_history[i][4])}); //mild hidden: (1-c)*I1
-    data_cat[5].push({t: date, y: Math.round(sol_history[i][6])}); //I2
-    data_cat[6].push({t: date, y: Math.round(sol_history[i][7])}); //I3
-    data_cat[7].push({t: date, y: Math.round(sol_history[i][8])}); //R diagnosed
-    data_cat[8].push({t: date, y: Math.round(sol_history[i][9])}); //R hidden
+    data_cat[3].push({t: date, y: Math.round((1-c)*sol_history[i][4])}); //mild hidden: (1-c)*I1
+    data_cat[4].push({t: date, y: Math.round(sol_history[i][9])}); //R hidden
+    data_cat[5].push({t: date, y: Math.round(sol_history[i][8])}); //R diagnosed
+    data_cat[6].push({t: date, y: Math.round(c*sol_history[i][4]) + Math.round(sol_history[i][5])}); //mild diagnosed: c*I1 + Iq
+    data_cat[7].push({t: date, y: Math.round(sol_history[i][6])}); //I2
+    data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //I3
     data_cat[9].push({t: date, y: Math.round(sol_history[i][10])}); //D
 
     let num_confirmed_cases = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
-      num_confirmed_cases += sol_history[i][report_sum_indices[j]];
-    num_confirmed_cases += c*sol_history[i][4]; //c*I1
-    data_agg.push({t: date, y: Math.round(num_confirmed_cases)});
+      num_confirmed_cases += Math.round(sol_history[i][report_sum_indices[j]]);
+    num_confirmed_cases += Math.round(c*sol_history[i][4]); //c*I1
+    data_agg.push({t: date, y: num_confirmed_cases});
   }
 
   return {aggregated: data_agg, categorized: data_cat};
