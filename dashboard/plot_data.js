@@ -107,8 +107,9 @@ var default_controls = {
   b2N_init: 0.00,   //initial beta_2 value
   b3N_init: 0.00,   //initial beta_3 value
   b1N_T0: 0.05,     //beta_1 after intervention 0
+  b1N_T1: 0.05,     //beta_1 after intervention 1
   T0: 13,           //time of intervention 0
-  diag_frac: 0.1
+  diag_frac: 0.12
 }
 
 var sim_params = initializeSimulationParameters(data_SL.length, 7); //predict for 7 days by default
@@ -120,7 +121,9 @@ var chart_config = [];
 
 window.onload = function()
 {
-  updateChart();
+  //Update UI controls to match default values
+  document.getElementById("slider_c").value = default_controls.diag_frac;
+  document.getElementById("slider_c_value").innerHTML = default_controls.diag_frac.toFixed(2);
 
   let slider_interv0_T = document.getElementById('slider_interv0_T');
   let slider_interv1_T = document.getElementById('slider_interv1_T');
@@ -130,6 +133,14 @@ window.onload = function()
   slider_interv1_T.value = slider_interv0_T.max;
   document.getElementById('slider_interv0_T_value').innerHTML = slider_interv0_T.value;
   document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
+
+  document.getElementById("slider_interv0_b1").value = default_controls.b1N_T0;
+  document.getElementById("slider_interv0_b1_value").innerHTML = default_controls.b1N_T0.toFixed(2);
+
+  document.getElementById("slider_interv1_b1").value = default_controls.b1N_T1;
+  document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
+
+  updateChart();
 }
 
 function formatNumber(num) {

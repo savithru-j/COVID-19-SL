@@ -92,9 +92,9 @@
           </div>
 
           <div class="control full">
-              <input class="control" type="range" id="slider_c" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.1></input>
+              <input class="control" type="range" id="slider_c" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
               <br><div class="small tooltip">Reported fraction \(c\) =
-                <span id="slider_c_value">0.10</span>
+                <span id="slider_c_value"></span>
                 <span class="tiny tooltiptext">Fraction of mildly infected cases that are reported</span>
               </div>
           </div>
@@ -115,10 +115,10 @@
                   <input class="control intervention" type="range" id="slider_interv0_T" onmousemove="updateParameters(true)" min=1 max=30 step=1></input>
                   <span><input type="checkbox" id="check_interv0" onchange="updateInterventions(0)" checked></input></span>
                   <span class="small">Add intervention on day</span>
-                  <span class="small" id="slider_interv0_T_value">18</span>
+                  <span class="small" id="slider_interv0_T_value"></span>
                   <span class="small"> to change \(\beta_1\) to </span>
-                  <span id="slider_interv0_b1_value">0.05</span>
-                  <input class="block" type="range" id="slider_interv0_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.05></input>
+                  <span id="slider_interv0_b1_value"></span>
+                  <input class="block" type="range" id="slider_interv0_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
                 </span>
               </center>
             </div>
@@ -126,13 +126,13 @@
             <div class="control full" style="margin-top:20px;">
               <center>
                 <span id="container_interv1" style="color:grey">
-                  <input class="control intervention" type="range" id="slider_interv1_T" onmousemove="updateParameters(true)" min=1 max=30 step=1 value=30 disabled=true></input>
+                  <input class="control intervention" type="range" id="slider_interv1_T" onmousemove="updateParameters(true)" min=1 max=30 step=1 disabled=true></input>
                   <span><input type="checkbox" id="check_interv1" onchange="updateInterventions(1)"></input></span>
                   <span class="small">Add intervention on day</span>
-                  <span class="small" id="slider_interv1_T_value">30</span>
+                  <span class="small" id="slider_interv1_T_value"></span>
                   <span class="small"> to change \(\beta_1\) to </span>
-                  <span id="slider_interv1_b1_value">0.05</span>
-                  <input class="block" type="range" id="slider_interv1_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.05 disabled=true></input>
+                  <span id="slider_interv1_b1_value"></span>
+                  <input class="block" type="range" id="slider_interv1_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 disabled=true></input>
                 </span>
               </center>
             </div>
@@ -158,11 +158,15 @@
             In our model, the entire population is divided into the following classes:
             <ul>
               <li>\(S\) - Susceptible individuals</li>
-              <li>\(E\) - Exposed individuals who have contracted the disease</li>
-              <li>\(I_1\) - Infected individuals with mild symptoms (sub-division is discussed later)</li>
+              <li>\(E_0\) - Exposed individuals before they become infectious</li>
+              <li>\(E_1\) - Exposed individuals after they are infectious</li>
+              <li>\(I_0\) - Asymptomatic individuals</li>
+              <li>\(I_1\) - Infected individuals with mild symptoms</li>
+              <li>\(I_{1Q}\) - Infected individuals with mild symptoms who were directly quarantined upon entry</li>
               <li>\(I_2\) - Infected individuals with severe symptoms (require hospitalization)</li>
               <li>\(I_3\) - Infected individuals at critical stage (require ICU admission)</li>
-              <li>\(R\) - Recovered individuals (sub-division is discussed later)</li>
+              <li>\(R_H\) - Recovered individuals that have not been tested</li>
+              <li>\(R_D\) - Recovered individuals that were diagnosed positive</li>
               <li>\(D\) - Fatalities</li>
             </ul>
           </p>
@@ -174,20 +178,17 @@
       </div>
 
       <p>
-        Susceptible (\(S\)) individuals contract the disease from infected individuals in classes \(I_1, I_2,\) and \(I_3\). We assume that severe (\(I_2\)) and critical (\(I_3\)) cases do not infect others after hospitalization, due to higher caution and preventive measures in hospitals. Susceptible individuals then move to the exposed class (\(E\)). After an incubation period (~5 days) in \(E\), they move to a mildly symptomatic class (\(I_1\)).
+        Susceptible (\(S\)) individuals contract the disease from infected individuals in the classes \(E_1, I_0, I_1, I_2,\) and \(I_3\). They then move to the exposed class (\(E_0\)). After an incubation period (~3 days) in \(E_0\), they become infectious in the \(E_1\) class. From \(E_1\), they can either move to an asymptomatic class, \(I_0\), with 30% probability, or to a mild symptomatic class, \(I_1\), with 70% probability.
       </p>
       <p>
-        According to literature, roughly 81% of the population recover after mild symptoms (in ~6 days) and move on to the recovered class (\(R\)). The remaining 19% in \(I_1\) develop severe symptoms and move to the \(I_2\) class. These severe cases require hospitalization. About three-fourths in \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China, and were used to calculate the rate parameters, \(a, \gamma_1, \gamma_2, \gamma_3, p_1, p_2,\) and \(\mu\).
-      </p>
-
-      <p>
-        While mild infections do not require hospitalization, according to our friends working at the ground level in Sri Lanka, many mild cases (not all) are also hospitalized. However, a stringent testing criteria is employed and therefore not all potential \(I_1\) cases are tested. Therefore, we further decomposed the \(I_1\) and \(R\) classes to two sub-categories: diagnosed (\(I_{1D}, R_D\)), and undiagnosed or hidden (\(I_{1H}, R_H\)). The parameter \(c\) is the fraction that gets diagnosed and moves to \(I_{1D}\) from \(E\). A hidden \(I_{1H}\) case can either move to the \(I_2\) stage and get diagnosed, or recover and move to a hidden recovered (\(R_H\)) class. These hidden cases are never reported, but at the \(I_{1H}\) stage they still contribute to the spread of the virus.
+        According to literature, roughly 81% of the symptomatic individuals recover after mild symptoms (in ~6 days) and move to the recovered class (\(R\)). The remaining 19% from \(I_1\) develop severe symptoms and move to the \(I_2\) class. These severe cases require hospitalization. About three fourths from \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China, and were used to calculate the rate parameters, \(a_0, a_1, f, \gamma_0, \gamma_1, \gamma_2, \gamma_3, p_1, p_2,\) and \(\mu\).
       </p>
       <p>
-        Next, we had a significant number of infected individuals (tested positive) who entered the country from abroad, but were strictly quarantined before they could infect others. We added another sub-category for those quarantined index (coming from abroad) individuals (\(I_{1Q}\)). We assumed that all these cases enter the country at the mildly infected stage \(I_1\), although it is possible that they enter duing the exposed (\(E\)) period as well. When we run the model, we add these cases to the population based on the date they tested positive.
+        While mild infections do not require hospitalization, according to our friends working at the ground level in Sri Lanka, many mild cases (not all) are also hospitalized. However, a stringent testing criterion is employed and therefore not all the potential \(I_1\) cases are tested. Therefore, only a fraction \(c\) moves to the recovered-diagnosed class \(R_D\) from \(I_1\). The undiagnosed fraction \((1-c)\) goes to the recovered-hidden class, \(R_H\). These hidden cases are never reported, but they contribute to the spread of the virus in the infected stage.
       </p>
       <p>
-        Finally, we calibrated the model parameters \(\beta_1\) and \(c\) using the daily diagnosed cases in Sri Lanka. We also used the individuals in the \(I_3\) class and the \(R_D\) class (diagnosed and recovered) to validate the calibration at later dates, when those numbers became available.
+        Next, we had a significant number of infected individuals (tested positive) who entered the country from abroad, but were strictly quarantined before and hence did not infect others. We added another subdivision for those quarantined index (coming from abroad) individuals (\(I_{1Q}\)). We assumed that all these cases enter the country at the mild infected class (\(I_{1Q}\)) (but it is possible that they come at the exposed period). When we run the model, we add these cases to the population based on the date they tested positive.
+        <!-- Next, we had a significant number of infected individuals (tested positive) who entered the country from abroad, but were strictly quarantined before they could infect others. We added another sub-category for those quarantined index (coming from abroad) individuals (\(I_{1Q}\)). We assumed that all these cases enter the country at the mildly infected stage \(I_1\), although it is possible that they enter duing the exposed (\(E\)) period as well. When we run the model, we add these cases to the population based on the date they tested positive. -->
       </p>
     </div>
 
