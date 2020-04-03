@@ -59,50 +59,12 @@ function getDataSriLanka()
   return data;
 }
 
-function getDataItaly()
-{
-  let data = [];
-  data.push({t: moment('31-01-2020', date_format), y: 2});
-  data.push({t: moment('06-02-2020', date_format), y: 3});
-  data.push({t: moment('21-02-2020', date_format), y: 20});
-  data.push({t: moment('22-02-2020', date_format), y: 79});
-  data.push({t: moment('23-02-2020', date_format), y: 150});
-  data.push({t: moment('24-02-2020', date_format), y: 227});
-  data.push({t: moment('25-02-2020', date_format), y: 320});
-  data.push({t: moment('26-02-2020', date_format), y: 445});
-  data.push({t: moment('27-02-2020', date_format), y: 650});
-  data.push({t: moment('28-02-2020', date_format), y: 888});
-  data.push({t: moment('29-02-2020', date_format), y: 1128});
-  data.push({t: moment('01-03-2020', date_format), y: 1694});
-  data.push({t: moment('02-03-2020', date_format), y: 2036});
-  data.push({t: moment('03-03-2020', date_format), y: 2502});
-  data.push({t: moment('04-03-2020', date_format), y: 3089});
-  data.push({t: moment('05-03-2020', date_format), y: 3858});
-  data.push({t: moment('06-03-2020', date_format), y: 4636});
-  data.push({t: moment('07-03-2020', date_format), y: 5883});
-  data.push({t: moment('08-03-2020', date_format), y: 7375});
-  data.push({t: moment('09-03-2020', date_format), y: 9172});
-  data.push({t: moment('10-03-2020', date_format), y: 10149});
-  data.push({t: moment('11-03-2020', date_format), y: 12462});
-  data.push({t: moment('12-03-2020', date_format), y: 15113});
-  data.push({t: moment('13-03-2020', date_format), y: 17660});
-  data.push({t: moment('14-03-2020', date_format), y: 21157});
-  data.push({t: moment('15-03-2020', date_format), y: 24747});
-  data.push({t: moment('16-03-2020', date_format), y: 27980});
-  data.push({t: moment('17-03-2020', date_format), y: 31506});
-  data.push({t: moment('18-03-2020', date_format), y: 35713});
-  data.push({t: moment('19-03-2020', date_format), y: 41035});
-  data.push({t: moment('20-03-2020', date_format), y: 47021});
-  data.push({t: moment('21-03-2020', date_format), y: 53578});
-  data.push({t: moment('22-03-2020', date_format), y: 59138});
-  return data;
-}
-
 var data_raw_SL = getRawDataSriLanka();
 var data_SL = getDataSriLanka();
-var data_IT = getDataItaly();
 
+//The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
+  T_pred: 7,        //prediction length
   b1N_init: 0.92,   //initial beta_1 value
   b2N_init: 0.00,   //initial beta_2 value
   b3N_init: 0.00,   //initial beta_3 value
@@ -112,8 +74,7 @@ var default_controls = {
   diag_frac: 0.12
 }
 
-var sim_params = initializeSimulationParameters(data_SL.length, 7); //predict for 7 days by default
-
+var sim_params = initializeSimulationParameters(data_SL.length, default_controls.T_pred);
 var data_predicted = getPredictionData(data_SL[0].t);
 
 var chart = [];
@@ -122,6 +83,18 @@ var chart_config = [];
 window.onload = function()
 {
   //Update UI controls to match default values
+  document.getElementById("slider_finalT").value = default_controls.T_pred;
+  document.getElementById("slider_finalT_value").innerHTML = default_controls.T_pred;
+
+  document.getElementById("slider_b1").value = default_controls.b1N_init;
+  document.getElementById("slider_b1_value").innerHTML = default_controls.b1N_init.toFixed(2);
+
+  document.getElementById("slider_b2").value = default_controls.b2N_init;
+  document.getElementById("slider_b2_value").innerHTML = default_controls.b2N_init.toFixed(2);
+
+  document.getElementById("slider_b3").value = default_controls.b3N_init;
+  document.getElementById("slider_b3_value").innerHTML = default_controls.b3N_init.toFixed(2);
+
   document.getElementById("slider_c").value = default_controls.diag_frac;
   document.getElementById("slider_c_value").innerHTML = default_controls.diag_frac.toFixed(2);
 
@@ -381,7 +354,7 @@ function updateChart()
             type: 'line',
             mode: 'vertical',
             scaleID: 'x-axis-0',
-            value: data_predicted.aggregated[18-1].t,
+            value: data_predicted.aggregated[default_controls.T0-1].t,
             borderColor: 'rgba(50,50,50,0.5)',
             borderWidth: 2,
             borderDash: [2, 2]
@@ -602,7 +575,7 @@ function updateParameters(force = false)
     {
       sim_params.T_pred = val;
       requires_update = true;
-      document.getElementById("slider_finalT_text").innerHTML = "Predict for " + val + " days";
+      document.getElementById("slider_finalT_value").innerHTML = val;
       slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
       slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
     }
