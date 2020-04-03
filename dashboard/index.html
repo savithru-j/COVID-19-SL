@@ -63,7 +63,7 @@
         <center>
           <h3>Simulation controls</h3>
           <div class="control full">
-              <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1 value=7></input>
+              <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=300 step=1 value=7></input>
               <br><div class="small" id="slider_finalT_text">Predict for 7 days</div>
           </div>
 
@@ -91,10 +91,18 @@
               </div>
           </div>
 
-          <!-- <div class="control">
+          <div class="control full">
+              <input class="control" type="range" id="slider_c" onmousemove="updateParameters()" min=0 max=1 step=0.01 value=0.5></input>
+              <br><div class="small tooltip">Reported fraction \(c\) =
+                <span id="slider_c_value">0.50</span>
+                <span class="tiny tooltiptext">Fraction of mildly infected cases that are reported</span>
+              </div>
+          </div>
+
+          <div class="control">
               <br>
               <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
-          </div> -->
+          </div>
         </center>
       </div>
       <div class="column" style="width:80%;">

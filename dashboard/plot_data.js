@@ -41,6 +41,8 @@ function getRawDataSriLanka()
   data.push({t: moment('29-03-2020', date_format), y: [105, 11, 1, 0]});
   data.push({t: moment('30-03-2020', date_format), y: [106, 14, 2, 0]});
   data.push({t: moment('31-03-2020', date_format), y: [124, 17, 2, 0]});
+  data.push({t: moment('01-04-2020', date_format), y: [124, 21, 3, 0]});
+  data.push({t: moment('02-04-2020', date_format), y: [126, 21, 4, 0]});
   return data;
 }
 
@@ -100,7 +102,7 @@ var data_raw_SL = getRawDataSriLanka();
 var data_SL = getDataSriLanka();
 var data_IT = getDataItaly();
 
-var sim_params = initializeSimulationParameters(data_SL.length);
+var sim_params = initializeSimulationParameters(data_SL.length, 7); //predict for 7 days by default
 
 var data_predicted = getPredictionData(data_SL[0].t);
 
@@ -186,32 +188,32 @@ function updateChart()
 					hidden: true,
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
-					order: 2
+					order: 11
 				},
 				{
 					label: 'Exposed',
-					backgroundColor: 'rgba(255, 220, 160, 0.75)', //'#e9b96e',
+					backgroundColor: 'rgba(255, 220, 160, 0.75)',
 					data: data_predicted.categorized[1],
 					type: 'bar',
 					stack: 'stack0',
 					hidden: true,
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
-					order: 3
+					order: 10
 				},
+        {
+          label: 'Asymptomatic',
+          backgroundColor: 'rgba(180, 240, 255, 0.75)',
+          data: data_predicted.categorized[2],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 9
+        },
 				{
 					label: 'Mildly infected',
 					backgroundColor: 'rgba(255, 200, 0, 0.75)',
-					data: data_predicted.categorized[2],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 4
-				},
-				{
-					label: 'Severely infected',
-					backgroundColor: 'rgba(240, 150, 40, 0.75)',
 					data: data_predicted.categorized[3],
 					type: 'bar',
 					stack: 'stack0',
@@ -219,35 +221,65 @@ function updateChart()
 					categoryPercentage: cat_width_frac,
 					order: 5
 				},
+        {
+          label: 'Mildly infected - hidden',
+          backgroundColor: 'rgba(255, 200, 0, 0.5)',
+          data: data_predicted.categorized[4],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 8
+        },
+				{
+					label: 'Severely infected',
+					backgroundColor: 'rgba(240, 150, 40, 0.75)',
+					data: data_predicted.categorized[5],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 4
+				},
 				{
 					label: 'Critically infected',
 					backgroundColor: 'rgba(200, 0, 0, 0.75)',
-					data: data_predicted.categorized[4],
+					data: data_predicted.categorized[6],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 3
+				},
+				{
+					label: 'Recovered',
+					backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
+					data: data_predicted.categorized[7],
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
 					order: 6
 				},
-				{
-					label: 'Recovered',
-					backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
-					data: data_predicted.categorized[5],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 7
-				},
+        {
+          label: 'Recovered - hidden',
+          backgroundColor: 'rgba(130, 210, 50, 0.4)',
+          data: data_predicted.categorized[8],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 7
+        },
 				{
 					label: 'Fatal',
 					backgroundColor: 'rgba(10, 10, 10, 0.75)',
-					data: data_predicted.categorized[6],
+					data: data_predicted.categorized[9],
 					type: 'bar',
 					stack: 'stack0',
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
-					order: 8
+					order: 2
 				},
 				{
 					label: 'Sri Lanka - actual diagnosed',
@@ -302,14 +334,14 @@ function updateChart()
                     //var type = data.datasets[tooltipItem.datasetIndex].label;
                     //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
 
-                    if (tooltipItem.datasetIndex >= 7)
+                    if (tooltipItem.datasetIndex >= 9)
                       return (data.datasets[tooltipItem.datasetIndex].label +
                               ": " + formatNumber(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y));
 
                     // Loop through all datasets to get the actual total of the index
                     var total = 0;
                     let labels = [];
-                    for (var i = 2; i < 7; i++)
+                    for (var i = 2; i < 10; i++)
                     {
                       labels.push(data.datasets[i].label + ": " + formatNumber(data.datasets[i].data[tooltipItem.index].y));
                       total += data.datasets[i].data[tooltipItem.index].y;
@@ -434,10 +466,10 @@ function resetZoom()
   chart.resetZoom();
 }
 
-function initializeSimulationParameters(hist_length)
+function initializeSimulationParameters(hist_length, pred_length)
 {
-  const pred_length = 7; //no. of days to predict
-  const total_length = hist_length + 200; //pred_length;
+  //allocate maximum possible through sliders so that we don't have to resize later
+  let total_length = hist_length + 300;
 
   let q_input = new Array(total_length).fill(0.0);
   for (let i = 0; i < data_raw_SL.length; ++i)
@@ -446,18 +478,17 @@ function initializeSimulationParameters(hist_length)
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
-    dt: 0.5/24.0,                           //timestep size [days]
-    b1N: new Array(total_length).fill(0.6), //transmission rate from mild to susceptible
-    b2N: new Array(total_length).fill(0.0), //transmission rate from severe to susceptible
-    b3N: new Array(total_length).fill(0.0), //transmission rate from critical to susceptible
-    quarantine_input: q_input,              //no. of patients added directly to quarantine
-    diag_frac: 0.7,                         //fraction of I1 patients that are diagnosed
-    E_0: 5,                                 //number of individiuals exposed at start
-    I1h_0: 0                                //number of hidden mildly infected people at start
+    dt: 0.5/24.0,                                 //timestep size [days]
+    b1N: new Array(total_length).fill(0.6),       //transmission rate from mild to susceptible
+    b2N: new Array(total_length).fill(0.0),       //transmission rate from severe to susceptible
+    b3N: new Array(total_length).fill(0.0),       //transmission rate from critical to susceptible
+    quarantine_input: q_input,                    //no. of patients added directly to quarantine
+    diag_frac: new Array(total_length).fill(0.5), //fraction of I1 patients that are diagnosed
+    E0_0: 5,                                      //number of non-infectious exposed individuals at start
   }
 
   for (let i = 18; i < total_length; ++i)
-    params.b1N[i] = 0.1;
+    params.b1N[i] = 0.1; //To simulate curfew
 
   return params;
 }
@@ -524,10 +555,10 @@ function updateParameters(force = false)
     }
   }
 
-  let slider_element_ids = ["slider_b2", "slider_b3"];
-  let param_arrays = [sim_params.b2N, sim_params.b3N];
+  let slider_element_ids = ["slider_b2", "slider_b3", "slider_c"];
+  let param_arrays = [sim_params.b2N, sim_params.b3N, sim_params.diag_frac];
 
-  for (let i = 0; i < 2; ++i)
+  for (let i = 0; i < 3; ++i)
   {
     let slider = document.getElementById(slider_element_ids[i]);
     if (slider)
@@ -560,10 +591,10 @@ function updateParameters(force = false)
   if (requires_update)
   {
     data_predicted = getPredictionData(data_SL[0].t);
-    for (let i = 0; i < 7; ++i)
+    for (let i = 0; i < data_predicted.categorized.length; ++i)
       chart_config.data.datasets[i].data = data_predicted.categorized[i];
 
-    chart_config.data.datasets[8].data = data_predicted.aggregated;
+    chart_config.data.datasets[11].data = data_predicted.aggregated;
 
     for (let i = 0; i < 2; ++i)
     {
@@ -579,28 +610,33 @@ function getPredictionData(start_date)
   let sol_history = predictModel(sim_params);
 
   let data_agg = [];
-  let data_cat = new Array(7);
-  for (let i = 0; i < 7; ++i)
+  let data_cat = new Array(10);
+  for (let i = 0; i < data_cat.length; ++i)
     data_cat[i] = new Array();
 
-  const report_sum_indices = [2, 4, 5, 6, 7, 9];
+  const report_sum_indices = [5, 6, 7, 8, 10]; //omits c*I1, which will be added inside the loop
 
   for (let i = 0; i < sol_history.length; i++)
   {
     let date = start_date.clone().add(i,'days');
+    let c = sim_params.diag_frac[i];
 
     //Accumulate data into categories for plotting
     data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //S
-    data_cat[1].push({t: date, y: Math.round(sol_history[i][1])}); //E
-    data_cat[2].push({t: date, y: Math.round(sol_history[i][2] + sol_history[i][3] + sol_history[i][4])}); //I1
-    data_cat[3].push({t: date, y: Math.round(sol_history[i][5])}); //I2
-    data_cat[4].push({t: date, y: Math.round(sol_history[i][6])}); //I3
-    data_cat[5].push({t: date, y: Math.round(sol_history[i][7] + sol_history[i][8])}); //R
-    data_cat[6].push({t: date, y: Math.round(sol_history[i][9])}); //D
+    data_cat[1].push({t: date, y: Math.round(sol_history[i][1] + sol_history[i][2])}); //E0 + E1
+    data_cat[2].push({t: date, y: Math.round(sol_history[i][3])}); //I0
+    data_cat[3].push({t: date, y: Math.round(c*sol_history[i][4] + sol_history[i][5])}); //mild diagnosed: c*I1 + Iq
+    data_cat[4].push({t: date, y: Math.round((1-c)*sol_history[i][4])}); //mild hidden: (1-c)*I1
+    data_cat[5].push({t: date, y: Math.round(sol_history[i][6])}); //I2
+    data_cat[6].push({t: date, y: Math.round(sol_history[i][7])}); //I3
+    data_cat[7].push({t: date, y: Math.round(sol_history[i][8])}); //R diagnosed
+    data_cat[8].push({t: date, y: Math.round(sol_history[i][9])}); //R hidden
+    data_cat[9].push({t: date, y: Math.round(sol_history[i][10])}); //D
 
     let num_confirmed_cases = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
       num_confirmed_cases += sol_history[i][report_sum_indices[j]];
+    num_confirmed_cases += c*sol_history[i][4]; //c*I1
     data_agg.push({t: date, y: Math.round(num_confirmed_cases)});
   }
 
@@ -610,82 +646,105 @@ function getPredictionData(start_date)
 function predictModel(params)
 {
   //Periods [days]
-  let T_incub  = 5;
-  let T_mild   = 6;
-  let T_severe = 4;
-  let T_icu    = 10;
+  const T_incub0 = 3;
+  const T_incub1 = 2;
+  const T_asympt = 6;
+  const T_mild   = 6;
+  const T_severe = 4;
+  const T_icu    = 10;
 
   //Probabilities
-  let prob_I1_E   = 1;  //exposed to mildly infected
-  let prob_R_I1   = 0.81*prob_I1_E; //mild to recovered
-  let prob_I2_I1  = 1 - prob_R_I1; //mild to severe
-  let prob_R_I2   = 0.14/prob_I2_I1; //severe to recovered
-  let prob_I3_I2  = 1 - prob_R_I2; //severe to critical
-  let prob_D_I3   = 0.02/(prob_I3_I2*prob_I2_I1); //critical to dead
-  let prob_R_I3   = 1 - prob_D_I3; //critical to recovered
+  // const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
+  // const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
+  // const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
+  // const prob_I0_R  = 1;
+  // const prob_I1_R   = 0.51/(prob_E0_E1*prob_E1_I1); //mild to recovered
+  // const prob_I1_I2  = 1 - prob_I1_R; //mild to severe
+  // const prob_I2_R   = 0.14/(prob_E0_E1*prob_E1_I1*prob_I1_I2); //severe to recovered
+  // const prob_I2_I3  = 1 - prob_I2_R; //severe to critical
+  // const prob_I3_D   = 0.02/(prob_E0_E1*prob_E1_I1*prob_I1_I2*prob_I2_I3); //critical to dead
+  // const prob_I3_R   = 1 - prob_I3_D; //critical to recovered
+
+  const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
+  const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
+  const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
+  const prob_I0_R  = 1;
+  const prob_I1_R   = 0.8; //mild to recovered
+  const prob_I1_I2  = 1 - prob_I1_R; //mild to severe
+  const prob_I2_R   = 0.15/(prob_I1_I2); //severe to recovered
+  const prob_I2_I3  = 1 - prob_I2_R; //severe to critical
+  const prob_I3_D   = 0.02/(prob_I1_I2*prob_I2_I3); //critical to dead
+  const prob_I3_R   = 1 - prob_I3_D; //critical to recovered
+
 
   //Rates [1/day]
-  let a   = (1/T_incub)  * prob_I1_E;
-  let g1  = (1/T_mild)   * prob_R_I1;
-  let p1  = (1/T_mild)   * prob_I2_I1;
-  let g2  = (1/T_severe) * prob_R_I2;
-  let p2  = (1/T_severe) * prob_I3_I2;
-  let g3  = (1/T_icu)    * prob_R_I3;
-  let mu  = (1/T_icu)    * prob_D_I3;
+  const a0 = (1/T_incub0) * prob_E0_E1;
+  const a10 = (1/T_incub1) * prob_E1_I0;
+  const a11 = (1/T_incub1) * prob_E1_I1;
+  const a1 = a10 + a11;
+  const g0 = (1/T_asympt) * prob_I0_R;
+  const g1 = (1/T_mild)   * prob_I1_R;
+  const p1 = (1/T_mild)   * prob_I1_I2;
+  const g2 = (1/T_severe) * prob_I2_R;
+  const p2 = (1/T_severe) * prob_I2_I3;
+  const g3 = (1/T_icu)    * prob_I3_R;
+  const mu = (1/T_icu)    * prob_I3_D;
 
   let N = 21.4e6; //Population of Sri Lanka
 
   //Initial solution
-  let E_0 = params.E_0;
-  let I1d_0 = 0;
-  let I1h_0 = params.I1h_0;
-  let I1q_0 = 0;
+  let E0_0 = params.E0_0;
+  let E1_0 = 0;
+  let I0_0 = 0;
+  let I1_0 = 0;
+  let Iq_0 = 0;
   let I2_0 = 0;
   let I3_0 = 0;
   let Rd_0 = 1;  //One patient had already recovered in SL
   let Rh_0 = 0;
   let D_0 = 0;
-  let S_0 = N - E_0 - I1d_0 - I1h_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Rh_0 - D_0;
+  let S_0 = N - E0_0 - E1_0 - I0_0 - I1_0 - Iq_0 - I2_0 - I3_0 - Rd_0 - Rh_0 - D_0;
 
-  //Solution vector: [S, E, I1d, I1h, I1q, I2, I3, Rd, Rh, D]
-  let solution_hist = [[S_0, E_0, I1d_0, I1h_0, I1q_0, I2_0, I3_0, Rd_0, Rh_0, D_0]];
+  //Solution vector: [S, E0, E1, I0, I1, Iq, I2, I3, Rd, Rh, D]
+  let solution_hist = [[S_0, E0_0, E1_0, I0_0, I1_0, Iq_0, I2_0, I3_0, Rd_0, Rh_0, D_0]];
 
   const nt = params.T_hist + params.T_pred - 1;
   const nt_sub = 1.0/params.dt;
-  const c = params.diag_frac;
 
   for (let i = 0; i < nt; i++)
   {
-    let sol = solution_hist[i].slice(); //copy last solution vector
+    let u = solution_hist[i].slice(); //copy last solution vector
 
     let b1 = params.b1N[i] / N;
     let b2 = params.b2N[i] / N;
     let b3 = params.b3N[i] / N;
     let q_input = params.quarantine_input[i];
+    let c = params.diag_frac[i];
 
     for (let j = 0; j < nt_sub; j++)
     {
-      let dS = -(b1*(sol[2] + sol[3]) + b2*sol[5] + b3*sol[6])*sol[0];
-      let dsol = [dS,                                               //S
-                  -dS - a*sol[1],                                   //E
-                  a*c*sol[1]     - (g1 + p1)*sol[2],                //I1d
-                  a*(1-c)*sol[1] - (g1 + p1)*sol[3],                //I1h
-                  q_input        - (g1 + p1)*sol[4],                //I1q
-                  p1*(sol[2] + sol[3] + sol[4]) - (g2 + p2)*sol[5], //I2
-                  p2*sol[5] - (g3 + mu)*sol[6],                     //I3
-                  g1*(sol[2] + sol[4]) + g2*sol[5] + g3*sol[6],     //Rd
-                  g1*(sol[3]),                                      //Rh
-                  mu*sol[6]                                         //D
-                 ];
+      let dS = -(b1*(u[2] + u[3] + u[4]) + b2*u[6] + b3*u[7])*u[0];
+      let du = [ dS,                                                                                          //S
+                -dS - a0*u[1],                                                                                //E0
+                      a0*u[1] - a1*u[2],                                                                      //E1
+                               a10*u[2] - g0*u[3],                                                            //I0
+                               a11*u[2]           - (g1 + p1)*u[4],                                           //I1
+                  q_input                                - (g1 + p1)*u[5],                                    //Iq
+                                                          p1*(u[4] + u[5]) - (g2 + p2)*u[6],                  //I2
+                                                                                    p2*u[6] - (g3 + mu)*u[7], //I3
+                                                        g1*(c*u[4] + u[5])        + g2*u[6]        + g3*u[7], //Rd
+                                          g0*u[3] +  (1-c)*g1*u[4],                                           //Rh
+                                                                                                     mu*u[7]  //D
+               ];
 
-      for (let k = 0; k < sol.length; k++)
-        sol[k] += dsol[k]*params.dt;
+      for (let k = 0; k < u.length; k++)
+        u[k] += du[k]*params.dt;
     } //sub-timestepping [hrs]
 
-    if (sol[1] < 0.5)
-      sol[1] = 0.0;
+    if (u[1] < 0.5)
+      u[1] = 0.0;
 
-    solution_hist.push(sol); //save solution daily
+    solution_hist.push(u); //save solution daily
   }
 
   return solution_hist;
@@ -694,22 +753,22 @@ function predictModel(params)
 
 function optimizeParameters()
 {
-  let params = initializeSimulationParameters(data_SL.length);
-  let T_pred_init = params.T_pred;
-  params.T_pred = 0;
+  let params = initializeSimulationParameters(data_SL.length, 0); //no prediction
 
   let res = getFitResidual(params);
   let resnorm = getL2Norm(res);
+  let resnorm_init = resnorm;
 
   let m = res.length;
   let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n = n_b1 + 2; //beta_1 values, E_0, I1h_0
+  let n_c = (params.T_hist - 1); //no. of c values to optimize
+  let n = n_b1 + 0*n_c; //beta_1 values, E0_0, I1h_0
 
   let param_vec = new Array(n).fill(0);
   for (let i = 0; i < n_b1; ++i)
     param_vec[i] = params.b1N[i];
-  param_vec[n_b1] = params.E_0;
-  param_vec[n_b1 + 1] = params.I1h_0;
+  // for (let i = 0; i < n_c; ++i)
+  //   param_vec[n_b1 + i] = params.diag_frac[i];
 
   let dparam_vec = new Array(n).fill(0);
   let param_vec0 = new Array(n).fill(0);
@@ -745,17 +804,13 @@ function optimizeParameters()
             param_vec[i] = 0.0;
           params.b1N[i] = param_vec[i];
         }
-        else if (i == n_b1)
+        else
         {
-          if (param_vec[i] < 0.0)
-            param_vec[i] = 0.0;
-          params.E_0 = param_vec[i];
-        }
-        else if (i == n_b1+1)
-        {
-          if (param_vec[i] < 0.0)
-            param_vec[i] = 0.0;
-          params.I1h_0 = param_vec[i];
+          // if (param_vec[i] < 0.0)
+          //   param_vec[i] = 0.0;
+          // else if (param_vec[i] > 1.0)
+          //   param_vec[i] = 1.0;
+          // params.diag_frac[i-n_b1] = param_vec[i];
         }
       }
 
@@ -774,13 +829,20 @@ function optimizeParameters()
     } //linesearch
   } //gradient descent
 
+  console.log("Final resnorm: " + resnorm + ", rel: " + resnorm/resnorm_init);
+
   for (let i = 0; i < n_b1; ++i)
     sim_params.b1N[i] = params.b1N[i];
-  sim_params.E_0 = params.E_0;
-  sim_params.I1h_0 = params.I1h_0;
 
+  // for (let i = 0; i < n_c; ++i)
+  //     sim_params.diag_frac[i] = params.diag_frac[i];
+
+  //Extend last beta and c value to future
   for (let i = n_b1; i < sim_params.b1N.length; ++i)
     sim_params.b1N[i] = sim_params.b1N[n_b1-1];
+
+  // for (let i = n_c; i < sim_params.diag_frac.length; ++i)
+  //   sim_params.diag_frac[i] = sim_params.diag_frac[n_c-1];
 
   updateParameters();
   return params;
@@ -790,34 +852,40 @@ function getFitResidual(params)
 {
   const num_eq = 2;
   let sol_hist = predictModel(params);
-  let residual = new Array(num_eq*sol_hist.length).fill(0);
+  let residual = new Array(num_eq*(sol_hist.length-1)).fill(0);
 
-  for (let i = 0; i < sol_hist.length; ++i)
+  for (let i = 1; i < sol_hist.length; ++i)
   {
+    let weight0 = (data_raw_SL[i].y[0] == 0) ? 1 : (1/data_raw_SL[i].y[0]);
+    let weight1 = (data_raw_SL[i].y[1] == 0) ? 1 : (1/data_raw_SL[i].y[1]);
+    let weight2 = (data_raw_SL[i].y[2] == 0) ? 1 : (1/data_raw_SL[i].y[2]);
+
+    let I_diag = params.diag_frac[i]*sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7];
+
     //I1d + I1q + I2 + I3 = no. of diagnosed patients in hospitals
-    residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] - data_raw_SL[i].y[0];
-    //residual[num_eq*i] = sol_hist[i][2] + sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7]
-    //                     - data_raw_SL[i].y[0] - data_raw_SL[i].y[1];
+    //residual[num_eq*(i-1)] = (I_diag - data_raw_SL[i].y[0]);
+    residual[num_eq*(i-1)] = (I_diag + sol_hist[i][8] - data_raw_SL[i].y[0] - data_raw_SL[i].y[1]);
+    //residual[num_eq*(i-1)] = I_diag + sol_hist[i][8] + sol_hist[i][10] - data_raw_SL[i].y[0] - data_raw_SL[i].y[1] - data_raw_SL[i].y[2];
 
     //Rd = no. of recovered patients
-    residual[num_eq*i + 1] = sol_hist[i][7] - data_raw_SL[i].y[1];
+    //residual[num_eq*(i-1) + 1] = (sol_hist[i][8] - data_raw_SL[i].y[1]) * weight1;
 
     //D = no. of fatalities
-    //residual[num_eq*i + 2] = sol_hist[i][9] - data_raw_SL[i].y[2];
+    residual[num_eq*(i-1) + 1] = (sol_hist[i][10] - data_raw_SL[i].y[2]) * 10;
   }
   return residual;
 }
 
 function getFitJacobian(params)
 {
-  let m = 2*params.T_hist;
+  let m = 2*(params.T_hist - 1);
   let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n = n_b1 + 2; //beta_1 values, E_0, I1h_0
+  let n_c = (params.T_hist - 1); //no. of c values to optimize
+  let n = n_b1 + 0*n_c; //beta_1 values, E0_0, I1h_0
   let jac = new Array(m*n).fill(0);
 
   const delta_b1 = 1e-5;
-  const delta_E0 = 1e-5;
-  const delta_I1h0 = 1e-5;
+  const delta_c = 1e-5;
 
   for (let j = 0; j < n_b1; ++j)
   {
@@ -832,23 +900,18 @@ function getFitJacobian(params)
       jac[i*n + j] = (Rp[i] - Rm[i])/(2*delta_b1);
   }
 
-  params.E_0 += delta_E0;
-  let Rp = getFitResidual(params);
-  params.E_0 -= 2*delta_E0;
-  let Rm = getFitResidual(params);
-  params.E_0 += delta_E0;
-
-  for (let i = 0; i < m; ++i)
-    jac[i*n + n_b1] = (Rp[i] - Rm[i])/(2*delta_E0);
-
-  params.I1h_0 += delta_I1h0;
-  Rp = getFitResidual(params);
-  params.I1h_0 -= 2*delta_I1h0;
-  Rm = getFitResidual(params);
-  params.I1h_0 += delta_I1h0;
-
-  for (let i = 0; i < m; ++i)
-    jac[i*n + n_b1 + 1] = (Rp[i] - Rm[i])/(2*delta_I1h0);
+  // for (let j = 0; j < n_c; ++j)
+  // {
+  //   //Compute finite difference
+  //   params.diag_frac[j] += delta_c;
+  //   let Rp = getFitResidual(params);
+  //   params.diag_frac[j] -= 2*delta_c;
+  //   let Rm = getFitResidual(params);
+  //   params.diag_frac[j] += delta_c;
+  //
+  //   for (let i = 0; i < m; ++i)
+  //     jac[i*n + n_b1 + j] = (Rp[i] - Rm[i])/(2*delta_c);
+  // }
 
   return jac;
 }
