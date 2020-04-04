@@ -12,6 +12,8 @@ $(function () {
     var data_predicted = {};
     var chart = [];
     var chart_config = [];
+    var control_chart = [];
+
     //The control parameters will be set to these default values when the user first loads the page.
     var default_controls = {
         T_pred: 7,        //prediction length
@@ -76,6 +78,7 @@ $(function () {
         updateChart();
         updateLegend();
         updateParameters();
+        updateControlChart();
     }
 
     $("#countries").on('change', function (e) {
@@ -142,7 +145,7 @@ $(function () {
     });
 
     function formatNumber(num) {
-      return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
+        return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,')
     }
 
     function updateChart()
@@ -151,217 +154,218 @@ $(function () {
         canvas.className="full";
         $("#canvas_wrapper").html(canvas);
 
-      //canvas.width = 0.7*window.innerWidth;
-      canvas.height = 0.65*window.innerHeight;
-      let ctx = canvas.getContext('2d');
+        //canvas.width = 0.7*window.innerWidth;
+        canvas.height = 0.65*window.innerHeight;
+        let ctx = canvas.getContext('2d');
 
-      let check_logy = document.getElementById('check_log_y');
+        let check_logy = document.getElementById('check_log_y');
 
-      let xaxis_config = {
+        let xaxis_config = {
             type: 'time',
-                distribution: 'linear',
-                time: {
-                  tooltipFormat: 'MMM D',
-                  unit: 'day'
-    //        displayFormats: {
-    //          day: 'DD-MM-YYYY'
-    //        }
-          },
-                offset: true,
-                scaleLabel: {
-                  display: true,
-                  labelString: 'Date',
-                  fontSize: 15
-                },
-                stacked: true
-            };
-
-      let yaxis_config = {
-                gridLines: {
-                    drawBorder: false
-                },
-                type: 'linear',
-                scaleLabel: {
-                    display: true,
-                    labelString: 'No. of cases',
-                    fontSize: 15
-                }
-            };
-
-      if (check_logy.checked)
-      {
-        yaxis_config.type = 'logarithmic';
-        yaxis_config.ticks = logarithmic_ticks;
-      }
-
-      const bar_width_frac = 1.0;
-      const cat_width_frac = 0.9;
-
-        chart_config = {
-                data: {
-                    datasets: [
-                    {
-                        label: 'Susceptible',
-                        backgroundColor: '#eeeeec',
-                        data: data_predicted.categorized[0],
-                        type: 'bar',
-                        stack: 'stack0',
-                        hidden: true,
-                        barPercentage: bar_width_frac,
-                        categoryPercentage: cat_width_frac,
-                        order: 11
-                    },
-                    {
-                        label: 'Exposed',
-                        backgroundColor: 'rgba(255, 220, 160, 0.75)',
-                        data: data_predicted.categorized[1],
-                        type: 'bar',
-                        stack: 'stack0',
-                        hidden: true,
-                        barPercentage: bar_width_frac,
-                        categoryPercentage: cat_width_frac,
-                        order: 10
-                    },
-            {
-              label: 'Asymptomatic',
-              backgroundColor: 'rgba(180, 240, 255, 0.75)',
-              data: data_predicted.categorized[2],
-              type: 'bar',
-              stack: 'stack0',
-              barPercentage: bar_width_frac,
-              categoryPercentage: cat_width_frac,
-              order: 9
+            distribution: 'linear',
+            time: {
+                tooltipFormat: 'MMM D',
+                unit: 'day'
+                //        displayFormats: {
+                //          day: 'DD-MM-YYYY'
+                //        }
             },
-            {
-              label: 'Mildly infected - hidden',
-              backgroundColor: 'rgba(255, 200, 0, 0.5)',
-              data: data_predicted.categorized[3],
-              type: 'bar',
-              stack: 'stack0',
-              barPercentage: bar_width_frac,
-              categoryPercentage: cat_width_frac,
-              order: 8
-            },
-            {
-              label: 'Recovered - hidden',
-              backgroundColor: 'rgba(130, 210, 50, 0.4)',
-              data: data_predicted.categorized[4],
-              type: 'bar',
-              stack: 'stack0',
-              barPercentage: bar_width_frac,
-              categoryPercentage: cat_width_frac,
-              order: 7
-            },
-            {
-              label: 'Recovered',
-              backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
-              data: data_predicted.categorized[5],
-              type: 'bar',
-              stack: 'stack0',
-              barPercentage: bar_width_frac,
-              categoryPercentage: cat_width_frac,
-              order: 6
-            },
-                    {
-                        label: 'Mildly infected',
-                        backgroundColor: 'rgba(255, 200, 0, 0.75)',
-                        data: data_predicted.categorized[6],
-                        type: 'bar',
-                        stack: 'stack0',
-                        barPercentage: bar_width_frac,
-                        categoryPercentage: cat_width_frac,
-                        order: 5
-                    },
-                    {
-                        label: 'Severely infected',
-                        backgroundColor: 'rgba(240, 150, 40, 0.75)',
-                        data: data_predicted.categorized[7],
-                        type: 'bar',
-                        stack: 'stack0',
-                        barPercentage: bar_width_frac,
-                        categoryPercentage: cat_width_frac,
-                        order: 4
-                    },
-                    {
-                        label: 'Critically infected',
-                        backgroundColor: 'rgba(200, 0, 0, 0.75)',
-                        data: data_predicted.categorized[8],
-                        type: 'bar',
-                        stack: 'stack0',
-                        barPercentage: bar_width_frac,
-                        categoryPercentage: cat_width_frac,
-                        order: 3
-                    },
-                    {
-                        label: 'Fatal',
-                        backgroundColor: 'rgba(10, 10, 10, 0.75)',
-                        data: data_predicted.categorized[9],
-                        type: 'bar',
-                        stack: 'stack0',
-                        barPercentage: bar_width_frac,
-                        categoryPercentage: cat_width_frac,
-                        order: 2
-                    },
-                    {
-                        label: 'actual diagnosed',
-                        backgroundColor: 'rgba(1,1,1,0)',
-                        borderColor: '#3465a4',
-                        data: data_SL,
-                        type: 'line',
-                        fill: true,
-                        borderWidth: 2,
-                        order: 0
-                    },
-                    {
-                        label: 'predicted diagnosed',
-                        backgroundColor: 'rgba(1,1,1,0)',
-                        borderColor: '#729fcf',
-                        borderDash: [5, 5],
-                        data: data_predicted.aggregated,
-                        type: 'line',
-                        fill: true,
-                        borderWidth: 2,
-                        order: 1
-                    }
-                    ]
-                },
-                options: {
-                  responsive: false,
-            maintainAspectRatio: false,
-            animation: {
-                duration: 500 // general animation time
-            },
-                    scales: {
-                        xAxes: [xaxis_config],
-                        yAxes: [yaxis_config]
-                    },
-                    legend: {
-                display: true,
-                boxWidth: 10,
-            },
-            tooltips: {
-              callbacks: {
-                    label: function(tooltipItem, data) {
-                        //var type = data.datasets[tooltipItem.datasetIndex].label;
-                        //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
+			offset: true,
+			scaleLabel: {
+			  display: true,
+			  labelString: 'Date',
+			  fontSize: 15
+			},
+			stacked: true
+		};
 
-                        updateLegend(tooltipItem.index);
+  let yaxis_config = {
+			gridLines: {
+				drawBorder: false
+			},
+			type: 'linear',
+			scaleLabel: {
+				display: true,
+				labelString: 'No. of cases',
+				fontSize: 15
+			}
+		};
 
-                        if (tooltipItem.datasetIndex >= 10)
-                          return (data.datasets[tooltipItem.datasetIndex].label +
-                                  ": " + formatNumber(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y));
+  if (check_logy.checked)
+  {
+    yaxis_config.type = 'logarithmic';
+    yaxis_config.ticks = logarithmic_ticks;
+  }
 
-                        // Loop through all datasets to get the actual total of the index
-                        // var total = 0;
-                        // let labels = [];
-                        // for (var i = 2; i < 10; i++)
-                        // {
-                        //   labels.push(data.datasets[i].label + ": " + formatNumber(data.datasets[i].data[tooltipItem.index].y));
-                        //   total += data.datasets[i].data[tooltipItem.index].y;
-                        // }
-                        // labels.push("Total: " + formatNumber(total));
-                        // return labels;
-                    }
+  const bar_width_frac = 1.0;
+  const cat_width_frac = 0.9;
+
+	chart_config = {
+			data: {
+				datasets: [
+				{
+					label: 'Susceptible',
+					backgroundColor: '#eeeeec',
+					data: data_predicted.categorized[0],
+					type: 'bar',
+					stack: 'stack0',
+					hidden: true,
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 11
+				},
+				{
+					label: 'Exposed',
+					backgroundColor: 'rgba(255, 220, 160, 0.75)',
+					data: data_predicted.categorized[1],
+					type: 'bar',
+					stack: 'stack0',
+					hidden: true,
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 10
+				},
+        {
+          label: 'Asymptomatic',
+          backgroundColor: 'rgba(180, 240, 255, 0.75)',
+          data: data_predicted.categorized[2],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 9
+        },
+        {
+          label: 'Mildly infected - hidden',
+          backgroundColor: 'rgba(255, 200, 0, 0.5)',
+          data: data_predicted.categorized[3],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 8
+        },
+        {
+          label: 'Recovered - hidden',
+          backgroundColor: 'rgba(130, 210, 50, 0.4)',
+          data: data_predicted.categorized[4],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 7
+        },
+        {
+          label: 'Recovered',
+          backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
+          data: data_predicted.categorized[5],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 6
+        },
+				{
+					label: 'Mildly infected',
+					backgroundColor: 'rgba(255, 200, 0, 0.75)',
+					data: data_predicted.categorized[6],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 5
+				},
+				{
+					label: 'Severely infected',
+					backgroundColor: 'rgba(240, 150, 40, 0.75)',
+					data: data_predicted.categorized[7],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 4
+				},
+				{
+					label: 'Critically infected',
+					backgroundColor: 'rgba(200, 0, 0, 0.75)',
+					data: data_predicted.categorized[8],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 3
+				},
+				{
+					label: 'Fatal',
+					backgroundColor: 'rgba(10, 10, 10, 0.75)',
+					data: data_predicted.categorized[9],
+					type: 'bar',
+					stack: 'stack0',
+					barPercentage: bar_width_frac,
+					categoryPercentage: cat_width_frac,
+					order: 2
+				},
+				{
+					label: 'actual diagnosed',
+					backgroundColor: 'rgba(1,1,1,0)',
+					borderColor: '#3465a4',
+					data: data_SL,
+					type: 'line',
+					fill: true,
+					borderWidth: 2,
+					order: 0
+				},
+				{
+					label: 'predicted diagnosed',
+					backgroundColor: 'rgba(1,1,1,0)',
+					borderColor: '#729fcf',
+					borderDash: [5, 5],
+					data: data_predicted.aggregated,
+					type: 'line',
+					fill: true,
+					borderWidth: 2,
+					order: 1
+				}
+				]
+			},
+			options: {
+			  responsive: false,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 500 // general animation time
+        },
+				scales: {
+					xAxes: [xaxis_config],
+					yAxes: [yaxis_config]
+				},
+				legend: {
+            display: true,
+            boxWidth: 10,
+        },
+        tooltips: {
+          callbacks: {
+                label: function(tooltipItem, data) {
+                    //var type = data.datasets[tooltipItem.datasetIndex].label;
+                    //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
+
+                    updateLegend(tooltipItem.index);
+
+                    if (tooltipItem.datasetIndex >= 10)
+                      return (data.datasets[tooltipItem.datasetIndex].label +
+                              ": " + formatNumber(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y));
+
+                    // Loop through all datasets to get the actual total of the index
+                    // var total = 0;
+                    // let labels = [];
+                    // for (var i = 2; i < 10; i++)
+                    // {
+                    //   labels.push(data.datasets[i].label + ": " + formatNumber(data.datasets[i].data[tooltipItem.index].y));
+                    //   total += data.datasets[i].data[tooltipItem.index].y;
+                    // }
+                    // labels.push("Total: " + formatNumber(total));
+                    // return labels;
+
+          }
                 }
             },
             annotation: {
@@ -402,6 +406,13 @@ $(function () {
                         rangeMax: { x: null, y: null },
                         speed: 20,		// On category scale, factor of pan velocity
                         threshold: 10, // Minimal pan distance required before actually applying pan
+                        onPan: function () {
+                let minVal = chart.scales['x-axis-0']._table[0].time;
+                let maxVal = chart.scales['x-axis-0']._table[1].time;
+                control_chart.options.scales.xAxes[0].time.min = minVal;
+                control_chart.options.scales.xAxes[0].time.max = maxVal;
+                control_chart.update();
+              }
                     },
 
                     // Container for zoom options
@@ -413,6 +424,13 @@ $(function () {
                         rangeMax: { x: null, y: null },
                         speed: 0.1, // (percentage of zoom on a wheel event)
                         sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
+                        onZoom: function () {
+                let minVal = chart.scales['x-axis-0']._table[0].time;
+                let maxVal = chart.scales['x-axis-0']._table[1].time;
+                control_chart.options.scales.xAxes[0].time.min = minVal;
+                control_chart.options.scales.xAxes[0].time.max = maxVal;
+                control_chart.update();
+              }
                     }
                 }
             }
@@ -422,6 +440,120 @@ $(function () {
 
       chart = new Chart(ctx, chart_config);
     };
+
+    function updateControlChart()
+    {
+      let canvas = document.getElementById('control_chart_canvas');
+      //canvas.width = 0.7*window.innerWidth;
+      canvas.height = 0.2*window.innerHeight;
+      let ctx = canvas.getContext('2d');
+
+      let xaxis_config = {
+          type: 'time',
+          distribution: 'linear',
+          time: {
+            tooltipFormat: 'MMM D',
+            unit: 'day'
+          },
+          offset: true,
+          scaleLabel: {
+            display: false
+          },
+          ticks: {
+              display: false //this will remove only the label
+          }
+        };
+
+      let yaxis_config = {
+          gridLines: {
+            drawBorder: false
+          },
+          type: 'linear',
+          scaleLabel: {
+            display: true,
+            labelString: 'Beta_1',
+            fontSize: 15
+          }
+        };
+
+      let control_chart_config = {
+          data: {
+            datasets: [{
+              label: 'beta_1',
+              backgroundColor: 'rgba(1,1,1,0)',
+              borderColor: 'rgb(90, 110, 150)',
+              data: getBeta1Data(),
+              type: 'line',
+              fill: true,
+              borderWidth: 2,
+              order: 1,
+              cubicInterpolationMode: 'monotone'
+            }]
+          },
+          options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 200 // general animation time
+            },
+            scales: {
+              xAxes: [xaxis_config],
+              yAxes: [yaxis_config]
+            },
+            legend: {
+                display: false,
+            },
+            plugins: {
+              zoom: {
+                // Container for pan options
+                pan: {
+                  enabled: true,
+                  mode: 'x',
+                  rangeMin: { x: null, y: 0 },
+                  rangeMax: { x: null, y: null },
+                  speed: 20,		// On category scale, factor of pan velocity
+                  threshold: 10, // Minimal pan distance required before actually applying pan
+                  onPan: function () {
+                    let minVal = control_chart.scales['x-axis-0']._table[0].time;
+                    let maxVal = control_chart.scales['x-axis-0']._table[1].time;
+                    chart.options.scales.xAxes[0].time.min = minVal;
+                    chart.options.scales.xAxes[0].time.max = maxVal;
+                    chart.update();
+                  }
+                },
+
+                // Container for zoom options
+                zoom: {
+                  enabled: true,
+                  drag: false, // Enable drag-to-zoom behavior
+                  mode: 'x',
+                  rangeMin: { x: null, y: 0 },
+                  rangeMax: { x: null, y: null },
+                  speed: 0.1, // (percentage of zoom on a wheel event)
+                  sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
+                  onZoom: function () {
+                    let minVal = control_chart.scales['x-axis-0']._table[0].time;
+                    let maxVal = control_chart.scales['x-axis-0']._table[1].time;
+                    chart.options.scales.xAxes[0].time.min = minVal;
+                    chart.options.scales.xAxes[0].time.max = maxVal;
+                    chart.update();
+                  }
+                },
+              }
+            }
+
+          }
+        };
+      control_chart = new Chart(ctx, control_chart_config);
+    }
+
+    function getBeta1Data()
+    {
+      let data = [];
+      for (let i = 0; i < data_predicted.aggregated.length; ++i)
+        data.push({t:  data_predicted.aggregated[i].t, y: sim_params.b1N[i]});
+      return data;
+    }
 
     function setLogYAxis(is_log)
     {
@@ -457,6 +589,7 @@ $(function () {
     function resetZoom()
     {
       chart.resetZoom();
+      control_chart.resetZoom();
     }
 
     function updateLegend(day = last_active_tooltip_day)
@@ -534,6 +667,8 @@ $(function () {
       }
       updateParameters(true);
     }
+
+
 
     function updateParameters(force = false)
     {
@@ -624,6 +759,9 @@ $(function () {
         }
         chart.update();
         updateLegend();
+
+          control_chart.config.data.datasets[0].data = getBeta1Data();
+          control_chart.update();
       }
     }
 
