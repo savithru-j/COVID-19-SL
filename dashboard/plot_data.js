@@ -6,61 +6,51 @@
 
 var date_format = 'DD-MM-YYYY';
 
-function getRawDataSriLanka()
-{
-  //Data array: [in_ward, recovered, deaths, foreign_input_to_quarantine]
-  let data = [];
-  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('09-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('10-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('11-03-2020', date_format), y: [1, 1, 0, 0]});
-  data.push({t: moment('12-03-2020', date_format), y: [2, 1, 0, 0]});
-  data.push({t: moment('13-03-2020', date_format), y: [5, 1, 0, 2]});
-  data.push({t: moment('14-03-2020', date_format), y: [10, 1, 0, 2]});
-  data.push({t: moment('15-03-2020', date_format), y: [18, 1, 0, 7]});
-  data.push({t: moment('16-03-2020', date_format), y: [28, 1, 0, 6]});
-  data.push({t: moment('17-03-2020', date_format), y: [41, 1, 0, 4]});
-  data.push({t: moment('18-03-2020', date_format), y: [52, 1, 0, 1]});
-  data.push({t: moment('19-03-2020', date_format), y: [65, 1, 0, 2]});
-  data.push({t: moment('20-03-2020', date_format), y: [71, 1, 0, 3]});
-  data.push({t: moment('21-03-2020', date_format), y: [77, 1, 0, 6]});
-  data.push({t: moment('22-03-2020', date_format), y: [86, 1, 0, 0]});
-  data.push({t: moment('23-03-2020', date_format), y: [95, 2, 0, 0]});
-  data.push({t: moment('24-03-2020', date_format), y: [99, 3, 0, 0]});
-  data.push({t: moment('25-03-2020', date_format), y: [99, 3, 0, 0]});
-  data.push({t: moment('26-03-2020', date_format), y: [99, 7, 0, 0]});
-  data.push({t: moment('27-03-2020', date_format), y: [97, 9, 0, 0]});
-  data.push({t: moment('28-03-2020', date_format), y: [103, 9, 1, 0]});
-  data.push({t: moment('29-03-2020', date_format), y: [105, 11, 1, 0]});
-  data.push({t: moment('30-03-2020', date_format), y: [106, 14, 2, 0]});
-  data.push({t: moment('31-03-2020', date_format), y: [124, 17, 2, 0]});
-  data.push({t: moment('01-04-2020', date_format), y: [124, 21, 3, 0]});
-  data.push({t: moment('02-04-2020', date_format), y: [125, 22, 4, 0]});
-  data.push({t: moment('03-04-2020', date_format), y: [131, 24, 4, 0]});
-  return data;
-}
+//Data array: [total confirmed cases, recovered, deaths, foreign_input_to_quarantine]
+var data_raw_SL = [{t: moment('01-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('03-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('02-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('04-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('05-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('06-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('07-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('08-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('09-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('10-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('11-03-2020', date_format), y: [2, 1, 0, 0]},
+                   {t: moment('12-03-2020', date_format), y: [3, 1, 0, 0]},
+                   {t: moment('13-03-2020', date_format), y: [6, 1, 0, 2]},
+                   {t: moment('14-03-2020', date_format), y: [11, 1, 0, 2]},
+                   {t: moment('15-03-2020', date_format), y: [19, 1, 0, 7]},
+                   {t: moment('16-03-2020', date_format), y: [29, 1, 0, 6]},
+                   {t: moment('17-03-2020', date_format), y: [42, 1, 0, 4]},
+                   {t: moment('18-03-2020', date_format), y: [53, 1, 0, 1]},
+                   {t: moment('19-03-2020', date_format), y: [66, 1, 0, 2]},
+                   {t: moment('20-03-2020', date_format), y: [72, 1, 0, 3]},
+                   {t: moment('21-03-2020', date_format), y: [78, 1, 0, 6]},
+                   {t: moment('22-03-2020', date_format), y: [87, 1, 0, 0]},
+                   {t: moment('23-03-2020', date_format), y: [97, 2, 0, 0]},
+                   {t: moment('24-03-2020', date_format), y: [102, 3, 0, 0]},
+                   {t: moment('25-03-2020', date_format), y: [102, 3, 0, 0]},
+                   {t: moment('26-03-2020', date_format), y: [106, 7, 0, 0]},
+                   {t: moment('27-03-2020', date_format), y: [106, 9, 0, 0]},
+                   {t: moment('28-03-2020', date_format), y: [113, 9, 1, 0]},
+                   {t: moment('29-03-2020', date_format), y: [117, 11, 1, 0]},
+                   {t: moment('30-03-2020', date_format), y: [122, 14, 2, 0]},
+                   {t: moment('31-03-2020', date_format), y: [143, 17, 2, 0]},
+                   {t: moment('01-04-2020', date_format), y: [148, 21, 3, 0]},
+                   {t: moment('02-04-2020', date_format), y: [151, 22, 4, 0]},
+                   {t: moment('03-04-2020', date_format), y: [159, 24, 4, 0]},
+                  ];
 
 function getDataSriLanka()
 {
   let data = [];
   for (let i = 0; i < data_raw_SL.length; ++i)
-  {
-    let num_confirmed_cases = 0;
-    for (let j = 0; j < 3; ++j)
-      num_confirmed_cases += data_raw_SL[i].y[j];
-    data.push({t: data_raw_SL[i].t, y: num_confirmed_cases});
-  }
+    data.push({t: data_raw_SL[i].t, y: data_raw_SL[i].y[0]});
   return data;
 }
 
-var data_raw_SL = getRawDataSriLanka();
 var data_SL = getDataSriLanka();
 
 //The control parameters will be set to these default values when the user first loads the page.
@@ -80,6 +70,8 @@ var data_predicted = getPredictionData(data_SL[0].t);
 
 var chart = [];
 var chart_config = [];
+
+var last_active_tooltip_day = 0;
 
 window.onload = function()
 {
@@ -115,7 +107,7 @@ window.onload = function()
   document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
 
   updateChart();
-  updateLegend(0);
+  updateLegend();
 }
 
 function formatNumber(num) {
@@ -428,35 +420,17 @@ function setLogYAxis(is_log)
   chart.update();
 };
 
-function setDataOverlayItaly(overlay)
-{
-  chart_config.data.datasets[9].hidden = !overlay;
-  chart.update();
-}
-
-function alignTimelines(align)
-{
-  if (align)
-  {
-    for (let datapair of chart_config.data.datasets[9].data)
-      datapair.t.add(41,'days'); //Add offset to Italy dataset
-  }
-  else //load original datasets
-  {
-    chart_config.data.datasets[9].data = getDataItaly();
-  }
-  chart.update();
-}
-
 function resetZoom()
 {
   chart.resetZoom();
 }
 
-function updateLegend(day)
+function updateLegend(day = last_active_tooltip_day)
 {
   if (day < 0 || day >= data_predicted.aggregated.length)
     return;
+
+  last_active_tooltip_day = day;
 
   document.getElementById("legend_date").innerHTML = data_predicted.aggregated[day].t.format("MMM-DD-YYYY");
 
@@ -468,10 +442,10 @@ function updateLegend(day)
   let true_data = ['-', '-', '-', '-'];
   if (day < data_raw_SL.length)
   {
-    true_data[0] = formatNumber(data_raw_SL[day].y[0]);
+    true_data[0] = formatNumber(data_raw_SL[day].y[0] - data_raw_SL[day].y[1] - data_raw_SL[day].y[2]);
     true_data[1] = formatNumber(data_raw_SL[day].y[1]);
     true_data[2] = formatNumber(data_raw_SL[day].y[2]);
-    true_data[3] = formatNumber(data_raw_SL[day].y[0] + data_raw_SL[day].y[1] + data_raw_SL[day].y[2]);
+    true_data[3] = formatNumber(data_raw_SL[day].y[0]);
   }
   document.getElementById("legend_true_infected").innerHTML = true_data[0];
   document.getElementById("legend_true_recovered").innerHTML = true_data[1];
@@ -615,6 +589,7 @@ function updateParameters(force = false)
         chart.annotation.elements["vertline_T" + i].options.value = data_predicted.aggregated[interv_params[i].t-1].t;
     }
     chart.update();
+    updateLegend();
   }
 }
 
