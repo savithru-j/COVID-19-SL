@@ -6,61 +6,51 @@
 
 var date_format = 'DD-MM-YYYY';
 
-function getRawDataSriLanka()
-{
-  //Data array: [in_ward, recovered, deaths, foreign_input_to_quarantine]
-  let data = [];
-  data.push({t: moment('01-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('02-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('03-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('04-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('05-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('06-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('07-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('08-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('09-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('10-03-2020', date_format), y: [0, 1, 0, 0]});
-  data.push({t: moment('11-03-2020', date_format), y: [1, 1, 0, 0]});
-  data.push({t: moment('12-03-2020', date_format), y: [2, 1, 0, 0]});
-  data.push({t: moment('13-03-2020', date_format), y: [5, 1, 0, 2]});
-  data.push({t: moment('14-03-2020', date_format), y: [10, 1, 0, 2]});
-  data.push({t: moment('15-03-2020', date_format), y: [18, 1, 0, 7]});
-  data.push({t: moment('16-03-2020', date_format), y: [28, 1, 0, 6]});
-  data.push({t: moment('17-03-2020', date_format), y: [41, 1, 0, 4]});
-  data.push({t: moment('18-03-2020', date_format), y: [52, 1, 0, 1]});
-  data.push({t: moment('19-03-2020', date_format), y: [65, 1, 0, 2]});
-  data.push({t: moment('20-03-2020', date_format), y: [71, 1, 0, 3]});
-  data.push({t: moment('21-03-2020', date_format), y: [77, 1, 0, 6]});
-  data.push({t: moment('22-03-2020', date_format), y: [86, 1, 0, 0]});
-  data.push({t: moment('23-03-2020', date_format), y: [95, 2, 0, 0]});
-  data.push({t: moment('24-03-2020', date_format), y: [99, 3, 0, 0]});
-  data.push({t: moment('25-03-2020', date_format), y: [99, 3, 0, 0]});
-  data.push({t: moment('26-03-2020', date_format), y: [99, 7, 0, 0]});
-  data.push({t: moment('27-03-2020', date_format), y: [97, 9, 0, 0]});
-  data.push({t: moment('28-03-2020', date_format), y: [103, 9, 1, 0]});
-  data.push({t: moment('29-03-2020', date_format), y: [105, 11, 1, 0]});
-  data.push({t: moment('30-03-2020', date_format), y: [106, 14, 2, 0]});
-  data.push({t: moment('31-03-2020', date_format), y: [124, 17, 2, 0]});
-  data.push({t: moment('01-04-2020', date_format), y: [124, 21, 3, 0]});
-  data.push({t: moment('02-04-2020', date_format), y: [125, 22, 4, 0]});
-  data.push({t: moment('03-04-2020', date_format), y: [131, 24, 4, 0]});
-  return data;
-}
+//Data array: [total confirmed cases, recovered, deaths, foreign_input_to_quarantine]
+var data_raw_SL = [{t: moment('01-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('03-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('02-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('04-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('05-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('06-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('07-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('08-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('09-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('10-03-2020', date_format), y: [1, 1, 0, 0]},
+                   {t: moment('11-03-2020', date_format), y: [2, 1, 0, 0]},
+                   {t: moment('12-03-2020', date_format), y: [3, 1, 0, 0]},
+                   {t: moment('13-03-2020', date_format), y: [6, 1, 0, 2]},
+                   {t: moment('14-03-2020', date_format), y: [11, 1, 0, 2]},
+                   {t: moment('15-03-2020', date_format), y: [19, 1, 0, 7]},
+                   {t: moment('16-03-2020', date_format), y: [29, 1, 0, 6]},
+                   {t: moment('17-03-2020', date_format), y: [42, 1, 0, 4]},
+                   {t: moment('18-03-2020', date_format), y: [53, 1, 0, 1]},
+                   {t: moment('19-03-2020', date_format), y: [66, 1, 0, 2]},
+                   {t: moment('20-03-2020', date_format), y: [72, 1, 0, 3]},
+                   {t: moment('21-03-2020', date_format), y: [78, 1, 0, 6]},
+                   {t: moment('22-03-2020', date_format), y: [87, 1, 0, 0]},
+                   {t: moment('23-03-2020', date_format), y: [97, 2, 0, 0]},
+                   {t: moment('24-03-2020', date_format), y: [102, 3, 0, 0]},
+                   {t: moment('25-03-2020', date_format), y: [102, 3, 0, 0]},
+                   {t: moment('26-03-2020', date_format), y: [106, 7, 0, 0]},
+                   {t: moment('27-03-2020', date_format), y: [106, 9, 0, 0]},
+                   {t: moment('28-03-2020', date_format), y: [113, 9, 1, 0]},
+                   {t: moment('29-03-2020', date_format), y: [117, 11, 1, 0]},
+                   {t: moment('30-03-2020', date_format), y: [122, 14, 2, 0]},
+                   {t: moment('31-03-2020', date_format), y: [143, 17, 2, 0]},
+                   {t: moment('01-04-2020', date_format), y: [148, 21, 3, 0]},
+                   {t: moment('02-04-2020', date_format), y: [151, 22, 4, 0]},
+                   {t: moment('03-04-2020', date_format), y: [159, 24, 4, 0]},
+                  ];
 
 function getDataSriLanka()
 {
   let data = [];
   for (let i = 0; i < data_raw_SL.length; ++i)
-  {
-    let num_confirmed_cases = 0;
-    for (let j = 0; j < 3; ++j)
-      num_confirmed_cases += data_raw_SL[i].y[j];
-    data.push({t: data_raw_SL[i].t, y: num_confirmed_cases});
-  }
+    data.push({t: data_raw_SL[i].t, y: data_raw_SL[i].y[0]});
   return data;
 }
 
-var data_raw_SL = getRawDataSriLanka();
 var data_SL = getDataSriLanka();
 
 //The control parameters will be set to these default values when the user first loads the page.
@@ -80,6 +70,9 @@ var data_predicted = getPredictionData(data_SL[0].t);
 
 var chart = [];
 var chart_config = [];
+var control_chart = [];
+
+var last_active_tooltip_day = 0;
 
 window.onload = function()
 {
@@ -115,7 +108,8 @@ window.onload = function()
   document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
 
   updateChart();
-  updateLegend(0);
+  updateLegend();
+  updateControlChart();
 }
 
 function formatNumber(num) {
@@ -376,6 +370,13 @@ function updateChart()
 			        rangeMax: { x: null, y: null },
 			        speed: 20,		// On category scale, factor of pan velocity
 			        threshold: 10, // Minimal pan distance required before actually applying pan
+              onPan: function () {
+                let minVal = chart.scales['x-axis-0']._table[0].time;
+                let maxVal = chart.scales['x-axis-0']._table[1].time;
+                control_chart.options.scales.xAxes[0].time.min = minVal;
+                control_chart.options.scales.xAxes[0].time.max = maxVal;
+                control_chart.update();
+              }
 		        },
 
 		        // Container for zoom options
@@ -387,6 +388,13 @@ function updateChart()
 			        rangeMax: { x: null, y: null },
 			        speed: 0.1, // (percentage of zoom on a wheel event)
 			        sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
+              onZoom: function () {
+                let minVal = chart.scales['x-axis-0']._table[0].time;
+                let maxVal = chart.scales['x-axis-0']._table[1].time;
+                control_chart.options.scales.xAxes[0].time.min = minVal;
+                control_chart.options.scales.xAxes[0].time.max = maxVal;
+                control_chart.update();
+              }
 		        }
 	        }
         }
@@ -396,6 +404,120 @@ function updateChart()
 
   chart = new Chart(ctx, chart_config);
 };
+
+function updateControlChart()
+{
+  let canvas = document.getElementById('control_chart_canvas');
+  //canvas.width = 0.7*window.innerWidth;
+  canvas.height = 0.2*window.innerHeight;
+  let ctx = canvas.getContext('2d');
+
+  let xaxis_config = {
+      type: 'time',
+      distribution: 'linear',
+      time: {
+        tooltipFormat: 'MMM D',
+        unit: 'day'
+      },
+      offset: true,
+      scaleLabel: {
+        display: false
+      },
+      ticks: {
+          display: false //this will remove only the label
+      }
+    };
+
+  let yaxis_config = {
+      gridLines: {
+        drawBorder: false
+      },
+      type: 'linear',
+      scaleLabel: {
+        display: true,
+        labelString: 'Beta_1',
+        fontSize: 15
+      }
+    };
+
+  let control_chart_config = {
+      data: {
+        datasets: [{
+          label: 'beta_1',
+          backgroundColor: 'rgba(1,1,1,0)',
+          borderColor: 'rgb(90, 110, 150)',
+          data: getBeta1Data(),
+          type: 'line',
+          fill: true,
+          borderWidth: 2,
+          order: 1,
+          cubicInterpolationMode: 'monotone'
+        }]
+      },
+      options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        animation: {
+            duration: 200 // general animation time
+        },
+        scales: {
+          xAxes: [xaxis_config],
+          yAxes: [yaxis_config]
+        },
+        legend: {
+            display: false,
+        },
+        plugins: {
+          zoom: {
+            // Container for pan options
+            pan: {
+              enabled: true,
+              mode: 'x',
+              rangeMin: { x: null, y: 0 },
+              rangeMax: { x: null, y: null },
+              speed: 20,		// On category scale, factor of pan velocity
+              threshold: 10, // Minimal pan distance required before actually applying pan
+              onPan: function () {
+                let minVal = control_chart.scales['x-axis-0']._table[0].time;
+                let maxVal = control_chart.scales['x-axis-0']._table[1].time;
+                chart.options.scales.xAxes[0].time.min = minVal;
+                chart.options.scales.xAxes[0].time.max = maxVal;
+                chart.update();
+              }
+            },
+
+            // Container for zoom options
+            zoom: {
+              enabled: true,
+              drag: false, // Enable drag-to-zoom behavior
+              mode: 'x',
+              rangeMin: { x: null, y: 0 },
+              rangeMax: { x: null, y: null },
+              speed: 0.1, // (percentage of zoom on a wheel event)
+              sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
+              onZoom: function () {
+                let minVal = control_chart.scales['x-axis-0']._table[0].time;
+                let maxVal = control_chart.scales['x-axis-0']._table[1].time;
+                chart.options.scales.xAxes[0].time.min = minVal;
+                chart.options.scales.xAxes[0].time.max = maxVal;
+                chart.update();
+              }
+            },
+          }
+        }
+
+      }
+    };
+  control_chart = new Chart(ctx, control_chart_config);
+}
+
+function getBeta1Data()
+{
+  let data = [];
+  for (let i = 0; i < data_predicted.aggregated.length; ++i)
+    data.push({t:  data_predicted.aggregated[i].t, y: sim_params.b1N[i]});
+  return data;
+}
 
 function setLogYAxis(is_log)
 {
@@ -428,35 +550,18 @@ function setLogYAxis(is_log)
   chart.update();
 };
 
-function setDataOverlayItaly(overlay)
-{
-  chart_config.data.datasets[9].hidden = !overlay;
-  chart.update();
-}
-
-function alignTimelines(align)
-{
-  if (align)
-  {
-    for (let datapair of chart_config.data.datasets[9].data)
-      datapair.t.add(41,'days'); //Add offset to Italy dataset
-  }
-  else //load original datasets
-  {
-    chart_config.data.datasets[9].data = getDataItaly();
-  }
-  chart.update();
-}
-
 function resetZoom()
 {
   chart.resetZoom();
+  control_chart.resetZoom();
 }
 
-function updateLegend(day)
+function updateLegend(day = last_active_tooltip_day)
 {
   if (day < 0 || day >= data_predicted.aggregated.length)
     return;
+
+  last_active_tooltip_day = day;
 
   document.getElementById("legend_date").innerHTML = data_predicted.aggregated[day].t.format("MMM-DD-YYYY");
 
@@ -468,10 +573,10 @@ function updateLegend(day)
   let true_data = ['-', '-', '-', '-'];
   if (day < data_raw_SL.length)
   {
-    true_data[0] = formatNumber(data_raw_SL[day].y[0]);
+    true_data[0] = formatNumber(data_raw_SL[day].y[0] - data_raw_SL[day].y[1] - data_raw_SL[day].y[2]);
     true_data[1] = formatNumber(data_raw_SL[day].y[1]);
     true_data[2] = formatNumber(data_raw_SL[day].y[2]);
-    true_data[3] = formatNumber(data_raw_SL[day].y[0] + data_raw_SL[day].y[1] + data_raw_SL[day].y[2]);
+    true_data[3] = formatNumber(data_raw_SL[day].y[0]);
   }
   document.getElementById("legend_true_infected").innerHTML = true_data[0];
   document.getElementById("legend_true_recovered").innerHTML = true_data[1];
@@ -615,6 +720,10 @@ function updateParameters(force = false)
         chart.annotation.elements["vertline_T" + i].options.value = data_predicted.aggregated[interv_params[i].t-1].t;
     }
     chart.update();
+    updateLegend();
+
+    control_chart.config.data.datasets[0].data = getBeta1Data();
+    control_chart.update();
   }
 }
 
