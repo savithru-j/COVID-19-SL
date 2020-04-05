@@ -7,55 +7,21 @@
 // var date_format = 'DD-MM-YYYY';
 var date_format = 'YYYY-MM-DD';
 
-//Data array: [total confirmed cases, recovered, deaths, foreign_input_to_quarantine]
-// var data_raw_SL = [{t: moment('01-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('03-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('02-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('04-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('05-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('06-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('07-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('08-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('09-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('10-03-2020', date_format), y: [1, 1, 0, 0]},
-//                    {t: moment('11-03-2020', date_format), y: [2, 1, 0, 0]},
-//                    {t: moment('12-03-2020', date_format), y: [3, 1, 0, 0]},
-//                    {t: moment('13-03-2020', date_format), y: [6, 1, 0, 2]},
-//                    {t: moment('14-03-2020', date_format), y: [11, 1, 0, 2]},
-//                    {t: moment('15-03-2020', date_format), y: [19, 1, 0, 7]},
-//                    {t: moment('16-03-2020', date_format), y: [29, 1, 0, 6]},
-//                    {t: moment('17-03-2020', date_format), y: [42, 1, 0, 4]},
-//                    {t: moment('18-03-2020', date_format), y: [53, 1, 0, 1]},
-//                    {t: moment('19-03-2020', date_format), y: [66, 1, 0, 2]},
-//                    {t: moment('20-03-2020', date_format), y: [72, 1, 0, 3]},
-//                    {t: moment('21-03-2020', date_format), y: [78, 1, 0, 6]},
-//                    {t: moment('22-03-2020', date_format), y: [87, 1, 0, 0]},
-//                    {t: moment('23-03-2020', date_format), y: [97, 2, 0, 0]},
-//                    {t: moment('24-03-2020', date_format), y: [102, 3, 0, 0]},
-//                    {t: moment('25-03-2020', date_format), y: [102, 3, 0, 0]},
-//                    {t: moment('26-03-2020', date_format), y: [106, 7, 0, 0]},
-//                    {t: moment('27-03-2020', date_format), y: [106, 9, 0, 0]},
-//                    {t: moment('28-03-2020', date_format), y: [113, 9, 1, 0]},
-//                    {t: moment('29-03-2020', date_format), y: [117, 11, 1, 0]},
-//                    {t: moment('30-03-2020', date_format), y: [122, 14, 2, 0]},
-//                    {t: moment('31-03-2020', date_format), y: [143, 17, 2, 0]},
-//                    {t: moment('01-04-2020', date_format), y: [148, 21, 3, 0]},
-//                    {t: moment('02-04-2020', date_format), y: [151, 22, 4, 0]},
-//                    {t: moment('03-04-2020', date_format), y: [159, 24, 4, 0]},
-//                   ];
-//
-// function getDataSriLanka()
-// {
-//   let data = [];
-//   for (let i = 0; i < data_raw_SL.length; ++i)
-//     data.push({t: data_raw_SL[i].t, y: data_raw_SL[i].y[0]});
-//   return data;
-// }
-//
+//Data about any quarantined index individuals in each country (required for Iq category)
+var quarantine_data = {
+  "Sri Lanka" : [{t: "2020-03-13", y: 2},
+                 {t: "2020-03-14", y: 2},
+                 {t: "2020-03-15", y: 7},
+                 {t: "2020-03-16", y: 6},
+                 {t: "2020-03-17", y: 4},
+                 {t: "2020-03-18", y: 1},
+                 {t: "2020-03-19", y: 2},
+                 {t: "2020-03-20", y: 3},
+                 {t: "2020-03-21", y: 6}]
+}
 
 var data_start_dates = {
-    "Sri Lanka": "2020-3-01",
-    "Singapore": "2020-2-29"
+    "Sri Lanka": "2020-03-01"
 };
 
 //The control parameters will be set to these default values when the user first loads the page.
@@ -187,6 +153,19 @@ function getCountryData(country_name)
       }
     }
   }
+
+  //Check if country has any quarantine data
+  let qdata = quarantine_data[country_name];
+  if (qdata)
+  {
+    for (let data of qdata)
+    {
+      let data_t = moment(data.t, date_format);
+      let ind = data_t.diff(data_cat[0].t, 'days');
+      data_cat[ind].y[3] = data.y;
+    }
+  }
+
   return {total: data_total, categorized: data_cat};
 }
 
@@ -305,39 +284,39 @@ function setupChart()
           categoryPercentage: cat_width_frac,
           order: 6
         },
+        {
+          label: 'Fatal',
+          backgroundColor: 'rgba(10, 10, 10, 0.75)',
+          data: data_predicted.categorized[6],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 5
+        },
+        {
+          label: 'Critically infected',
+          backgroundColor: 'rgba(200, 0, 0, 0.75)',
+          data: data_predicted.categorized[7],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 4
+        },
+        {
+          label: 'Severely infected',
+          backgroundColor: 'rgba(240, 150, 40, 0.75)',
+          data: data_predicted.categorized[8],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 3
+        },
 				{
 					label: 'Mildly infected',
 					backgroundColor: 'rgba(255, 200, 0, 0.75)',
-					data: data_predicted.categorized[6],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 5
-				},
-				{
-					label: 'Severely infected',
-					backgroundColor: 'rgba(240, 150, 40, 0.75)',
-					data: data_predicted.categorized[7],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 4
-				},
-				{
-					label: 'Critically infected',
-					backgroundColor: 'rgba(200, 0, 0, 0.75)',
-					data: data_predicted.categorized[8],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 3
-				},
-				{
-					label: 'Fatal',
-					backgroundColor: 'rgba(10, 10, 10, 0.75)',
 					data: data_predicted.categorized[9],
 					type: 'bar',
 					stack: 'stack0',
@@ -642,7 +621,7 @@ function updateLegend(day = last_active_tooltip_day)
 
   for (let i = 1; i < data_predicted.categorized.length; ++i)
     document.getElementById("legend_pred" + i).innerHTML = formatNumber(data_predicted.categorized[i][day].y);
-  document.getElementById("legend_pred_infected").innerHTML = formatNumber(data_predicted.categorized[6][day].y + data_predicted.categorized[7][day].y + data_predicted.categorized[8][day].y);
+  document.getElementById("legend_pred_infected").innerHTML = formatNumber(data_predicted.categorized[7][day].y + data_predicted.categorized[8][day].y + data_predicted.categorized[9][day].y);
   document.getElementById("legend_pred_total").innerHTML = formatNumber(data_predicted.total[day].y);
 
   let true_data = ['-', '-', '-', '-'];
@@ -845,10 +824,10 @@ function getPredictionData(start_date)
     data_cat[3].push({t: date, y: Math.round((1-c)*sol_history[i][4])}); //mild hidden: (1-c)*I1
     data_cat[4].push({t: date, y: Math.round(sol_history[i][9])}); //R hidden
     data_cat[5].push({t: date, y: Math.round(sol_history[i][8])}); //R diagnosed
-    data_cat[6].push({t: date, y: Math.round(c*sol_history[i][4]) + Math.round(sol_history[i][5])}); //mild diagnosed: c*I1 + Iq
-    data_cat[7].push({t: date, y: Math.round(sol_history[i][6])}); //I2
-    data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //I3
-    data_cat[9].push({t: date, y: Math.round(sol_history[i][10])}); //D
+    data_cat[6].push({t: date, y: Math.round(sol_history[i][10])}); //D
+    data_cat[7].push({t: date, y: Math.round(sol_history[i][7])}); //I3
+    data_cat[8].push({t: date, y: Math.round(sol_history[i][6])}); //I2
+    data_cat[9].push({t: date, y: Math.round(c*sol_history[i][4]) + Math.round(sol_history[i][5])}); //mild diagnosed: c*I1 + Iq
 
     let num_confirmed_cases = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
