@@ -43,8 +43,9 @@ var data_predicted;
 var sim_params;
 
 //Chart objects
-var chart, chart_config;
-var control_chart;
+var main_chart, control_chart;
+var control_chart_active_point = null;
+var control_chart_canvas = null;
 var last_active_tooltip_day = 0;
 
 
@@ -92,7 +93,7 @@ function generateCountryDropDown()
 {
   let menu = document.getElementById("dropdown_country");
   let country_list = [];
-  for (let key of Object.keys(countries))
+  for (let key of Object.keys(world_data))
     country_list.push(key);
   country_list.sort();
 
@@ -111,7 +112,7 @@ function changeCountry(country_name)
   sim_params = initializeSimulationParameters(data_real.total.length, default_controls.T_pred);
   data_predicted = getPredictionData(data_real.total[0].t);
 
-  if (chart)
+  if (main_chart)
     refreshChartData();
   else {
     setupChart();
@@ -122,7 +123,7 @@ function changeCountry(country_name)
 
 function getCountryData(country_name)
 {
-  let data_array = countries[country_name];
+  let data_array = world_data[country_name];
 
   let start_date = data_start_dates[country_name];
   if (start_date)
@@ -219,7 +220,7 @@ function setupChart()
   const bar_width_frac = 1.0;
   const cat_width_frac = 0.9;
 
-	chart_config = {
+	let main_chart_config = {
 			data: {
 				datasets: [
 				{
@@ -359,7 +360,7 @@ function setupChart()
 				},
 				legend: {
             display: true,
-            boxWidth: 10,
+            boxWidth: 10
         },
         tooltips: {
           callbacks: {
@@ -424,13 +425,7 @@ function setupChart()
 			        rangeMax: { x: null, y: null },
 			        speed: 20,		// On category scale, factor of pan velocity
 			        threshold: 10, // Minimal pan distance required before actually applying pan
-              onPan: function () {
-                // let minVal = chart.scales['x-axis-0']._table[0].time;
-                // let maxVal = chart.scales['x-axis-0']._table[1].time;
-                // control_chart.options.scales.xAxes[0].time.min = minVal;
-                // control_chart.options.scales.xAxes[0].time.max = maxVal;
-                // control_chart.update();
-              }
+              onPan: function () { syncPanAndZoom(main_chart, control_chart); }
 		        },
 
 		        // Container for zoom options
@@ -442,13 +437,7 @@ function setupChart()
 			        rangeMax: { x: null, y: null },
 			        speed: 0.1, // (percentage of zoom on a wheel event)
 			        sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
-              onZoom: function () {
-                // let minVal = chart.scales['x-axis-0']._table[0].time;
-                // let maxVal = chart.scales['x-axis-0']._table[1].time;
-                // control_chart.options.scales.xAxes[0].time.min = minVal;
-                // control_chart.options.scales.xAxes[0].time.max = maxVal;
-                // control_chart.update();
-              }
+              onZoom: function () { syncPanAndZoom(main_chart, control_chart); }
 		        }
 	        }
         }
@@ -456,15 +445,18 @@ function setupChart()
 			}
 		};
 
-  chart = new Chart(ctx, chart_config);
+  main_chart = new Chart(ctx, main_chart_config);
+
+  //Save off original axes (before any pan/zoom is applied)
+  main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id] = main_chart.options.scales.xAxes[0];
+  main_chart.$zoom._originalOptions[main_chart.options.scales.yAxes[0].id] = main_chart.options.scales.yAxes[0];
 };
 
 function setupControlChart()
 {
-  let canvas = document.getElementById('control_chart_canvas');
-  //canvas.width = 0.7*window.innerWidth;
-  canvas.height = 0.2*window.innerHeight;
-  let ctx = canvas.getContext('2d');
+  control_chart_canvas = document.getElementById('control_chart_canvas');
+  control_chart_canvas.height = 0.2*window.innerHeight;
+  let ctx = control_chart_canvas.getContext('2d');
 
   let xaxis_config = {
       type: 'time',
@@ -491,6 +483,10 @@ function setupControlChart()
         display: true,
         labelString: 'Beta_1',
         fontSize: 15
+      },
+      ticks: {
+          min: 0,
+          max: 1
       }
     };
 
@@ -528,16 +524,10 @@ function setupControlChart()
               enabled: true,
               mode: 'x',
               rangeMin: { x: null, y: 0 },
-              rangeMax: { x: null, y: null },
+              rangeMax: { x: null, y: 1 },
               speed: 20,		// On category scale, factor of pan velocity
               threshold: 10, // Minimal pan distance required before actually applying pan
-              onPan: function () {
-                // let minVal = control_chart.scales['x-axis-0']._table[0].time;
-                // let maxVal = control_chart.scales['x-axis-0']._table[1].time;
-                // chart.options.scales.xAxes[0].time.min = minVal;
-                // chart.options.scales.xAxes[0].time.max = maxVal;
-                // chart.update();
-              }
+              onPan: function () { syncPanAndZoom(control_chart, main_chart); }
             },
 
             // Container for zoom options
@@ -546,16 +536,10 @@ function setupControlChart()
               drag: false, // Enable drag-to-zoom behavior
               mode: 'x',
               rangeMin: { x: null, y: 0 },
-              rangeMax: { x: null, y: null },
+              rangeMax: { x: null, y: 1 },
               speed: 0.1, // (percentage of zoom on a wheel event)
               sensitivity: 3, // On category scale, minimal zoom level before actually applying zoom
-              onZoom: function () {
-                // let minVal = control_chart.scales['x-axis-0']._table[0].time;
-                // let maxVal = control_chart.scales['x-axis-0']._table[1].time;
-                // chart.options.scales.xAxes[0].time.min = minVal;
-                // chart.options.scales.xAxes[0].time.max = maxVal;
-                // chart.update();
-              }
+              onZoom: function () { syncPanAndZoom(control_chart, main_chart); }
             },
           }
         }
@@ -563,6 +547,96 @@ function setupControlChart()
       }
     };
   control_chart = new Chart(ctx, control_chart_config);
+
+  // set pointer event handlers for canvas element
+  control_chart_canvas.onpointerdown = down_handler;
+  control_chart_canvas.onpointerup = up_handler;
+  control_chart_canvas.onpointermove = null;
+
+  //Save off original axes (before any pan/zoom is applied)
+  control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id] = control_chart.options.scales.xAxes[0];
+  control_chart.$zoom._originalOptions[control_chart.options.scales.yAxes[0].id] = control_chart.options.scales.yAxes[0];
+}
+
+function down_handler(event)
+{
+  // check for data point near event location
+  const points = control_chart.getElementAtEvent(event, {intersect: false});
+  if (points.length > 0) {
+      // grab nearest point, start dragging
+      control_chart_active_point = points[0];
+      control_chart_canvas.onpointermove = move_handler;
+  };
+};
+
+function up_handler(event)
+{
+  // release grabbed point, stop dragging
+  control_chart_active_point = null;
+  control_chart_canvas.onpointermove = null;
+};
+
+function move_handler(event)
+{
+  // locate grabbed point in chart data
+  if (control_chart_active_point != null) {
+      let data = control_chart_active_point._chart.data;
+      let datasetIndex = control_chart_active_point._datasetIndex;
+
+      // read mouse position
+      const helpers = Chart.helpers;
+      let position = helpers.getRelativePosition(event, control_chart);
+
+      // convert mouse position to chart y axis value
+      let chart_area = control_chart.chartArea;
+      let yaxis = control_chart.scales["y-axis-0"];
+      let yval_new = map(position.y, chart_area.bottom, chart_area.top, yaxis.min, yaxis.max);
+      yval_new = Math.round(yval_new*1000)/1000;
+      yval_new = Math.min(Math.max(yval_new, 0.0), 1.0);
+
+      //Update values to the right of the current index, until a different value is encountered.
+      let yval_old = sim_params.b1N[control_chart_active_point._index];
+
+      if (yval_new != yval_old)
+      {
+        for (let i = control_chart_active_point._index; i < sim_params.b1N.length; ++i)
+        {
+          if (sim_params.b1N[i] != yval_old)
+            break;
+          sim_params.b1N[i] = yval_new;
+        }
+
+        updateParameters(true);
+      }
+
+      // data.datasets[datasetIndex].data[control_chart_active_point._index] = yValue;
+      // data.datasets[datasetIndex].data = getBeta1Data();
+      // control_chart.update();
+  };
+};
+
+// map value to other coordinate system
+function map(value, start1, stop1, start2, stop2) {
+    return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1))
+};
+
+function syncPanAndZoom(chart_from, chart_to)
+{
+  // if (!chart_to.$zoom._originalOptions[chart_to.options.scales.xAxes[0].id])
+  // {
+  //   chart_to.$zoom._originalOptions[chart_to.options.scales.xAxes[0].id] = chart_to.options.scales.xAxes[0];
+  //   chart_to.$zoom._originalOptions[chart_to.options.scales.yAxes[0].id] = chart_to.options.scales.yAxes[0];
+  // }
+
+  chart_to.options.scales.xAxes[0].time.min = chart_from.options.scales.xAxes[0].time.min;
+  chart_to.options.scales.xAxes[0].time.max = chart_from.options.scales.xAxes[0].time.max;
+  chart_to.update();
+};
+
+function updateControlChart(parameter)
+{
+  // var active_parameter = document.querySelector('input[name=control_chart_param]:checked').value;
+  console.log(parameter);
 }
 
 function getBeta1Data()
@@ -593,20 +667,20 @@ function setLogYAxis(is_log)
 
   if (is_log)
   {
-    chart_config.options.scales.yAxes[0].type = 'logarithmic';
-    chart_config.options.scales.yAxes[0].ticks = logarithmic_ticks;
+    main_chart.options.scales.yAxes[0].type = 'logarithmic';
+    main_chart.options.scales.yAxes[0].ticks = logarithmic_ticks;
   }
   else
   {
-    chart_config.options.scales.yAxes[0].type = 'linear';
-    chart_config.options.scales.yAxes[0].ticks = {display: true};
+    main_chart.options.scales.yAxes[0].type = 'linear';
+    main_chart.options.scales.yAxes[0].ticks = {display: true};
   }
-  chart.update();
+  main_chart.update();
 };
 
 function resetZoom()
 {
-  chart.resetZoom();
+  main_chart.resetZoom();
   control_chart.resetZoom();
 }
 
@@ -674,14 +748,14 @@ function updateInterventions(ind)
     container.style.color = "black";
     document.getElementById("slider_interv" + ind + "_T").disabled = false;
     document.getElementById("slider_interv" + ind + "_b1").disabled = false;
-    chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.5)";
+    main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.5)";
   }
   else
   {
     container.style.color = "grey";
     document.getElementById("slider_interv" + ind + "_T").disabled = true;
     document.getElementById("slider_interv" + ind + "_b1").disabled = true;
-    chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.0)";
+    main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.0)";
   }
   updateParameters(true);
 }
@@ -722,7 +796,7 @@ function updateParameters(force = false)
 
     if (sim_params.b1N[j] != val)
     {
-      sim_params.b1N[j] = val;
+      // sim_params.b1N[j] = val;
       requires_update = true;
     }
   }
@@ -764,16 +838,16 @@ function updateParameters(force = false)
   {
     data_predicted = getPredictionData(data_real.total[0].t);
     // for (let i = 0; i < data_predicted.categorized.length; ++i)
-    //   chart_config.data.datasets[i].data = data_predicted.categorized[i];
+    //   main_chart.data.datasets[i].data = data_predicted.categorized[i];
     //
-    // chart_config.data.datasets[11].data = data_predicted.total;
+    // main_chart.data.datasets[11].data = data_predicted.total;
 
     for (let i = 0; i < 2; ++i)
     {
       if (interv_params[i].t != Infinity)
-        chart.annotation.elements["vertline_T" + i].options.value = data_predicted.total[interv_params[i].t-1].t;
+        main_chart.annotation.elements["vertline_T" + i].options.value = data_predicted.total[interv_params[i].t-1].t;
     }
-    // chart.update();
+    // main_chart.update();
     // updateLegend();
     //
     // control_chart.config.data.datasets[0].data = getBeta1Data();
@@ -784,20 +858,25 @@ function updateParameters(force = false)
 
 function refreshChartData()
 {
-  if (chart)
+  if (main_chart)
   {
     let n_cat = data_predicted.categorized.length;
     for (let i = 0; i < n_cat; ++i)
-      chart_config.data.datasets[i].data = data_predicted.categorized[i];
+      main_chart.data.datasets[i].data = data_predicted.categorized[i];
 
-    chart_config.data.datasets[n_cat].data = data_real.total;
-    chart_config.data.datasets[n_cat+1].data = data_predicted.total;
+    main_chart.data.datasets[n_cat].data = data_real.total;
+    main_chart.data.datasets[n_cat+1].data = data_predicted.total;
 
-    chart.update();
+    main_chart.update();
+    delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
+    delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.max;
+
     updateLegend();
 
-    control_chart.config.data.datasets[0].data = getBeta1Data();
+    control_chart.data.datasets[0].data = getBeta1Data();
     control_chart.update();
+    delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.min;
+    delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.max;
   }
 }
 

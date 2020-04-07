@@ -21,7 +21,7 @@
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 
-  <script src="countries.js"></script>
+  <script src="world_data.js"></script>
   <script src="plot_data.js"></script>
 
   <title>COVID-19 Dashboard - Sri Lanka</title>
@@ -164,6 +164,38 @@
         </div>
 
         <canvas class="full" id="control_chart_canvas"></canvas>
+        <div class="control">
+          <center>
+            <span style="padding-right:10px;">Select a parameter to edit:</span>
+            <input type="radio" id="radio_beta1" name="control_chart_param" value="b1N" checked onchange="updateControlChart(this.value)">
+            <label for="radio_beta1" style="padding-right:10px;">
+              <span class="tooltip">Transmission rate \(\beta_1\)
+                <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
+              </span>
+            </label>
+
+            <input type="radio" id="radio_beta2" name="control_chart_param" value="b2N" onchange="updateControlChart(this.value)">
+            <label for="radio_beta2" style="padding-right:10px;">
+              <span class="tooltip">Transmission rate \(\beta_2\)
+                <span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
+              </span>
+            </label>
+
+            <input type="radio" id="radio_beta3" name="control_chart_param" value="b3N" onchange="updateControlChart(this.value)">
+            <label for="radio_beta3" style="padding-right:10px;">
+              <span class="tooltip">Transmission rate \(\beta_3\)
+                <span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
+              </span>
+            </label>
+
+            <input type="radio" id="radio_c" name="control_chart_param" value="diag_frac" onchange="updateControlChart(this.value)">
+            <label for="radio_c">
+              <span class="tooltip">Reported fraction \(c\)
+                <span class="tiny tooltiptext">Fraction of mildly infected cases that are reported</span>
+              </span>
+            </label>
+          </center>
+        </div>
 
         <div class="control full">
             <div class="control full">
