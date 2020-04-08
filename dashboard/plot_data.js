@@ -30,7 +30,7 @@ var default_controls = {
   b1N_init: 0.92,   //initial beta_1 value
   b2N_init: 0.00,   //initial beta_2 value
   b3N_init: 0.00,   //initial beta_3 value
-  b1N_T0: 0.05,     //beta_1 after intervention 0
+  b1N_T0: 0.1,     //beta_1 after intervention 0
   b1N_T1: 0.05,     //beta_1 after intervention 1
   T0: 13,           //time of intervention 0
   diag_frac: 0.12,
@@ -47,6 +47,7 @@ var main_chart, control_chart;
 var control_chart_active_point = null;
 var control_chart_canvas = null;
 var last_active_tooltip_day = 0;
+var active_control_parameter = "b1N";
 
 
 window.onload = function()
@@ -59,34 +60,32 @@ window.onload = function()
   document.getElementById("slider_finalT").value = default_controls.T_pred;
   document.getElementById("slider_finalT_value").innerHTML = default_controls.T_pred;
 
-  document.getElementById("slider_b1").value = default_controls.b1N_init;
-  document.getElementById("slider_b1_value").innerHTML = default_controls.b1N_init.toFixed(2);
-
-  document.getElementById("slider_b2").value = default_controls.b2N_init;
-  document.getElementById("slider_b2_value").innerHTML = default_controls.b2N_init.toFixed(2);
-
-  document.getElementById("slider_b3").value = default_controls.b3N_init;
-  document.getElementById("slider_b3_value").innerHTML = default_controls.b3N_init.toFixed(2);
-
-  document.getElementById("slider_c").value = default_controls.diag_frac;
-  document.getElementById("slider_c_value").innerHTML = default_controls.diag_frac.toFixed(2);
-
-  let slider_interv0_T = document.getElementById('slider_interv0_T');
-  let slider_interv1_T = document.getElementById('slider_interv1_T');
-  slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
-  slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
-  slider_interv0_T.value = default_controls.T0;
-  slider_interv1_T.value = slider_interv0_T.max;
-  document.getElementById('slider_interv0_T_value').innerHTML = slider_interv0_T.value;
-  document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
-
-  document.getElementById("slider_interv0_b1").value = default_controls.b1N_T0;
-  document.getElementById("slider_interv0_b1_value").innerHTML = default_controls.b1N_T0.toFixed(2);
-
-  document.getElementById("slider_interv1_b1").value = default_controls.b1N_T1;
-  document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
-
-
+  // document.getElementById("slider_b1").value = default_controls.b1N_init;
+  // document.getElementById("slider_b1_value").innerHTML = default_controls.b1N_init.toFixed(2);
+  //
+  // document.getElementById("slider_b2").value = default_controls.b2N_init;
+  // document.getElementById("slider_b2_value").innerHTML = default_controls.b2N_init.toFixed(2);
+  //
+  // document.getElementById("slider_b3").value = default_controls.b3N_init;
+  // document.getElementById("slider_b3_value").innerHTML = default_controls.b3N_init.toFixed(2);
+  //
+  // document.getElementById("slider_c").value = default_controls.diag_frac;
+  // document.getElementById("slider_c_value").innerHTML = default_controls.diag_frac.toFixed(2);
+  //
+  // let slider_interv0_T = document.getElementById('slider_interv0_T');
+  // let slider_interv1_T = document.getElementById('slider_interv1_T');
+  // slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
+  // slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
+  // slider_interv0_T.value = default_controls.T0;
+  // slider_interv1_T.value = slider_interv0_T.max;
+  // document.getElementById('slider_interv0_T_value').innerHTML = slider_interv0_T.value;
+  // document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
+  //
+  // document.getElementById("slider_interv0_b1").value = default_controls.b1N_T0;
+  // document.getElementById("slider_interv0_b1_value").innerHTML = default_controls.b1N_T0.toFixed(2);
+  //
+  // document.getElementById("slider_interv1_b1").value = default_controls.b1N_T1;
+  // document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
 }
 
 function generateCountryDropDown()
@@ -113,7 +112,7 @@ function changeCountry(country_name)
   data_predicted = getPredictionData(data_real.total[0].t);
 
   if (main_chart)
-    refreshChartData();
+    refreshAllChartData();
   else {
     setupChart();
     updateLegend();
@@ -387,34 +386,34 @@ function setupChart()
                 }
             }
         },
-        annotation: {
-          drawTime: 'afterDatasetsDraw',
-          // Array of annotation configuration objects
-          // See below for detailed descriptions of the annotation options
-          annotations: [{
-            drawTime: 'afterDraw', // overrides annotation.drawTime if set
-            id: 'vertline_T0', // optional
-            type: 'line',
-            mode: 'vertical',
-            scaleID: 'x-axis-0',
-            value: data_predicted.total[default_controls.T0-1].t,
-            borderColor: 'rgba(50,50,50,0.5)',
-            borderWidth: 2,
-            borderDash: [2, 2]
-          },
-          {
-            drawTime: 'afterDraw', // overrides annotation.drawTime if set
-            id: 'vertline_T1', // optional
-            type: 'line',
-            mode: 'vertical',
-            scaleID: 'x-axis-0',
-            value: data_predicted.total[data_predicted.total.length-1].t,
-            borderColor: 'rgba(50,50,50,0.0)',
-            borderWidth: 2,
-            borderDash: [2, 2],
-            hidden: true
-          }]
-        },
+        // annotation: {
+        //   drawTime: 'afterDatasetsDraw',
+        //   // Array of annotation configuration objects
+        //   // See below for detailed descriptions of the annotation options
+        //   annotations: [{
+        //     drawTime: 'afterDraw', // overrides annotation.drawTime if set
+        //     id: 'vertline_T0', // optional
+        //     type: 'line',
+        //     mode: 'vertical',
+        //     scaleID: 'x-axis-0',
+        //     value: data_predicted.total[default_controls.T0-1].t,
+        //     borderColor: 'rgba(50,50,50,0.5)',
+        //     borderWidth: 2,
+        //     borderDash: [2, 2]
+        //   },
+        //   {
+        //     drawTime: 'afterDraw', // overrides annotation.drawTime if set
+        //     id: 'vertline_T1', // optional
+        //     type: 'line',
+        //     mode: 'vertical',
+        //     scaleID: 'x-axis-0',
+        //     value: data_predicted.total[data_predicted.total.length-1].t,
+        //     borderColor: 'rgba(50,50,50,0.0)',
+        //     borderWidth: 2,
+        //     borderDash: [2, 2],
+        //     hidden: true
+        //   }]
+        // },
 				plugins: {
 	        zoom: {
 		        // Container for pan options
@@ -495,8 +494,8 @@ function setupControlChart()
         datasets: [{
           label: 'beta_1',
           backgroundColor: 'rgba(1,1,1,0)',
-          borderColor: 'rgb(90, 110, 150)',
-          data: getBeta1Data(),
+          borderColor: 'rgb(50, 160, 220)',
+          data: getControlChartData(),
           type: 'line',
           fill: true,
           borderWidth: 2,
@@ -516,6 +515,11 @@ function setupControlChart()
         },
         legend: {
             display: false,
+        },
+        hover: {
+          onHover: function(e, el) {
+            control_chart_canvas.style.cursor = el[0] ? "pointer" : "default";
+          }
         },
         plugins: {
           zoom: {
@@ -595,23 +599,20 @@ function move_handler(event)
       yval_new = Math.min(Math.max(yval_new, 0.0), 1.0);
 
       //Update values to the right of the current index, until a different value is encountered.
-      let yval_old = sim_params.b1N[control_chart_active_point._index];
+      let datavec = sim_params[active_control_parameter]; //get the data vector of the parameter current selected for editing
+      let yval_old = datavec[control_chart_active_point._index];
 
       if (yval_new != yval_old)
       {
-        for (let i = control_chart_active_point._index; i < sim_params.b1N.length; ++i)
+        for (let i = control_chart_active_point._index; i < datavec.length; ++i)
         {
-          if (sim_params.b1N[i] != yval_old)
+          if (datavec[i] != yval_old)
             break;
-          sim_params.b1N[i] = yval_new;
+          datavec[i] = yval_new;
         }
 
         updateParameters(true);
       }
-
-      // data.datasets[datasetIndex].data[control_chart_active_point._index] = yValue;
-      // data.datasets[datasetIndex].data = getBeta1Data();
-      // control_chart.update();
   };
 };
 
@@ -622,29 +623,68 @@ function map(value, start1, stop1, start2, stop2) {
 
 function syncPanAndZoom(chart_from, chart_to)
 {
-  // if (!chart_to.$zoom._originalOptions[chart_to.options.scales.xAxes[0].id])
-  // {
-  //   chart_to.$zoom._originalOptions[chart_to.options.scales.xAxes[0].id] = chart_to.options.scales.xAxes[0];
-  //   chart_to.$zoom._originalOptions[chart_to.options.scales.yAxes[0].id] = chart_to.options.scales.yAxes[0];
-  // }
-
   chart_to.options.scales.xAxes[0].time.min = chart_from.options.scales.xAxes[0].time.min;
   chart_to.options.scales.xAxes[0].time.max = chart_from.options.scales.xAxes[0].time.max;
   chart_to.update();
 };
 
-function updateControlChart(parameter)
+function changeControlChartParameter(parameter)
 {
-  // var active_parameter = document.querySelector('input[name=control_chart_param]:checked').value;
-  console.log(parameter);
+  active_control_parameter = parameter;
+  refreshControlChartData();
 }
 
-function getBeta1Data()
+function getControlChartData()
 {
   let data = [];
   for (let i = 0; i < data_predicted.total.length; ++i)
-    data.push({t:  data_predicted.total[i].t, y: sim_params.b1N[i]});
+    data.push({t: data_predicted.total[i].t, y: sim_params[active_control_parameter][i]});
   return data;
+}
+
+function refreshAllChartData()
+{
+  refreshMainChartData();
+  refreshControlChartData();
+}
+
+function refreshMainChartData()
+{
+  if (main_chart)
+  {
+    let n_cat = data_predicted.categorized.length;
+    for (let i = 0; i < n_cat; ++i)
+      main_chart.data.datasets[i].data = data_predicted.categorized[i];
+
+    main_chart.data.datasets[n_cat].data = data_real.total;
+    main_chart.data.datasets[n_cat+1].data = data_predicted.total;
+
+    main_chart.update();
+    delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
+    delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.max;
+
+    updateLegend();
+  }
+}
+
+function refreshControlChartData()
+{
+  const param_to_labelstring = {
+    "b1N": "Beta_1",
+    "b2N": "Beta_2",
+    "b3N": "Beta_3",
+    "diag_frac": "c"
+  };
+
+  if (control_chart)
+  {
+    control_chart.data.datasets[0].data = getControlChartData();
+    control_chart.data.datasets[0].label = param_to_labelstring[active_control_parameter];
+    control_chart.options.scales.yAxes[0].scaleLabel.labelString = param_to_labelstring[active_control_parameter];
+    control_chart.update();
+    delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.min;
+    delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.max;
+  }
 }
 
 function setLogYAxis(is_log)
@@ -739,86 +779,86 @@ function initializeSimulationParameters(hist_length, pred_length)
   return params;
 }
 
-function updateInterventions(ind)
-{
-  let container = document.getElementById("container_interv" + ind);
-
-  if (document.getElementById("check_interv" + ind).checked)
-  {
-    container.style.color = "black";
-    document.getElementById("slider_interv" + ind + "_T").disabled = false;
-    document.getElementById("slider_interv" + ind + "_b1").disabled = false;
-    main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.5)";
-  }
-  else
-  {
-    container.style.color = "grey";
-    document.getElementById("slider_interv" + ind + "_T").disabled = true;
-    document.getElementById("slider_interv" + ind + "_b1").disabled = true;
-    main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.0)";
-  }
-  updateParameters(true);
-}
+// function updateInterventions(ind)
+// {
+//   let container = document.getElementById("container_interv" + ind);
+//
+//   if (document.getElementById("check_interv" + ind).checked)
+//   {
+//     container.style.color = "black";
+//     document.getElementById("slider_interv" + ind + "_T").disabled = false;
+//     document.getElementById("slider_interv" + ind + "_b1").disabled = false;
+//     main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.5)";
+//   }
+//   else
+//   {
+//     container.style.color = "grey";
+//     document.getElementById("slider_interv" + ind + "_T").disabled = true;
+//     document.getElementById("slider_interv" + ind + "_b1").disabled = true;
+//     main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.0)";
+//   }
+//   updateParameters(true);
+// }
 
 function updateParameters(force = false)
 {
   let requires_update = force;
 
-  let b1 = Number(document.getElementById("slider_b1").value);
-  document.getElementById("slider_b1_value").innerHTML = b1.toFixed(2);
-
-  let interv_params = [{t: Infinity, val: 0}, {t: Infinity, val: 0}];
-
-  for (let i = 0; i < 2; ++i)
-  {
-    if (document.getElementById("check_interv" + i).checked)
-    {
-      interv_params[i].t = Number(document.getElementById("slider_interv" + i + "_T").value);
-      interv_params[i].val = Number(document.getElementById("slider_interv" + i + "_b1").value);
-      document.getElementById("slider_interv" + i + "_T_value").innerHTML = interv_params[i].t;
-      document.getElementById("slider_interv" + i + "_b1_value").innerHTML = interv_params[i].val.toFixed(2);
-    }
-  }
-
-  for (let j = 0; j < sim_params.b1N.length; ++j)
-  {
-    let val = b1;
-
-    let largest_t = -1;
-    for (let k = 0; k < 2; ++k)
-    {
-      if (j >= interv_params[k].t && interv_params[k].t > largest_t)
-      {
-        largest_t = interv_params[k].t;
-        val = interv_params[k].val;
-      }
-    }
-
-    if (sim_params.b1N[j] != val)
-    {
-      // sim_params.b1N[j] = val;
-      requires_update = true;
-    }
-  }
-
-  let slider_element_ids = ["slider_b2", "slider_b3", "slider_c"];
-  let param_arrays = [sim_params.b2N, sim_params.b3N, sim_params.diag_frac];
-
-  for (let i = 0; i < 3; ++i)
-  {
-    let slider = document.getElementById(slider_element_ids[i]);
-    if (slider)
-    {
-      let val = Number(slider.value);
-      for (let j = 0; j < param_arrays[i].length; ++j)
-        if (param_arrays[i][j] != val)
-        {
-          param_arrays[i][j] = val;
-          requires_update = true;
-          document.getElementById(slider_element_ids[i] + "_value").innerHTML = val.toFixed(2);
-        }
-    }
-  }
+  // let b1 = Number(document.getElementById("slider_b1").value);
+  // document.getElementById("slider_b1_value").innerHTML = b1.toFixed(2);
+  //
+  // let interv_params = [{t: Infinity, val: 0}, {t: Infinity, val: 0}];
+  //
+  // for (let i = 0; i < 2; ++i)
+  // {
+  //   if (document.getElementById("check_interv" + i).checked)
+  //   {
+  //     interv_params[i].t = Number(document.getElementById("slider_interv" + i + "_T").value);
+  //     interv_params[i].val = Number(document.getElementById("slider_interv" + i + "_b1").value);
+  //     document.getElementById("slider_interv" + i + "_T_value").innerHTML = interv_params[i].t;
+  //     document.getElementById("slider_interv" + i + "_b1_value").innerHTML = interv_params[i].val.toFixed(2);
+  //   }
+  // }
+  //
+  // for (let j = 0; j < sim_params.b1N.length; ++j)
+  // {
+  //   let val = b1;
+  //
+  //   let largest_t = -1;
+  //   for (let k = 0; k < 2; ++k)
+  //   {
+  //     if (j >= interv_params[k].t && interv_params[k].t > largest_t)
+  //     {
+  //       largest_t = interv_params[k].t;
+  //       val = interv_params[k].val;
+  //     }
+  //   }
+  //
+  //   if (sim_params.b1N[j] != val)
+  //   {
+  //     // sim_params.b1N[j] = val;
+  //     requires_update = true;
+  //   }
+  // }
+  //
+  // let slider_element_ids = ["slider_b2", "slider_b3", "slider_c"];
+  // let param_arrays = [sim_params.b2N, sim_params.b3N, sim_params.diag_frac];
+  //
+  // for (let i = 0; i < 3; ++i)
+  // {
+  //   let slider = document.getElementById(slider_element_ids[i]);
+  //   if (slider)
+  //   {
+  //     let val = Number(slider.value);
+  //     for (let j = 0; j < param_arrays[i].length; ++j)
+  //       if (param_arrays[i][j] != val)
+  //       {
+  //         param_arrays[i][j] = val;
+  //         requires_update = true;
+  //         document.getElementById(slider_element_ids[i] + "_value").innerHTML = val.toFixed(2);
+  //       }
+  //   }
+  // }
 
   let slider_finalT = document.getElementById("slider_finalT");
   if (slider_finalT)
@@ -829,54 +869,22 @@ function updateParameters(force = false)
       sim_params.T_pred = val;
       requires_update = true;
       document.getElementById("slider_finalT_value").innerHTML = val;
-      slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
-      slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
+      // slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
+      // slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
     }
   }
 
   if (requires_update)
   {
     data_predicted = getPredictionData(data_real.total[0].t);
-    // for (let i = 0; i < data_predicted.categorized.length; ++i)
-    //   main_chart.data.datasets[i].data = data_predicted.categorized[i];
-    //
-    // main_chart.data.datasets[11].data = data_predicted.total;
 
-    for (let i = 0; i < 2; ++i)
-    {
-      if (interv_params[i].t != Infinity)
-        main_chart.annotation.elements["vertline_T" + i].options.value = data_predicted.total[interv_params[i].t-1].t;
-    }
-    // main_chart.update();
-    // updateLegend();
-    //
-    // control_chart.config.data.datasets[0].data = getBeta1Data();
-    // control_chart.update();
-    refreshChartData();
-  }
-}
+    // for (let i = 0; i < 2; ++i)
+    // {
+      // if (interv_params[i].t != Infinity)
+      //   main_chart.annotation.elements["vertline_T" + i].options.value = data_predicted.total[interv_params[i].t-1].t;
+    // }
 
-function refreshChartData()
-{
-  if (main_chart)
-  {
-    let n_cat = data_predicted.categorized.length;
-    for (let i = 0; i < n_cat; ++i)
-      main_chart.data.datasets[i].data = data_predicted.categorized[i];
-
-    main_chart.data.datasets[n_cat].data = data_real.total;
-    main_chart.data.datasets[n_cat+1].data = data_predicted.total;
-
-    main_chart.update();
-    delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
-    delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.max;
-
-    updateLegend();
-
-    control_chart.data.datasets[0].data = getBeta1Data();
-    control_chart.update();
-    delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.min;
-    delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.max;
+    refreshAllChartData();
   }
 }
 
