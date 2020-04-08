@@ -40,11 +40,12 @@
 
     <div class="clearfix">
       <div class="column" id="chart_controls" style="width:20%;">
-        <center>
+        <!-- <center> -->
           <h3>Chart controls</h3>
 
           <div class="control">
-            <select id="dropdown_country" onchange="changeCountry(this.value)"></select>
+            <div style="text-align:left; padding-bottom:3px;">Select country:</div>
+            <select id="dropdown_country" style="min-height:35px" onchange="changeCountry(this.value)"></select>
           </div>
 
           <div class="control">
@@ -54,12 +55,12 @@
           <div class="control">
             <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
           </div>
-        </center>
+        <!-- </center> -->
 
         <br>
         <hr style="margin-top:10px;">
 
-        <center>
+        <!-- <center> -->
           <h3>Simulation controls</h3>
           <div class="control full">
               <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1></input>
@@ -102,7 +103,7 @@
               <br>
               <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
           </div> -->
-        </center>
+        <!-- </center> -->
       </div>
       <div class="column" style="width:80%;">
 
