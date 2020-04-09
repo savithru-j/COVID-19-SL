@@ -255,7 +255,7 @@ function setupChart()
           order: 9
         },
         {
-          label: 'Mildly infected - hidden',
+          label: 'Mildly infected - unreported',
           backgroundColor: 'rgba(255, 200, 0, 0.5)',
           data: data_predicted.categorized[3],
           type: 'bar',
@@ -265,7 +265,7 @@ function setupChart()
           order: 8
         },
         {
-          label: 'Recovered - hidden',
+          label: 'Recovered - unreported',
           backgroundColor: 'rgba(130, 210, 50, 0.4)',
           data: data_predicted.categorized[4],
           type: 'bar',
@@ -716,7 +716,19 @@ function setLogYAxis(is_log)
     main_chart.options.scales.yAxes[0].ticks = {display: true};
   }
   main_chart.update();
-};
+}
+
+function showOnlyDiagnosed(flag)
+{
+  for (let i = 0; i < 5; ++i)
+    main_chart.data.datasets[i].hidden = flag;
+  if (!flag)
+  { //Keep susceptible and exposed hidden
+    main_chart.data.datasets[0].hidden = true;
+    main_chart.data.datasets[1].hidden = true;
+  }
+  main_chart.update();
+}
 
 function resetZoom()
 {
@@ -779,86 +791,9 @@ function initializeSimulationParameters(hist_length, pred_length)
   return params;
 }
 
-// function updateInterventions(ind)
-// {
-//   let container = document.getElementById("container_interv" + ind);
-//
-//   if (document.getElementById("check_interv" + ind).checked)
-//   {
-//     container.style.color = "black";
-//     document.getElementById("slider_interv" + ind + "_T").disabled = false;
-//     document.getElementById("slider_interv" + ind + "_b1").disabled = false;
-//     main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.5)";
-//   }
-//   else
-//   {
-//     container.style.color = "grey";
-//     document.getElementById("slider_interv" + ind + "_T").disabled = true;
-//     document.getElementById("slider_interv" + ind + "_b1").disabled = true;
-//     main_chart.annotation.elements["vertline_T" + ind].options.borderColor = "rgba(50,50,50,0.0)";
-//   }
-//   updateParameters(true);
-// }
-
 function updateParameters(force = false)
 {
   let requires_update = force;
-
-  // let b1 = Number(document.getElementById("slider_b1").value);
-  // document.getElementById("slider_b1_value").innerHTML = b1.toFixed(2);
-  //
-  // let interv_params = [{t: Infinity, val: 0}, {t: Infinity, val: 0}];
-  //
-  // for (let i = 0; i < 2; ++i)
-  // {
-  //   if (document.getElementById("check_interv" + i).checked)
-  //   {
-  //     interv_params[i].t = Number(document.getElementById("slider_interv" + i + "_T").value);
-  //     interv_params[i].val = Number(document.getElementById("slider_interv" + i + "_b1").value);
-  //     document.getElementById("slider_interv" + i + "_T_value").innerHTML = interv_params[i].t;
-  //     document.getElementById("slider_interv" + i + "_b1_value").innerHTML = interv_params[i].val.toFixed(2);
-  //   }
-  // }
-  //
-  // for (let j = 0; j < sim_params.b1N.length; ++j)
-  // {
-  //   let val = b1;
-  //
-  //   let largest_t = -1;
-  //   for (let k = 0; k < 2; ++k)
-  //   {
-  //     if (j >= interv_params[k].t && interv_params[k].t > largest_t)
-  //     {
-  //       largest_t = interv_params[k].t;
-  //       val = interv_params[k].val;
-  //     }
-  //   }
-  //
-  //   if (sim_params.b1N[j] != val)
-  //   {
-  //     // sim_params.b1N[j] = val;
-  //     requires_update = true;
-  //   }
-  // }
-  //
-  // let slider_element_ids = ["slider_b2", "slider_b3", "slider_c"];
-  // let param_arrays = [sim_params.b2N, sim_params.b3N, sim_params.diag_frac];
-  //
-  // for (let i = 0; i < 3; ++i)
-  // {
-  //   let slider = document.getElementById(slider_element_ids[i]);
-  //   if (slider)
-  //   {
-  //     let val = Number(slider.value);
-  //     for (let j = 0; j < param_arrays[i].length; ++j)
-  //       if (param_arrays[i][j] != val)
-  //       {
-  //         param_arrays[i][j] = val;
-  //         requires_update = true;
-  //         document.getElementById(slider_element_ids[i] + "_value").innerHTML = val.toFixed(2);
-  //       }
-  //   }
-  // }
 
   let slider_finalT = document.getElementById("slider_finalT");
   if (slider_finalT)
@@ -869,21 +804,12 @@ function updateParameters(force = false)
       sim_params.T_pred = val;
       requires_update = true;
       document.getElementById("slider_finalT_value").innerHTML = val;
-      // slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
-      // slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
     }
   }
 
   if (requires_update)
   {
     data_predicted = getPredictionData(data_real.total[0].t);
-
-    // for (let i = 0; i < 2; ++i)
-    // {
-      // if (interv_params[i].t != Infinity)
-      //   main_chart.annotation.elements["vertline_T" + i].options.value = data_predicted.total[interv_params[i].t-1].t;
-    // }
-
     refreshAllChartData();
   }
 }
@@ -897,7 +823,7 @@ function getPredictionData(start_date)
   for (let i = 0; i < data_cat.length; ++i)
     data_cat[i] = new Array();
 
-  const report_sum_indices = [5, 6, 7, 8, 10]; //omits c*I1, which will be added inside the loop
+  const report_sum_indices = [4, 6, 7, 8, 9, 11]; //I1d + I1q + I2 + I3 + Rd + D
 
   for (let i = 0; i < sol_history.length; i++)
   {
@@ -905,21 +831,20 @@ function getPredictionData(start_date)
     let c = sim_params.diag_frac[i];
 
     //Accumulate data into categories for plotting
-    data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //S
-    data_cat[1].push({t: date, y: Math.round(sol_history[i][1]) + Math.round(sol_history[i][2])}); //E0 + E1
-    data_cat[2].push({t: date, y: Math.round(sol_history[i][3])}); //I0
-    data_cat[3].push({t: date, y: Math.round((1-c)*sol_history[i][4])}); //mild hidden: (1-c)*I1
-    data_cat[4].push({t: date, y: Math.round(sol_history[i][9])}); //R hidden
-    data_cat[5].push({t: date, y: Math.round(sol_history[i][8])}); //R diagnosed
-    data_cat[6].push({t: date, y: Math.round(sol_history[i][10])}); //D
-    data_cat[7].push({t: date, y: Math.round(sol_history[i][7])}); //I3
-    data_cat[8].push({t: date, y: Math.round(sol_history[i][6])}); //I2
-    data_cat[9].push({t: date, y: Math.round(c*sol_history[i][4]) + Math.round(sol_history[i][5])}); //mild diagnosed: c*I1 + Iq
+    data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //susceptible: S
+    data_cat[1].push({t: date, y: Math.round(sol_history[i][1]) + Math.round(sol_history[i][2])}); //exposed: E0 + E1
+    data_cat[2].push({t: date, y: Math.round(sol_history[i][3])}); //asymptomatic: I0
+    data_cat[3].push({t: date, y: Math.round(sol_history[i][5])}); //mild unreported: I1u
+    data_cat[4].push({t: date, y: Math.round(sol_history[i][10])}); //recovered unreported: Ru
+    data_cat[5].push({t: date, y: Math.round(sol_history[i][9])}); //recovered diagnosed: Rd
+    data_cat[6].push({t: date, y: Math.round(sol_history[i][11])}); //fatal: D
+    data_cat[7].push({t: date, y: Math.round(sol_history[i][8])}); //critical: I3
+    data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //severe: I2
+    data_cat[9].push({t: date, y: Math.round(sol_history[i][4]) + Math.round(sol_history[i][6])}); //mild diagnosed: I1d + Iq
 
     let num_confirmed_cases = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
       num_confirmed_cases += Math.round(sol_history[i][report_sum_indices[j]]);
-    num_confirmed_cases += Math.round(c*sol_history[i][4]); //c*I1
     data_agg.push({t: date, y: num_confirmed_cases});
   }
 
@@ -937,17 +862,6 @@ function predictModel(params)
   const T_icu    = 10;
 
   //Probabilities
-  // const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
-  // const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
-  // const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
-  // const prob_I0_R  = 1;
-  // const prob_I1_R   = 0.51/(prob_E0_E1*prob_E1_I1); //mild to recovered
-  // const prob_I1_I2  = 1 - prob_I1_R; //mild to severe
-  // const prob_I2_R   = 0.14/(prob_E0_E1*prob_E1_I1*prob_I1_I2); //severe to recovered
-  // const prob_I2_I3  = 1 - prob_I2_R; //severe to critical
-  // const prob_I3_D   = 0.02/(prob_E0_E1*prob_E1_I1*prob_I1_I2*prob_I2_I3); //critical to dead
-  // const prob_I3_R   = 1 - prob_I3_D; //critical to recovered
-
   const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
   const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
   const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
@@ -979,17 +893,18 @@ function predictModel(params)
   let E0_0 = params.E0_0;
   let E1_0 = 0;
   let I0_0 = 0;
-  let I1_0 = 0;
-  let Iq_0 = 0;
+  let I1d_0 = 0;
+  let I1u_0 = 0;
+  let I1q_0 = 0;
   let I2_0 = 0;
   let I3_0 = 0;
   let Rd_0 = 1;  //One patient had already recovered in SL
-  let Rh_0 = 0;
+  let Ru_0 = 0;
   let D_0 = 0;
-  let S_0 = N - E0_0 - E1_0 - I0_0 - I1_0 - Iq_0 - I2_0 - I3_0 - Rd_0 - Rh_0 - D_0;
+  let S_0 = N - E0_0 - E1_0 - I0_0 - I1d_0 - I1u_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Ru_0 - D_0;
 
-  //Solution vector: [S, E0, E1, I0, I1, Iq, I2, I3, Rd, Rh, D]
-  let solution_hist = [[S_0, E0_0, E1_0, I0_0, I1_0, Iq_0, I2_0, I3_0, Rd_0, Rh_0, D_0]];
+  //Solution vector: [S, E0, E1, I0, I1d, I1u, I1q, I2, I3, Rd, Ru, D]
+  let solution_hist = [[S_0, E0_0, E1_0, I0_0, I1d_0, I1u_0, I1q_0, I2_0, I3_0, Rd_0, Ru_0, D_0]];
 
   const nt = params.T_hist + params.T_pred - 1;
   const nt_sub = 1.0/params.dt;
@@ -1006,18 +921,19 @@ function predictModel(params)
 
     for (let j = 0; j < nt_sub; j++)
     {
-      let dS = -(b1*(u[2] + u[3] + u[4]) + b2*u[6] + b3*u[7])*u[0];
-      let du = [ dS,                                                                                          //S
-                -dS - a0*u[1],                                                                                //E0
-                      a0*u[1] - a1*u[2],                                                                      //E1
-                               a10*u[2] - g0*u[3],                                                            //I0
-                               a11*u[2]           - (g1 + p1)*u[4],                                           //I1
-                  q_input                                - (g1 + p1)*u[5],                                    //Iq
-                                                          p1*(u[4] + u[5]) - (g2 + p2)*u[6],                  //I2
-                                                                                    p2*u[6] - (g3 + mu)*u[7], //I3
-                                                        g1*(c*u[4] + u[5])        + g2*u[6]        + g3*u[7], //Rd
-                                          g0*u[3] +  (1-c)*g1*u[4],                                           //Rh
-                                                                                                     mu*u[7]  //D
+      let dS = -(b1*(u[2] + u[3] + u[4] + u[5]) + b2*u[7] + b3*u[8])*u[0];
+      let du = [ dS,                                                                                                                  //S
+                -dS - a0*u[1],                                                                                                        //E0
+                      a0*u[1] - a1*u[2],                                                                                              //E1
+                               a10*u[2] - g0*u[3],                                                                                    //I0
+                             c*a11*u[2]          - (g1 + p1)*u[4],                                                                    //I1d
+                         (1-c)*a11*u[2]                          - (g1 + p1)*u[5],                                                    //I1u
+                q_input                                                          - (g1 + p1)*u[6],                                    //I1q
+                                                         p1*(u[4]          + u[5]          + u[6]) - (g2 + p2)*u[7],                  //I2
+                                                                                                            p2*u[7] - (g3 + mu)*u[8], //I3
+                                                         g1*(u[4]                          + u[6])        + g2*u[7]        + g3*u[8], //Rd
+                                          g0*u[3] +                       g1*u[5],                                                    //Ru
+                                                                                                                             mu*u[8]  //D
                ];
 
       for (let k = 0; k < u.length; k++)

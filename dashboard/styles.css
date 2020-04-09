@@ -79,7 +79,7 @@ div.para {
 .infected { color: rgb(52, 101, 164); }
 
 button.small {
-  min-height: 35px;
+  min-height: 30px;
   font-family: inherit;
 }
 

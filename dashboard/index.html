@@ -35,89 +35,65 @@
 
     <h2>Simulating the Coronavirus pandemic in Sri Lanka</h2>
 
-    <div class="small" style="color:gray;"><b>Disclaimer</b>: This simulation is for research and public awareness purposes only and is not intended to be a tool for decision-making. There are many uncertainties about the infection and transmission of COVID-19 and there are many limitations to this simple model.</div>
+    <div class="small" style="color:gray;"><b>Disclaimer</b>: This simulation tool is primarily intended for research and public awareness purposes. There are many uncertainties about the infection and transmission of COVID-19 and there are many limitations to this simple model.</div>
     <br>
 
     <div class="clearfix">
       <div class="column" id="chart_controls" style="width:20%;">
-        <!-- <center> -->
-          <h3>Chart controls</h3>
+        <h3>Chart controls</h3>
 
-          <div class="control">
-            <div style="text-align:left; padding-bottom:3px;">Select country:</div>
-            <select id="dropdown_country" style="min-height:35px" onchange="changeCountry(this.value)"></select>
-          </div>
+        <div class="control">
+          <div style="text-align:left; padding-bottom:3px;">Select country:</div>
+          <select id="dropdown_country" style="min-height:30px" onchange="changeCountry(this.value)"></select>
+        </div>
 
-          <div class="control">
-            <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
-          </div>
+        <div class="control">
+          <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
+        </div>
 
-          <div class="control">
-            <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
-          </div>
-        <!-- </center> -->
+        <div class="control">
+          <input type="checkbox" id="check_only_diagnosed" onchange="showOnlyDiagnosed(this.checked)">Only show diagnosed cases</input>
+        </div>
+
+        <div class="control">
+          <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Zoom to fit data</button>
+        </div>
 
         <br>
         <hr style="margin-top:10px;">
 
-        <!-- <center> -->
-          <h3>Simulation controls</h3>
-          <div class="control full">
-              <input class="control" type="range" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1></input>
-              <br><div class="small">Predict for <span id="slider_finalT_value"></span> days</div>
-          </div>
+        <h3>Simulation controls</h3>
+        <div class="control full">
+            <input class"control" type="range" style="width: 90%;" id="slider_finalT" onmousemove="updateParameters()" min=5 max=180 step=1></input>
+            <div class="small">Predict for <span id="slider_finalT_value"></span> days</div>
+        </div>
 
-          <!-- <div class="control full">
-              <input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
-              <br><div class="small tooltip">Transmission rate \(\beta_1\) =
-                <span id="slider_b1_value"></span>
-                <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
-              </div>
-          </div>
+        <!-- <div class="control full">
+            <input class="control" type="range" id="slider_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
+            <br><div class="small tooltip">Transmission rate \(\beta_1\) =
+              <span id="slider_b1_value"></span>
+              <span class="tiny tooltiptext">Transmission from mildly infected to susceptible individuals</span>
+            </div>
+        </div> -->
 
-          <div class="control full">
-              <input class="control" type="range" id="slider_b2" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
-              <br><div class="small tooltip">Transmission rate \(\beta_2\) =
-                <span id="slider_b2_value"></span>
-                <span class="tiny tooltiptext">Transmission from severely infected to susceptible individuals</span>
-              </div>
-          </div>
-
-          <div class="control full">
-              <input class="control" type="range" id="slider_b3" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
-              <br><div class="small tooltip">Transmission rate \(\beta_3\) =
-                <span id="slider_b3_value"></span>
-                <span class="tiny tooltiptext">Transmission from critical to susceptible individuals</span>
-              </div>
-          </div>
-
-          <div class="control full">
-              <input class="control" type="range" id="slider_c" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
-              <br><div class="small tooltip">Reported fraction \(c\) =
-                <span id="slider_c_value"></span>
-                <span class="tiny tooltiptext">Fraction of mildly infected cases that are reported</span>
-              </div>
-          </div> -->
-
-          <!-- <div class="control">
-              <br>
-              <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
-          </div> -->
-        <!-- </center> -->
+        <!-- <div class="control">
+            <br>
+            <button type="button" class="small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button>
+        </div> -->
       </div>
       <div class="column" style="width:80%;">
 
         <div id="canvas_container">
           <canvas class="full" id="chart_canvas"></canvas>
-          <div class="teeny" id="legend" style="width:23em;">
+          <div class="teeny" id="legend" style="width:24em;">
             <center><b></b></center>
             <div class="clearfix">
               <div class="legend_column" style="width:50%; padding-right:5px;">
                 <b><div id="legend_date" style="padding-bottom:5px"></div></b>
                 <div class="exposed">Exposed</div>
-                <div class="asymptomatic"> Asymptomatic</div>
-                <div class="mild_hidden"> Mild - hidden</div>
-                <div class="recovered_hidden">Recovered - hidden</div>
+                <div class="asymptomatic">Asymptomatic</div>
+                <div class="mild_hidden">Mild - unreported</div>
+                <div class="recovered_hidden">Recovered - unreported</div>
                 <hr>
                 <div class="recovered">Recovered</div>
                 <div>Fatal</div>
@@ -164,37 +140,6 @@
           </div>
         </div>
 
-        <!-- <canvas class="full" id="control_chart_canvas"></canvas> -->
-
-        <!-- <div class="control full">
-            <div class="control full">
-              <center>
-                <span id="container_interv0">
-                  <input class="control intervention" type="range" id="slider_interv0_T" onmousemove="updateParameters(true)" min=1 max=30 step=1></input>
-                  <span><input type="checkbox" id="check_interv0" onchange="updateInterventions(0)" checked></input></span>
-                  <span class="small">Add intervention on day</span>
-                  <span class="small" id="slider_interv0_T_value"></span>
-                  <span class="small"> to change \(\beta_1\) to </span>
-                  <span id="slider_interv0_b1_value"></span>
-                  <input class="block" type="range" id="slider_interv0_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01></input>
-                </span>
-              </center>
-            </div>
-
-            <div class="control full" style="margin-top:20px;">
-              <center>
-                <span id="container_interv1" style="color:grey">
-                  <input class="control intervention" type="range" id="slider_interv1_T" onmousemove="updateParameters(true)" min=1 max=30 step=1 disabled=true></input>
-                  <span><input type="checkbox" id="check_interv1" onchange="updateInterventions(1)"></input></span>
-                  <span class="small">Add intervention on day</span>
-                  <span class="small" id="slider_interv1_T_value"></span>
-                  <span class="small"> to change \(\beta_1\) to </span>
-                  <span id="slider_interv1_b1_value"></span>
-                  <input class="block" type="range" id="slider_interv1_b1" onmousemove="updateParameters()" min=0 max=1 step=0.01 disabled=true></input>
-                </span>
-              </center>
-            </div>
-        </div> -->
       </div>
     </div>
 
@@ -301,13 +246,8 @@
       </p>
     </div>
 
-    <!-- <center>
-      <img src="./model_schematic.png" style="width:70%"></img>
-      <figcaption style="margin-top:10px;">Schematic of model classes and rate parameters</figcaption>
-    </center> -->
-
     <br>
-    <h3> Data sources</h3>
+    <h3>Data sources</h3>
 
     <p class="small">
       <a href="http://www.epid.gov.lk/web/index.php?option=com_content&view=article&id=225&Itemid=518&lang=en" target="_blank">Situation reports</a> - Epidemiology unit, Ministry of Health, Sri Lanka
@@ -323,6 +263,16 @@
       <br><br>
       The Javascript code behind this web application is available on <a href="https://github.com/savithru-j/COVID-19-SL" target="_blank">Github</a> under an <a href="https://opensource.org/licenses/MIT" target="_blank">MIT license</a>.
     </p>
+
+    <br>
+    <b>Acknowledgements</b>
+    <ul style="padding-top:0px">
+      <li><a href="https://twitter.com/alison_l_hill" target_="blank">Allison Hill</a> for her advice and feedback on early versions of the model.</li>
+      <li>Buddhi Prabhath for integrating data from all countries into the code.</li>
+    </ul>
+
+    <br>
+    <div class="tiny" style="text-align:right; color:grey">This simulation tool is intended for research purposes, and is provided freely without warranty of any kind.</div>
 
   </div>
 
