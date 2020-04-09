@@ -7,6 +7,13 @@
 // var date_format = 'DD-MM-YYYY';
 var date_format = 'YYYY-MM-DD';
 
+var population_data = {
+  "Sri Lanka" : 21.44E+6,
+  "Singapore" : 5.61E+6,
+  "US" : 327.2E+6,
+  "United Kingdom" : 66.65E+6,
+}
+
 //Data about any quarantined index individuals in each country (required for Iq category)
 var quarantine_data = {
   "Sri Lanka" : [{t: "2020-03-13", y: 2},
@@ -24,16 +31,23 @@ var data_start_dates = {
     "Sri Lanka": "2020-03-01"
 };
 
+var custom_interventions = {
+  "Sri Lanka" : {
+      t_start: [0, 13],
+      b1N: [0.85, 0.125],
+      b2N: [0, 0],
+      b3N: [0, 0],
+      diag_frac: [0.11, 0.11]
+  }
+}
+
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
-  T_pred: 7,        //prediction length
-  b1N_init: 0.92,   //initial beta_1 value
-  b2N_init: 0.00,   //initial beta_2 value
-  b3N_init: 0.00,   //initial beta_3 value
-  b1N_T0: 0.1,     //beta_1 after intervention 0
-  b1N_T1: 0.05,     //beta_1 after intervention 1
-  T0: 13,           //time of intervention 0
-  diag_frac: 0.12,
+  T_pred: 7,    //prediction length
+  b1N: 0.3,     //beta_1 value
+  b2N: 0.0,     //beta_2 value
+  b3N: 0.0,     //beta_3 value
+  diag_frac: 0.5,
   country: "Sri Lanka"
 }
 
@@ -48,6 +62,7 @@ var control_chart_active_point = null;
 var control_chart_canvas = null;
 var last_active_tooltip_day = 0;
 var active_control_parameter = "b1N";
+var active_country = default_controls.country;
 
 
 window.onload = function()
@@ -59,33 +74,6 @@ window.onload = function()
   //Update UI controls to match default values
   document.getElementById("slider_finalT").value = default_controls.T_pred;
   document.getElementById("slider_finalT_value").innerHTML = default_controls.T_pred;
-
-  // document.getElementById("slider_b1").value = default_controls.b1N_init;
-  // document.getElementById("slider_b1_value").innerHTML = default_controls.b1N_init.toFixed(2);
-  //
-  // document.getElementById("slider_b2").value = default_controls.b2N_init;
-  // document.getElementById("slider_b2_value").innerHTML = default_controls.b2N_init.toFixed(2);
-  //
-  // document.getElementById("slider_b3").value = default_controls.b3N_init;
-  // document.getElementById("slider_b3_value").innerHTML = default_controls.b3N_init.toFixed(2);
-  //
-  // document.getElementById("slider_c").value = default_controls.diag_frac;
-  // document.getElementById("slider_c_value").innerHTML = default_controls.diag_frac.toFixed(2);
-  //
-  // let slider_interv0_T = document.getElementById('slider_interv0_T');
-  // let slider_interv1_T = document.getElementById('slider_interv1_T');
-  // slider_interv0_T.max = sim_params.T_hist + sim_params.T_pred;
-  // slider_interv1_T.max = sim_params.T_hist + sim_params.T_pred;
-  // slider_interv0_T.value = default_controls.T0;
-  // slider_interv1_T.value = slider_interv0_T.max;
-  // document.getElementById('slider_interv0_T_value').innerHTML = slider_interv0_T.value;
-  // document.getElementById('slider_interv1_T_value').innerHTML = slider_interv1_T.value;
-  //
-  // document.getElementById("slider_interv0_b1").value = default_controls.b1N_T0;
-  // document.getElementById("slider_interv0_b1_value").innerHTML = default_controls.b1N_T0.toFixed(2);
-  //
-  // document.getElementById("slider_interv1_b1").value = default_controls.b1N_T1;
-  // document.getElementById("slider_interv1_b1_value").innerHTML = default_controls.b1N_T1.toFixed(2);
 }
 
 function generateCountryDropDown()
@@ -107,8 +95,11 @@ function generateCountryDropDown()
 
 function changeCountry(country_name)
 {
+  active_country = country_name;
   data_real = getCountryData(country_name);
   sim_params = initializeSimulationParameters(data_real.total.length, default_controls.T_pred);
+  customizeParametersByCountry(country_name, sim_params);
+
   data_predicted = getPredictionData(data_real.total[0].t);
 
   if (main_chart)
@@ -167,6 +158,37 @@ function getCountryData(country_name)
   }
 
   return {total: data_total, categorized: data_cat};
+}
+
+function customizeParametersByCountry(country_name, params)
+{
+  let intervention_data = custom_interventions[country_name];
+  if (intervention_data)
+  {
+    for (let i = 0; i < intervention_data.t_start.length; ++i)
+    {
+      let j_end = (i < intervention_data.t_start.length-1) ? intervention_data.t_start[i+1] : params.b1N.length;
+      for (let j = intervention_data.t_start[i]; j < j_end; ++j)
+      {
+        params.b1N[j] = intervention_data.b1N[i];
+        params.b2N[j] = intervention_data.b2N[i];
+        params.b3N[j] = intervention_data.b3N[i];
+        params.diag_frac[j] = intervention_data.diag_frac[i];
+      }
+    }
+  }
+
+  //Update quarantine input data
+  for (let i = 0; i < data_real.categorized.length; ++i)
+    params.quarantine_input[i] = data_real.categorized[i].y[3];
+
+  //Update population
+  params.population = population_data[country_name];
+  if (!params.population)
+  {
+    console.log("Population data not found!");
+    params.population = 10E+6;
+  }
 }
 
 function formatNumber(num) {
@@ -769,24 +791,50 @@ function initializeSimulationParameters(hist_length, pred_length)
   //allocate maximum possible through sliders so that we don't have to resize later
   let total_length = hist_length + 200;
 
-  let q_input = new Array(total_length).fill(0.0);
-  for (let i = 0; i < data_real.categorized.length; ++i)
-    q_input[i] = data_real.categorized[i].y[3];
+  //Periods [days]
+  const T_incub0 = 3;
+  const T_incub1 = 2;
+  const T_asympt = 6;
+  const T_mild   = 6;
+  const T_severe = 4;
+  const T_icu    = 10;
+
+  //Probabilities
+  const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
+  const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
+  const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
+  const prob_I0_R  = 1;
+  const prob_I1_R  = 0.8; //mild to recovered
+  const prob_I1_I2 = 1 - prob_I1_R; //mild to severe
+  const prob_I2_R  = 0.15/(prob_I1_I2); //severe to recovered
+  const prob_I2_I3 = 1 - prob_I2_R; //severe to critical
+  const prob_I3_D  = 0.02/(prob_I1_I2*prob_I2_I3); //critical to dead
+  const prob_I3_R  = 1 - prob_I3_D; //critical to recovered
 
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
     dt: 0.5/24.0,                                                       //timestep size [days]
-    b1N: new Array(total_length).fill(default_controls.b1N_init),       //transmission rate from mild to susceptible
-    b2N: new Array(total_length).fill(default_controls.b2N_init),       //transmission rate from severe to susceptible
-    b3N: new Array(total_length).fill(default_controls.b3N_init),       //transmission rate from critical to susceptible
-    quarantine_input: q_input,                                          //no. of patients added directly to quarantine
+    b1N: new Array(total_length).fill(default_controls.b1N),            //transmission rate from mild to susceptible
+    b2N: new Array(total_length).fill(default_controls.b2N),            //transmission rate from severe to susceptible
+    b3N: new Array(total_length).fill(default_controls.b3N),            //transmission rate from critical to susceptible
+    quarantine_input: new Array(total_length).fill(0.0),                //no. of patients added directly to quarantine
     diag_frac: new Array(total_length).fill(default_controls.diag_frac),//fraction of I1 patients that are diagnosed
+    population: population_data[default_controls.country],              //population of Sri Lanka
     E0_0: 5,                                                            //number of non-infectious exposed individuals at start
+    Rd_0: 1,                                                            //number of recovered-diagnosed individuals at start
+    //rate parameters below [1/day]
+    a0: (1/T_incub0) * prob_E0_E1,
+    a10: (1/T_incub1) * prob_E1_I0,
+    a11: (1/T_incub1) * prob_E1_I1,
+    g0: (1/T_asympt) * prob_I0_R,
+    g1: (1/T_mild)   * prob_I1_R,
+    p1: (1/T_mild)   * prob_I1_I2,
+    g2: (1/T_severe) * prob_I2_R,
+    p2: (1/T_severe) * prob_I2_I3,
+    g3: (1/T_icu)    * prob_I3_R,
+    mu: (1/T_icu)    * prob_I3_D,
   }
-
-  for (let i = default_controls.T0; i < total_length; ++i)
-    params.b1N[i] = default_controls.b1N_T0; //To simulate curfew
 
   return params;
 }
@@ -853,43 +901,21 @@ function getPredictionData(start_date)
 
 function predictModel(params)
 {
-  //Periods [days]
-  const T_incub0 = 3;
-  const T_incub1 = 2;
-  const T_asympt = 6;
-  const T_mild   = 6;
-  const T_severe = 4;
-  const T_icu    = 10;
-
-  //Probabilities
-  const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
-  const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
-  const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
-  const prob_I0_R  = 1;
-  const prob_I1_R   = 0.8; //mild to recovered
-  const prob_I1_I2  = 1 - prob_I1_R; //mild to severe
-  const prob_I2_R   = 0.15/(prob_I1_I2); //severe to recovered
-  const prob_I2_I3  = 1 - prob_I2_R; //severe to critical
-  const prob_I3_D   = 0.02/(prob_I1_I2*prob_I2_I3); //critical to dead
-  const prob_I3_R   = 1 - prob_I3_D; //critical to recovered
-
-
   //Rates [1/day]
-  const a0 = (1/T_incub0) * prob_E0_E1;
-  const a10 = (1/T_incub1) * prob_E1_I0;
-  const a11 = (1/T_incub1) * prob_E1_I1;
+  const a0 = params.a0;
+  const a10 = params.a10;
+  const a11 = params.a11;
   const a1 = a10 + a11;
-  const g0 = (1/T_asympt) * prob_I0_R;
-  const g1 = (1/T_mild)   * prob_I1_R;
-  const p1 = (1/T_mild)   * prob_I1_I2;
-  const g2 = (1/T_severe) * prob_I2_R;
-  const p2 = (1/T_severe) * prob_I2_I3;
-  const g3 = (1/T_icu)    * prob_I3_R;
-  const mu = (1/T_icu)    * prob_I3_D;
-
-  let N = 21.4e6; //Population of Sri Lanka
+  const g0 = params.g0;
+  const g1 = params.g1;
+  const p1 = params.p1;
+  const g2 = params.g2;
+  const p2 = params.p2;
+  const g3 = params.g3;
+  const mu = params.mu;
 
   //Initial solution
+  let N = params.population;
   let E0_0 = params.E0_0;
   let E1_0 = 0;
   let I0_0 = 0;
@@ -898,7 +924,7 @@ function predictModel(params)
   let I1q_0 = 0;
   let I2_0 = 0;
   let I3_0 = 0;
-  let Rd_0 = 1;  //One patient had already recovered in SL
+  let Rd_0 = params.Rd_0;
   let Ru_0 = 0;
   let D_0 = 0;
   let S_0 = N - E0_0 - E1_0 - I0_0 - I1d_0 - I1u_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Ru_0 - D_0;
