@@ -827,7 +827,7 @@ function initializeSimulationParameters(hist_length, pred_length)
     quarantine_input: new Array(total_length).fill(0.0),                //no. of patients added directly to quarantine
     diag_frac: new Array(total_length).fill(default_controls.diag_frac),//fraction of I1 patients that are diagnosed
     population: 1E7,                                                    //population of country
-    E0_0: 1,                                                            //number of non-infectious exposed individuals at start
+    E0_0: 5,                                                            //number of non-infectious exposed individuals at start
     Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
     //rate parameters below [1/day]
     a0: (1/T_incub0) * prob_E0_E1,
@@ -985,25 +985,78 @@ function predictModel(params)
   return solution_hist;
 }
 
+function getParameterVector(params)
+{
+  let n = 2*(params.T_hist - 1) + 6;
+  let param_vec = new Array(n).fill(0);
+  updateParameterVectorFromStruct(params, param_vec);
+  return param_vec;
+}
+
+function updateParameterVectorFromStruct(params, param_vec)
+{
+  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
+  let n_c = (params.T_hist - 1); //no. of c values to optimize
+
+  for (let i = 0; i < n_b1; ++i)
+    param_vec[i] = params.b1N[i];
+
+  for (let i = 0; i < n_c; ++i)
+    param_vec[n_b1 + i] = params.diag_frac[i];
+
+  param_vec[n_b1 + n_c] = params.E0_0;
+  param_vec[n_b1 + n_c + 1] = params.g0;
+  param_vec[n_b1 + n_c + 2] = params.g1;
+  param_vec[n_b1 + n_c + 3] = params.a0;
+  param_vec[n_b1 + n_c + 4] = params.a10;
+  param_vec[n_b1 + n_c + 5] = params.a11;
+}
+
+function updateParameterStructFromVector(params, param_vec, extrapolate_to_end = false)
+{
+  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
+  let n_c = (params.T_hist - 1); //no. of c values to optimize
+
+  for (let i = 0; i < n_b1; ++i)
+    params.b1N[i] = Math.min(Math.max(param_vec[i], 0.0), 1.0); //beta_1 >= 0
+
+  for (let i = 0; i < n_c; ++i)
+    params.diag_frac[i] = Math.min(Math.max(param_vec[n_b1 + i], 0.0), 1.0); // 0 <= c <= 1
+
+  params.E0_0 = Math.max(param_vec[n_b1 + n_c], 1.0);
+  params.g0 = Math.min(Math.max(param_vec[n_b1 + n_c + 1], 0.0), 1.0);
+  params.g1 = Math.min(Math.max(param_vec[n_b1 + n_c + 2], 0.0), 1.0);
+  params.a0 = Math.min(Math.max(param_vec[n_b1 + n_c + 3], 0.0), 1.0);
+  params.a10 = Math.min(Math.max(param_vec[n_b1 + n_c + 4], 0.0), 1.0);
+  params.a11 = Math.min(Math.max(param_vec[n_b1 + n_c + 5], 0.0), 1.0);
+
+  if (extrapolate_to_end)
+  {
+    //Extend last beta and c value to future
+    for (let i = n_b1; i < params.b1N.length; ++i)
+      params.b1N[i] = params.b1N[n_b1-1];
+
+    for (let i = n_c; i < params.diag_frac.length; ++i)
+      params.diag_frac[i] = params.diag_frac[n_c-1];
+  }
+}
 
 function optimizeParameters()
 {
-  let params = initializeSimulationParameters(data_real.total.length, 0); //no prediction
+  let T_pred_orig = sim_params.T_pred;
+  let params = sim_params;
+  params.T_pred = 0;
+  console.log("Original gamma: " + params.g0 + ", " + params.g1);
 
-  let res = getFitResidual(params);
+  //let params = initializeSimulationParameters(data_real.total.length, 0); //no prediction
+  let param_vec = getParameterVector(params);
+
+  let res = getFitResidual(params, param_vec);
   let resnorm = getL2Norm(res);
   let resnorm_init = resnorm;
 
-  let m = res.length;
-  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n_c = (params.T_hist - 1); //no. of c values to optimize
-  let n = n_b1 + 0*n_c; //beta_1 values, E0_0, I1h_0
-
-  let param_vec = new Array(n).fill(0);
-  for (let i = 0; i < n_b1; ++i)
-    param_vec[i] = params.b1N[i];
-  // for (let i = 0; i < n_c; ++i)
-  //   param_vec[n_b1 + i] = params.diag_frac[i];
+  const m = res.length;
+  const n = param_vec.length;
 
   let dparam_vec = new Array(n).fill(0);
   let param_vec0 = new Array(n).fill(0);
@@ -1029,25 +1082,13 @@ function optimizeParameters()
 
     while (eta >= 1e-7)
     {
+      //Update param_vec based on (scaled) update vector
       for (let i = 0; i < n; ++i)
-      {
         param_vec[i] = param_vec0[i] - eta*dparam_vec[i];
 
-        if (i < n_b1)
-        {
-          if (param_vec[i] < 0.0)
-            param_vec[i] = 0.0;
-          params.b1N[i] = param_vec[i];
-        }
-        else
-        {
-          // if (param_vec[i] < 0.0)
-          //   param_vec[i] = 0.0;
-          // else if (param_vec[i] > 1.0)
-          //   param_vec[i] = 1.0;
-          // params.diag_frac[i-n_b1] = param_vec[i];
-        }
-      }
+      //This checks for the validity of parameters, and may modify values
+      updateParameterStructFromVector(params, param_vec);
+      updateParameterVectorFromStruct(params, param_vec); //update param_vec in case values were modified
 
       //Evaluate new residual
       res = getFitResidual(params);
@@ -1066,87 +1107,74 @@ function optimizeParameters()
 
   console.log("Final resnorm: " + resnorm + ", rel: " + resnorm/resnorm_init);
 
-  for (let i = 0; i < n_b1; ++i)
-    sim_params.b1N[i] = params.b1N[i];
+  //Copy final solution to global simulation parameters
+  updateParameterStructFromVector(sim_params, param_vec, true);
+  sim_params.T_pred = T_pred_orig;
 
-  // for (let i = 0; i < n_c; ++i)
-  //     sim_params.diag_frac[i] = params.diag_frac[i];
+  console.log("Final gamma: " + params.g0 + ", " + params.g1);
 
-  //Extend last beta and c value to future
-  for (let i = n_b1; i < sim_params.b1N.length; ++i)
-    sim_params.b1N[i] = sim_params.b1N[n_b1-1];
-
-  // for (let i = n_c; i < sim_params.diag_frac.length; ++i)
-  //   sim_params.diag_frac[i] = sim_params.diag_frac[n_c-1];
-
-  updateParameters();
+  updateParameters(true);
   return params;
 }
 
 function getFitResidual(params)
 {
-  const num_eq = 2;
+  const num_eq = 3;
   let sol_hist = predictModel(params);
   let residual = new Array(num_eq*(sol_hist.length-1)).fill(0);
 
   for (let i = 1; i < sol_hist.length; ++i)
   {
-    let weight0 = (data_raw_SL[i].y[0] == 0) ? 1 : (1/data_raw_SL[i].y[0]);
-    let weight1 = (data_raw_SL[i].y[1] == 0) ? 1 : (1/data_raw_SL[i].y[1]);
-    let weight2 = (data_raw_SL[i].y[2] == 0) ? 1 : (1/data_raw_SL[i].y[2]);
+    //Error in number of active patients
+    let num_active_pred = sol_hist[i][4] + sol_hist[i][6] + sol_hist[i][7] + sol_hist[i][8]; //I1d + I1q + I2 + I3
+    let num_active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
+    residual[num_eq*(i-1)] = num_active_pred - num_active_true;
+    // residual[num_eq*(i-1)] = num_active_pred - num_active_true + sol_hist[i][9] - data_real.categorized[i].y[1];
+    // residual[num_eq*(i-1)] = num_active_pred + sol_hist[i][9] + sol_hist[i][11] - data_real.categorized[i].y[0];
 
-    let I_diag = params.diag_frac[i]*sol_hist[i][4] + sol_hist[i][5] + sol_hist[i][6] + sol_hist[i][7];
+    //Error in no. of recovered-diagnosed patients
+    residual[num_eq*(i-1) + 1] = sol_hist[i][9] - data_real.categorized[i].y[1];
 
-    //I1d + I1q + I2 + I3 = no. of diagnosed patients in hospitals
-    //residual[num_eq*(i-1)] = (I_diag - data_raw_SL[i].y[0]);
-    residual[num_eq*(i-1)] = (I_diag + sol_hist[i][8] - data_raw_SL[i].y[0] - data_raw_SL[i].y[1]);
-    //residual[num_eq*(i-1)] = I_diag + sol_hist[i][8] + sol_hist[i][10] - data_raw_SL[i].y[0] - data_raw_SL[i].y[1] - data_raw_SL[i].y[2];
+    //Error in no. of fatalities
+    residual[num_eq*(i-1) + 2] = sol_hist[i][11] - data_real.categorized[i].y[2];
 
-    //Rd = no. of recovered patients
-    //residual[num_eq*(i-1) + 1] = (sol_hist[i][8] - data_raw_SL[i].y[1]) * weight1;
-
-    //D = no. of fatalities
-    residual[num_eq*(i-1) + 1] = (sol_hist[i][10] - data_raw_SL[i].y[2]) * 10;
+    if (isNaN(residual[num_eq*(i-1)]) || isNaN(residual[num_eq*(i-1) + 1]) || isNaN(residual[num_eq*(i-1) + 2]))
+      console.log("Found NaN");
   }
   return residual;
 }
 
 function getFitJacobian(params)
 {
-  let m = 2*(params.T_hist - 1);
-  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n_c = (params.T_hist - 1); //no. of c values to optimize
-  let n = n_b1 + 0*n_c; //beta_1 values, E0_0, I1h_0
+  const m = 3*(params.T_hist - 1);
+
+  let param_vec = getParameterVector(params);
+  const n = param_vec.length;
+
   let jac = new Array(m*n).fill(0);
 
-  const delta_b1 = 1e-5;
-  const delta_c = 1e-5;
+  const delta = 1e-5;
 
-  for (let j = 0; j < n_b1; ++j)
+  for (let j = 0; j < n; ++j)
   {
     //Compute finite difference
-    params.b1N[j] += delta_b1;
+    param_vec[j] += delta;
+    updateParameterStructFromVector(params, param_vec);
     let Rp = getFitResidual(params);
-    params.b1N[j] -= 2*delta_b1;
+
+    param_vec[j] -= 2*delta;
+    updateParameterStructFromVector(params, param_vec);
     let Rm = getFitResidual(params);
-    params.b1N[j] += delta_b1;
+
+    param_vec[j] += delta;
 
     for (let i = 0; i < m; ++i)
-      jac[i*n + j] = (Rp[i] - Rm[i])/(2*delta_b1);
+    {
+      jac[i*n + j] = (Rp[i] - Rm[i])/(2*delta);
+      if (isNaN(jac[i*n+j]))
+        console.log("found nan");
+    }
   }
-
-  // for (let j = 0; j < n_c; ++j)
-  // {
-  //   //Compute finite difference
-  //   params.diag_frac[j] += delta_c;
-  //   let Rp = getFitResidual(params);
-  //   params.diag_frac[j] -= 2*delta_c;
-  //   let Rm = getFitResidual(params);
-  //   params.diag_frac[j] += delta_c;
-  //
-  //   for (let i = 0; i < m; ++i)
-  //     jac[i*n + n_b1 + j] = (Rp[i] - Rm[i])/(2*delta_c);
-  // }
 
   return jac;
 }
