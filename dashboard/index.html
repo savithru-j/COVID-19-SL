@@ -102,7 +102,7 @@
                 <div class="severe" style="text-indent:1em;">- Severe</div>
                 <div class="mild" style="text-indent:1em;">- Mild</div>
                 <hr>
-                <div>Total cases</div>
+                <div>Total reported cases</div>
               </div>
               <div class="legend_column" style="width:25%; padding-right:5px;">
                 <b><div class="legend_value" style="padding-bottom:5px">Predicted</div></b>
@@ -189,6 +189,11 @@
 
       </div>
       <div class="column" style="width:80%;">
+        <div class="small" style="text-align:right; color:grey;">
+          <span class="tooltip">Prediction error:
+            <span class="tiny tooltiptext">This is an estimate of the error between the predicted data and the real data. Smaller error values indicate a better fit.</span>
+          </span>&nbsp;<span id="prediction_error">0.0</span>
+        </div>
         <canvas class="full" id="control_chart_canvas"></canvas>
         <!-- <br> -->
         <center><div class="tiny" style="color:grey">Simulate the effect of interventions such as lockdowns and curfews by clicking and dragging points on the graph.</div></center>
@@ -216,12 +221,13 @@
               <li>\(E_0\) - Exposed individuals before they become infectious</li>
               <li>\(E_1\) - Exposed individuals after they are infectious</li>
               <li>\(I_0\) - Asymptomatic individuals</li>
-              <li>\(I_1\) - Infected individuals with mild symptoms</li>
+              <li>\(I_{1D}\) - Infected individuals with mild symptoms who have been diagnosed</li>
+              <li>\(I_{1U}\) - Infected individuals with mild symptoms who are unreported</li>
               <li>\(I_{1Q}\) - Infected individuals with mild symptoms who were directly quarantined upon entry</li>
               <li>\(I_2\) - Infected individuals with severe symptoms (require hospitalization)</li>
               <li>\(I_3\) - Infected individuals at critical stage (require ICU admission)</li>
-              <li>\(R_H\) - Recovered individuals that have not been tested</li>
-              <li>\(R_D\) - Recovered individuals that were diagnosed positive</li>
+              <li>\(R_D\) - Recovered individuals who were diagnosed positive</li>
+              <li>\(R_U\) - Recovered individuals who are unreported</li>
               <li>\(D\) - Fatalities</li>
             </ul>
           </p>

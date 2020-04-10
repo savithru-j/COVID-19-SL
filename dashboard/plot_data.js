@@ -31,24 +31,25 @@ var data_start_dates = {
     "Sri Lanka": "2020-03-01"
 };
 
-var custom_interventions = {
+var custom_country_data = {
   "Sri Lanka" : {
-      t_start: [0, 13],
-      b1N: [0.85, 0.125],
-      b2N: [0, 0],
+      t_start: [0, 13], //indices to start dates of any interventions
+      b1N: [0.85, 0.125], //values of b1N for each intervention segment defined in t_start
+      b2N: [0, 0], //values of b2N
       b3N: [0, 0],
-      diag_frac: [0.11, 0.11]
+      diag_frac: [0.11, 0.11],
+      E0_0: 5, //no. of individuals exposed at start
+      Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
 }
 
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
   T_pred: 7,    //prediction length
-  b1N: 0.3,     //beta_1 value
+  b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
-  diag_frac: 0.5,
-  country: "Sri Lanka"
+  diag_frac: 0.5 //fraction of mild-patients that are diagnosed
 }
 
 //Storage for real and predicted data to be plotted on chart: {categorized, total}
@@ -62,14 +63,13 @@ var control_chart_active_point = null;
 var control_chart_canvas = null;
 var last_active_tooltip_day = 0;
 var active_control_parameter = "b1N";
-var active_country = default_controls.country;
+var active_country = "Sri Lanka";
 
 
 window.onload = function()
 {
   generateCountryDropDown();
-
-  changeCountry(default_controls.country);
+  changeCountry(active_country);
 
   //Update UI controls to match default values
   document.getElementById("slider_finalT").value = default_controls.T_pred;
@@ -90,7 +90,7 @@ function generateCountryDropDown()
     option.text = name;
     menu.add(option);
   }
-  menu.value = default_controls.country;
+  menu.value = active_country;
 }
 
 function changeCountry(country_name)
@@ -98,9 +98,9 @@ function changeCountry(country_name)
   active_country = country_name;
   data_real = getCountryData(country_name);
   sim_params = initializeSimulationParameters(data_real.total.length, default_controls.T_pred);
-  customizeParametersByCountry(country_name, sim_params);
 
   data_predicted = getPredictionData(data_real.total[0].t);
+  document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
 
   if (main_chart)
     refreshAllChartData();
@@ -162,20 +162,27 @@ function getCountryData(country_name)
 
 function customizeParametersByCountry(country_name, params)
 {
-  let intervention_data = custom_interventions[country_name];
-  if (intervention_data)
+  let data = custom_country_data[country_name];
+  if (data)
   {
-    for (let i = 0; i < intervention_data.t_start.length; ++i)
+    for (let i = 0; i < data.t_start.length; ++i)
     {
-      let j_end = (i < intervention_data.t_start.length-1) ? intervention_data.t_start[i+1] : params.b1N.length;
-      for (let j = intervention_data.t_start[i]; j < j_end; ++j)
+      let j_end = (i < data.t_start.length-1) ? data.t_start[i+1] : params.b1N.length;
+      for (let j = data.t_start[i]; j < j_end; ++j)
       {
-        params.b1N[j] = intervention_data.b1N[i];
-        params.b2N[j] = intervention_data.b2N[i];
-        params.b3N[j] = intervention_data.b3N[i];
-        params.diag_frac[j] = intervention_data.diag_frac[i];
+        params.b1N[j] = data.b1N[i];
+        params.b2N[j] = data.b2N[i];
+        params.b3N[j] = data.b3N[i];
+        params.diag_frac[j] = data.diag_frac[i];
       }
     }
+
+    //Update initial E0 and Ru
+    if (data.E0_0)
+      params.E0_0 = data.E0_0;
+
+    if (data.Rd_0)
+      params.Rd_0 = data.Rd_0;
   }
 
   //Update quarantine input data
@@ -183,12 +190,11 @@ function customizeParametersByCountry(country_name, params)
     params.quarantine_input[i] = data_real.categorized[i].y[3];
 
   //Update population
-  params.population = population_data[country_name];
-  if (!params.population)
-  {
+  let N = population_data[country_name];
+  if (N)
+    params.population = N;
+  else
     console.log("Population data not found!");
-    params.population = 10E+6;
-  }
 }
 
 function formatNumber(num) {
@@ -820,9 +826,9 @@ function initializeSimulationParameters(hist_length, pred_length)
     b3N: new Array(total_length).fill(default_controls.b3N),            //transmission rate from critical to susceptible
     quarantine_input: new Array(total_length).fill(0.0),                //no. of patients added directly to quarantine
     diag_frac: new Array(total_length).fill(default_controls.diag_frac),//fraction of I1 patients that are diagnosed
-    population: population_data[default_controls.country],              //population of Sri Lanka
-    E0_0: 5,                                                            //number of non-infectious exposed individuals at start
-    Rd_0: 1,                                                            //number of recovered-diagnosed individuals at start
+    population: 1E7,                                                    //population of country
+    E0_0: 1,                                                            //number of non-infectious exposed individuals at start
+    Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
     //rate parameters below [1/day]
     a0: (1/T_incub0) * prob_E0_E1,
     a10: (1/T_incub1) * prob_E1_I0,
@@ -835,6 +841,9 @@ function initializeSimulationParameters(hist_length, pred_length)
     g3: (1/T_icu)    * prob_I3_R,
     mu: (1/T_icu)    * prob_I3_D,
   }
+
+  //Modify any parameters that are specific to the currently active country.
+  customizeParametersByCountry(active_country, params);
 
   return params;
 }
@@ -859,6 +868,7 @@ function updateParameters(force = false)
   {
     data_predicted = getPredictionData(data_real.total[0].t);
     refreshAllChartData();
+    document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
   }
 }
 
@@ -1139,6 +1149,24 @@ function getFitJacobian(params)
   // }
 
   return jac;
+}
+
+function getCurrentPredictionError()
+{
+  let res_sq = 0.0, res0_sq = 0.0;
+  for (let i = 1; i < data_real.total.length; ++i)
+  {
+    let active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
+    let active_pred = data_predicted.categorized[7][i].y + data_predicted.categorized[8][i].y + data_predicted.categorized[9][i].y;
+
+    let err_a = active_pred - active_true;
+    let err_r = data_predicted.categorized[5][i].y - data_real.categorized[i].y[1]; //recovered
+    let err_d = data_predicted.categorized[6][i].y - data_real.categorized[i].y[2]; //fatal
+
+    res_sq += err_a*err_a + err_r*err_r + err_d*err_d;
+    res0_sq += active_true*active_true + data_real.categorized[i].y[1]*data_real.categorized[i].y[1] + data_real.categorized[i].y[2]*data_real.categorized[i].y[2];
+  }
+  return Math.sqrt(res_sq)/Math.sqrt(res0_sq);
 }
 
 function getL2Norm(vec)

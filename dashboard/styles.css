@@ -113,21 +113,27 @@ input.control.intervention {
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 150px;
-  background-color: black;
+  width: 200px;
+  background-color: #666;
   color: #fff;
   text-align: center;
   border-radius: 6px;
-  padding: 5px 0;
+  padding: 5px;
 
   /* Position the tooltip */
   position: absolute;
   top: 2em;
+  left: 60%;
   z-index: 1;
+
+  /* Fade in tooltip */
+  opacity: 0;
+  transition: opacity 0.5s;
 }
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
+  opacity: 1;
 }
 
 ul li {
