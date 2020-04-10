@@ -239,16 +239,35 @@
       </div>
 
       <p>
-        Susceptible (\(S\)) individuals contract the disease from infected individuals in the classes \(E_1, I_0, I_1, I_2,\) and \(I_3\). They then move to the exposed class (\(E_0\)). After an incubation period (~3 days) in \(E_0\), they become infectious in the \(E_1\) class. From \(E_1\), they can either move to an asymptomatic class, \(I_0\), with 30% probability, or to a mild symptomatic class, \(I_1\), with 70% probability.
+        Susceptible (\(S\)) individuals contract the disease from infected individuals in the classes \(E_1, I_0, I_{1D}, I_{1U}, I_{1Q}, I_2,\) and \(I_3\). They then move to the exposed class (\(E_0\)). After an incubation period (~3 days) in \(E_0\), they become infectious in the \(E_1\) class, and stay in the infectious-exposed class \(E_1\) for ~2 days. From \(E_1\), they can either move to an asymptomatic class, \(I_0\), or to the mild symptomatic classes, \(I_{1D}\) and \(I_{1U}\). The percentage of asymptomatic vs. symptomatic individuals is captured by the fraction \(f\), and is assumed to be 0.3 (i.e. 30% are asymptomatic). The percentage of diagnosed vs. unreported mild cases is captured by the fraction \(c\) (i.e. (\(100c\))% of mild cases get diagnosed).
       </p>
       <p>
-        According to literature, roughly 81% of the symptomatic individuals recover after mild symptoms (in ~6 days) and move to the recovered class (\(R\)). The remaining 19% from \(I_1\) develop severe symptoms and move to the \(I_2\) class. These severe cases require hospitalization. About three fourths from \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China, and were used to calculate the rate parameters, \(a_0, a_1, f, \gamma_0, \gamma_1, \gamma_2, \gamma_3, p_1, p_2,\) and \(\mu\).
-      </p>
-      <p>
-        While mild infections do not require hospitalization, according to our friends working at the ground level in Sri Lanka, many mild cases (not all) are also hospitalized. However, a stringent testing criterion is employed and therefore not all the potential \(I_1\) cases are tested. Therefore, only a fraction \(c\) moves to the recovered-diagnosed class \(R_D\) from \(I_1\). The undiagnosed fraction \((1-c)\) goes to the recovered-hidden class, \(R_H\). These hidden cases are never reported, but they contribute to the spread of the virus in the infected stage.
+        According to literature, roughly 81% of the symptomatic individuals (in \(I_{1D}\) and \(I_{1U}\)) recover after mild symptoms (in ~6 days) and move to the recovered classes (\(R_D\) and \(R_U\) respectively). The remaining 19% from \(I_{1D}\) and \(I_{1U}\) develop severe symptoms and move to the \(I_2\) class. Here we assume that individuals from the unreported mildly-infected class (\(I_{1U}\)) who develop severe infections get reported. Therefore, they also move to the same \(I_2\) class. These severe cases require hospitalization. About three-fourths from \(I_2\) recover after hospitalization (in ~4 days), but the remaining one-fourth develop critical symptoms and require ICU treatment. About 40% of the critical cases are fatal and the rest recover after ICU treatment (in ~10 days). These numbers were derived from the published literature of the COVID-19 spread in China, and were used to calculate the rate parameters, \(a_0, a_1, f, c, \gamma_0, \gamma_1, \gamma_2, \gamma_3, p_1, p_2,\) and \(\mu\).
       </p>
       <p>
         Next, we had a significant number of infected individuals (tested positive) who entered the country from abroad, but were strictly quarantined before they could infect others. We added a separate class \(I_{1Q}\) for these quarantined index individuals. We assumed that all these cases enter the country at the mildly infected stage (\(I_{1Q}\)), although it is possible that they enter during the exposed period as well. When we run the model, we add these cases to the population based on the date they tested positive.
+      </p>
+
+      <br>
+      <h4>Governing equations</h4>
+      <p>
+        The system of coupled differential equations that model the evolution of the number of individuals in each of the 12 classes is given by:
+        $$
+          \begin{align}
+          \dot{S} &= -\left( \beta_1(E_1 + I_0 + I_{1D} + I_{1U}) + \beta_2 I_2 + \beta_3 I_3 \right) S \\
+          \dot{E}_0 &= \left( \beta_1(E_1 + I_0 + I_{1D} + I_{1U}) + \beta_2 I_2 + \beta_3 I_3 \right) S - a_0 E_0 \\
+          \dot{E}_1 &= a_0 E_0 - a_1 E_1 \\
+          \dot{I}_0 &= f a_1 E_1 - \gamma_0 I_0 \\
+          \dot{I}_{1D} &= c(1-f) a_1 E_1 - (\gamma_1 + p_1) I_{1D} \\
+          \dot{I}_{1U} &= (1-c)(1-f) a_1 E_1 - (\gamma_1 + p_1) I_{1U} \\
+          \dot{I}_{1Q} &= q_{entry}(t) - (\gamma_1 + p_1) I_{1Q} \\
+          \dot{I}_2 &= p_1 \left(I_{1D} + I_{1U} + I_{1Q} \right) - (\gamma_2 + p_2) I_2 \\
+          \dot{I}_3 &= p_2 I_2 - (\gamma_3 + \mu) I_3 \\
+          \dot{R}_D &= \gamma_1(I_{1D} + I_{1Q}) + \gamma_2 I_2 + \gamma_3 I_3 \\
+          \dot{R}_U &= \gamma_0 I_0 + \gamma_1 I_{1U} \\
+          \dot{D} &= \mu I_3
+          \end{align}
+        $$
       </p>
     </div>
 

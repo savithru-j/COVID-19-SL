@@ -987,7 +987,7 @@ function predictModel(params)
 
 function getParameterVector(params)
 {
-  let n = 2*(params.T_hist - 1) + 6;
+  let n = 2*(params.T_hist - 1);
   let param_vec = new Array(n).fill(0);
   updateParameterVectorFromStruct(params, param_vec);
   return param_vec;
@@ -1004,12 +1004,12 @@ function updateParameterVectorFromStruct(params, param_vec)
   for (let i = 0; i < n_c; ++i)
     param_vec[n_b1 + i] = params.diag_frac[i];
 
-  param_vec[n_b1 + n_c] = params.E0_0;
-  param_vec[n_b1 + n_c + 1] = params.g0;
-  param_vec[n_b1 + n_c + 2] = params.g1;
-  param_vec[n_b1 + n_c + 3] = params.a0;
-  param_vec[n_b1 + n_c + 4] = params.a10;
-  param_vec[n_b1 + n_c + 5] = params.a11;
+  // param_vec[n_b1 + n_c] = params.mu;
+  // param_vec[n_b1 + n_c + 1] = params.g0;
+  // param_vec[n_b1 + n_c + 2] = params.g1;
+  // param_vec[n_b1 + n_c + 3] = params.a0;
+  // param_vec[n_b1 + n_c + 4] = params.a10;
+  // param_vec[n_b1 + n_c + 5] = params.a11;
 }
 
 function updateParameterStructFromVector(params, param_vec, extrapolate_to_end = false)
@@ -1023,12 +1023,13 @@ function updateParameterStructFromVector(params, param_vec, extrapolate_to_end =
   for (let i = 0; i < n_c; ++i)
     params.diag_frac[i] = Math.min(Math.max(param_vec[n_b1 + i], 0.0), 1.0); // 0 <= c <= 1
 
-  params.E0_0 = Math.max(param_vec[n_b1 + n_c], 1.0);
-  params.g0 = Math.min(Math.max(param_vec[n_b1 + n_c + 1], 0.0), 1.0);
-  params.g1 = Math.min(Math.max(param_vec[n_b1 + n_c + 2], 0.0), 1.0);
-  params.a0 = Math.min(Math.max(param_vec[n_b1 + n_c + 3], 0.0), 1.0);
-  params.a10 = Math.min(Math.max(param_vec[n_b1 + n_c + 4], 0.0), 1.0);
-  params.a11 = Math.min(Math.max(param_vec[n_b1 + n_c + 5], 0.0), 1.0);
+  // params.mu = Math.max(param_vec[n_b1 + n_c], 0.0);
+  // params.E0_0 = Math.max(param_vec[n_b1 + n_c], 1.0);
+  // params.g0 = Math.min(Math.max(param_vec[n_b1 + n_c + 1], 0.0), 1.0);
+  // params.g1 = Math.min(Math.max(param_vec[n_b1 + n_c + 2], 0.0), 1.0);
+  // params.a0 = Math.min(Math.max(param_vec[n_b1 + n_c + 3], 0.0), 1.0);
+  // params.a10 = Math.min(Math.max(param_vec[n_b1 + n_c + 4], 0.0), 1.0);
+  // params.a11 = Math.min(Math.max(param_vec[n_b1 + n_c + 5], 0.0), 1.0);
 
   if (extrapolate_to_end)
   {
@@ -1119,7 +1120,7 @@ function optimizeParameters()
 
 function getFitResidual(params)
 {
-  const num_eq = 3;
+  const num_eq = 2;
   let sol_hist = predictModel(params);
   let residual = new Array(num_eq*(sol_hist.length-1)).fill(0);
 
@@ -1128,25 +1129,39 @@ function getFitResidual(params)
     //Error in number of active patients
     let num_active_pred = sol_hist[i][4] + sol_hist[i][6] + sol_hist[i][7] + sol_hist[i][8]; //I1d + I1q + I2 + I3
     let num_active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
-    residual[num_eq*(i-1)] = num_active_pred - num_active_true;
-    // residual[num_eq*(i-1)] = num_active_pred - num_active_true + sol_hist[i][9] - data_real.categorized[i].y[1];
+
+    let num_active_pred0 = sol_hist[i-1][4] + sol_hist[i-1][6] + sol_hist[i-1][7] + sol_hist[i-1][8]; //I1d + I1q + I2 + I3
+    let num_active_true0 = data_real.categorized[i-1].y[0] - data_real.categorized[i-1].y[1] - data_real.categorized[i-1].y[2];
+
+    // let weight0 = (num_active_true == 0) ? 1 : 1/num_active_true;
+    // let weight1 = (data_real.categorized[i].y[1] == 0) ? 1 : 1/data_real.categorized[i].y[1];
+    // let weight2 = (data_real.categorized[i].y[2] == 0) ? 1 : 1/data_real.categorized[i].y[2];
+    // let weightAR = (num_active_true + data_real.categorized[i].y[1] == 0) ? 1 : 1/(num_active_true + data_real.categorized[i].y[1]);
+
+    // residual[num_eq*(i-1)] = (num_active_pred - num_active_true) * weight0;
+    // residual[num_eq*(i-1)] = (num_active_pred - num_active_true + sol_hist[i][9] - data_real.categorized[i].y[1]) * weightAR;
     // residual[num_eq*(i-1)] = num_active_pred + sol_hist[i][9] + sol_hist[i][11] - data_real.categorized[i].y[0];
 
     //Error in no. of recovered-diagnosed patients
-    residual[num_eq*(i-1) + 1] = sol_hist[i][9] - data_real.categorized[i].y[1];
+    // residual[num_eq*(i-1) + 1] = (sol_hist[i][9] - data_real.categorized[i].y[1]) * weight1;
 
     //Error in no. of fatalities
-    residual[num_eq*(i-1) + 2] = sol_hist[i][11] - data_real.categorized[i].y[2];
+    // residual[num_eq*(i-1) + 1] = (sol_hist[i][11] - data_real.categorized[i].y[2]) * weight2;
 
-    if (isNaN(residual[num_eq*(i-1)]) || isNaN(residual[num_eq*(i-1) + 1]) || isNaN(residual[num_eq*(i-1) + 2]))
-      console.log("Found NaN");
+    residual[num_eq*(i-1)] = (num_active_pred - num_active_pred0 + sol_hist[i][9] - sol_hist[i-1][9])
+                           - (num_active_true - num_active_true0 + data_real.categorized[i].y[1] - data_real.categorized[i-1].y[1]);
+    residual[num_eq*(i-1) + 1] = (sol_hist[i][11] - sol_hist[i-1][11])
+                               - (data_real.categorized[i].y[2] - data_real.categorized[i-1].y[2]);
+
+    // if (isNaN(residual[num_eq*(i-1)]) || isNaN(residual[num_eq*(i-1) + 1]) || isNaN(residual[num_eq*(i-1) + 2]))
+    //   console.log("Found NaN");
   }
   return residual;
 }
 
 function getFitJacobian(params)
 {
-  const m = 3*(params.T_hist - 1);
+  const m = 2*(params.T_hist - 1);
 
   let param_vec = getParameterVector(params);
   const n = param_vec.length;
