@@ -35,7 +35,7 @@ div.float {
   float:left;
 }
 
-div.control {
+.control {
   margin-top:15px;
 }
 
@@ -85,12 +85,6 @@ button.small {
 
 input.control {
   width: 80%;
-}
-
-input.control.intervention {
-  width: 93.5%;
-  margin-left: 5.5%;
-  margin-right: 1%;
 }
 
 .small {
