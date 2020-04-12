@@ -49,7 +49,8 @@ var default_controls = {
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
-  diag_frac: 0.5 //fraction of mild-patients that are diagnosed
+  diag_frac: 0.5, //fraction of mild-patients that are diagnosed,
+  param_error: 0.05 //error in parameters
 }
 
 //Storage for real and predicted data to be plotted on chart: {categorized, total}
@@ -74,6 +75,9 @@ window.onload = function()
   //Update UI controls to match default values
   document.getElementById("slider_finalT").value = default_controls.T_pred;
   document.getElementById("slider_finalT_value").innerHTML = default_controls.T_pred;
+
+  document.getElementById("slider_param_error").value = default_controls.param_error * 100;
+  document.getElementById("slider_param_error_value").innerHTML = (default_controls.param_error * 100).toFixed(1);
 }
 
 function generateCountryDropDown()
@@ -401,7 +405,29 @@ function setupChart()
           borderWidth: 2,
           pointRadius: 2,
           order: 3
-        }
+        },
+        {
+          label: 'Predicted lower',
+          backgroundColor: 'rgba(200,200,200,0.4)',
+          borderColor: 'rgba(100,100,100, 0.4)',
+          data: data_predicted.lower,
+          type: 'line',
+          fill: '+1',
+          borderWidth: 1,
+          pointRadius: 0,
+          order: 14
+        },
+        {
+          label: 'Predicted upper',
+          backgroundColor: 'rgba(200,200,200,0.4)',
+          borderColor: 'rgba(100,100,100, 0.4)',
+          data: data_predicted.upper,
+          type: 'line',
+          fill: '-1',
+          borderWidth: 1,
+          pointRadius: 0,
+          order: 15
+        },
 				]
 			},
 			options: {
@@ -719,6 +745,9 @@ function refreshMainChartData()
     main_chart.data.datasets[n_cat+2].data = data_real.fatal;
     main_chart.data.datasets[n_cat+3].data = data_predicted.categorized[6];
 
+    main_chart.data.datasets[n_cat+4].data = data_predicted.lower;
+    main_chart.data.datasets[n_cat+5].data = data_predicted.upper;
+
     main_chart.update();
     delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
     delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.max;
@@ -924,6 +953,7 @@ function initializeSimulationParameters(hist_length, pred_length)
     T_hist: hist_length,
     T_pred: pred_length,
     dt: 0.5/24.0,                                                       //timestep size [days]
+    param_error: default_controls.param_error,                          //assumed error in rate parameters
     b1N: new Array(total_length).fill(default_controls.b1N),            //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(default_controls.b2N),            //transmission rate from severe to susceptible
     b3N: new Array(total_length).fill(default_controls.b3N),            //transmission rate from critical to susceptible
@@ -967,6 +997,18 @@ function updateParameters(force = false)
     }
   }
 
+  let slider_param_error = document.getElementById("slider_param_error");
+  if (slider_param_error)
+  {
+    let val = Number(slider_param_error.value) / 100.0;
+    if (sim_params.param_error != val)
+    {
+      sim_params.param_error = val;
+      requires_update = true;
+      document.getElementById("slider_param_error_value").innerHTML = (val*100).toFixed(1);
+    }
+  }
+
   if (requires_update)
   {
     data_predicted = getPredictionData(data_real.total[0].t);
@@ -978,8 +1020,9 @@ function updateParameters(force = false)
 function getPredictionData(start_date)
 {
   let sol_history = predictModel(sim_params);
+  let sol_error_data = getErrorData();
 
-  let data_agg = [];
+  let data_agg = [], data_lower = [], data_upper = [];
   let data_cat = new Array(10);
   for (let i = 0; i < data_cat.length; ++i)
     data_cat[i] = new Array();
@@ -989,7 +1032,6 @@ function getPredictionData(start_date)
   for (let i = 0; i < sol_history.length; i++)
   {
     let date = start_date.clone().add(i,'days');
-    let c = sim_params.diag_frac[i];
 
     //Accumulate data into categories for plotting
     data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //susceptible: S
@@ -1003,13 +1045,75 @@ function getPredictionData(start_date)
     data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //severe: I2
     data_cat[9].push({t: date, y: Math.round(sol_history[i][8])}); //critical: I3
 
-    let num_confirmed_cases = 0;
+    let num_confirmed_cases = 0, num_confirmed_cases_lower = 0,  num_confirmed_cases_upper = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
+    {
       num_confirmed_cases += Math.round(sol_history[i][report_sum_indices[j]]);
+      num_confirmed_cases_lower += Math.round(sol_error_data.lower[i][report_sum_indices[j]]);
+      num_confirmed_cases_upper += Math.round(sol_error_data.upper[i][report_sum_indices[j]]);
+    }
     data_agg.push({t: date, y: num_confirmed_cases});
+    data_lower.push({t: date, y: Math.min(num_confirmed_cases, num_confirmed_cases_lower, num_confirmed_cases_upper)});
+    data_upper.push({t: date, y: Math.max(num_confirmed_cases, num_confirmed_cases_lower, num_confirmed_cases_upper)});
   }
 
-  return {total: data_agg, categorized: data_cat};
+  return {total: data_agg, categorized: data_cat, lower: data_lower, upper: data_upper};
+}
+
+function getErrorData()
+{
+  //Save off original parameters
+  const total_length = sim_params.b1N.length;
+  let b1N = sim_params.b1N.slice();
+  let b2N = sim_params.b1N.slice();
+  let b3N = sim_params.b1N.slice();
+  let diag_frac = sim_params.diag_frac.slice();
+
+  const names = ["a0", "a10", "a11", "g0", "g1", "p1", "g2", "p2", "g3", "mu"];
+
+  let params_orig = {};
+  for (let name of names)
+    params_orig[name] = sim_params[name];
+
+  const f_upper = 1 + sim_params.param_error;
+  const f_lower = 1 - sim_params.param_error;
+
+  for (let i = 0; i < total_length; ++i)
+  {
+    sim_params.b1N[i] = b1N[i] * f_lower;
+    sim_params.b2N[i] = b2N[i] * f_lower;
+    sim_params.b3N[i] = b3N[i] * f_lower;
+    sim_params.diag_frac[i] = diag_frac[i] * f_lower;
+  }
+  for (let name of names)
+    sim_params[name] = params_orig[name] * f_lower;
+
+  let sol_history_lower = predictModel(sim_params);
+
+  for (let i = 0; i < total_length; ++i)
+  {
+    sim_params.b1N[i] = b1N[i] * f_upper;
+    sim_params.b2N[i] = b2N[i] * f_upper;
+    sim_params.b3N[i] = b3N[i] * f_upper;
+    sim_params.diag_frac[i] = Math.min(diag_frac[i] * f_upper, 1.0);
+  }
+  for (let name of names)
+    sim_params[name] = params_orig[name] * f_upper;
+
+  let sol_history_upper = predictModel(sim_params);
+
+  //Restore original parameters
+  for (let i = 0; i < total_length; ++i)
+  {
+    sim_params.b1N[i] = b1N[i];
+    sim_params.b2N[i] = b2N[i];
+    sim_params.b3N[i] = b3N[i];
+    sim_params.diag_frac[i] = diag_frac[i];
+  }
+  for (let name of names)
+    sim_params[name] = params_orig[name];
+
+  return {lower: sol_history_lower, upper: sol_history_upper};
 }
 
 function predictModel(params)
