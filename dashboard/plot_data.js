@@ -119,7 +119,7 @@ function getCountryData(country_name)
   if (start_date)
     start_date = moment(start_date, date_format);
 
-  let data_cat = [], data_total = [];
+  let data_cat = [], data_total = [], data_fatal = [];
   if (start_date)
   {
     for (let data of data_array)
@@ -129,6 +129,7 @@ function getCountryData(country_name)
       {
         data_total.push({t: data_t, y: data.confirmed});
         data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0]});
+        data_fatal.push({t: data_t, y: data.deaths});
       }
     }
   }
@@ -141,6 +142,7 @@ function getCountryData(country_name)
       {
         data_total.push({t: data_t, y: data.confirmed});
         data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0]});
+        data_fatal.push({t: data_t, y: data.deaths});
       }
     }
   }
@@ -157,7 +159,7 @@ function getCountryData(country_name)
     }
   }
 
-  return {total: data_total, categorized: data_cat};
+  return {total: data_total, categorized: data_cat, fatal: data_fatal};
 }
 
 function customizeParametersByCountry(country_name, params)
@@ -259,7 +261,7 @@ function setupChart()
 					hidden: true,
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
-					order: 11
+					order: 13
 				},
 				{
 					label: 'Exposed',
@@ -270,7 +272,7 @@ function setupChart()
 					hidden: true,
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
-					order: 10
+					order: 12
 				},
         {
           label: 'Asymptomatic',
@@ -280,7 +282,7 @@ function setupChart()
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 9
+          order: 11
         },
         {
           label: 'Mildly infected - unreported',
@@ -290,7 +292,7 @@ function setupChart()
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 8
+          order: 10
         },
         {
           label: 'Recovered - unreported',
@@ -300,7 +302,7 @@ function setupChart()
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 7
+          order: 9
         },
         {
           label: 'Recovered',
@@ -310,7 +312,7 @@ function setupChart()
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 6
+          order: 8
         },
         {
           label: 'Fatal',
@@ -320,17 +322,17 @@ function setupChart()
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 5
+          order: 7
         },
         {
-          label: 'Critically infected',
-          backgroundColor: 'rgba(200, 0, 0, 0.75)',
+          label: 'Mildly infected',
+          backgroundColor: 'rgba(255, 200, 0, 0.75)',
           data: data_predicted.categorized[7],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 4
+          order: 6
         },
         {
           label: 'Severely infected',
@@ -340,18 +342,18 @@ function setupChart()
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
-          order: 3
+          order: 5
         },
-				{
-					label: 'Mildly infected',
-					backgroundColor: 'rgba(255, 200, 0, 0.75)',
-					data: data_predicted.categorized[9],
-					type: 'bar',
-					stack: 'stack0',
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 2
-				},
+        {
+          label: 'Critically infected',
+          backgroundColor: 'rgba(200, 0, 0, 0.75)',
+          data: data_predicted.categorized[9],
+          type: 'bar',
+          stack: 'stack0',
+          barPercentage: bar_width_frac,
+          categoryPercentage: cat_width_frac,
+          order: 4
+        },
 				{
 					label: 'Actual diagnosed',
 					backgroundColor: 'rgba(1,1,1,0)',
@@ -360,6 +362,7 @@ function setupChart()
 					type: 'line',
 					fill: true,
 					borderWidth: 2,
+          pointRadius: 2,
 					order: 0
 				},
 				{
@@ -371,8 +374,34 @@ function setupChart()
 					type: 'line',
 					fill: true,
 					borderWidth: 2,
+          pointRadius: 2,
 					order: 1
-				}
+				},
+        {
+          label: 'Actual deaths',
+          backgroundColor: 'rgba(1,1,1,0)',
+          borderColor: 'rgb(10, 10, 10)',
+          data: data_real.fatal,
+          hidden: true,
+          type: 'line',
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 2,
+          order: 2
+        },
+        {
+          label: 'Predicted deaths',
+          backgroundColor: 'rgba(1,1,1,0)',
+          borderColor: 'rgb(80, 80, 80)',
+          borderDash: [5, 5],
+          data: data_predicted.categorized[6],
+          hidden: true,
+          type: 'line',
+          fill: true,
+          borderWidth: 2,
+          pointRadius: 2,
+          order: 3
+        }
 				]
 			},
 			options: {
@@ -508,7 +537,7 @@ function setupControlChart()
       type: 'linear',
       scaleLabel: {
         display: true,
-        labelString: 'Beta_1',
+        labelString: 'Beta1',
         fontSize: 15
       },
       ticks: {
@@ -520,7 +549,7 @@ function setupControlChart()
   let control_chart_config = {
       data: {
         datasets: [{
-          label: 'beta_1',
+          label: 'Beta1',
           backgroundColor: 'rgba(1,1,1,0)',
           borderColor: 'rgb(50, 160, 220)',
           data: getControlChartData(),
@@ -687,6 +716,9 @@ function refreshMainChartData()
     main_chart.data.datasets[n_cat].data = data_real.total;
     main_chart.data.datasets[n_cat+1].data = data_predicted.total;
 
+    main_chart.data.datasets[n_cat+2].data = data_real.fatal;
+    main_chart.data.datasets[n_cat+3].data = data_predicted.categorized[6];
+
     main_chart.update();
     delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
     delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.max;
@@ -698,9 +730,9 @@ function refreshMainChartData()
 function refreshControlChartData()
 {
   const param_to_labelstring = {
-    "b1N": "Beta_1",
-    "b2N": "Beta_2",
-    "b3N": "Beta_3",
+    "b1N": "Beta1",
+    "b2N": "Beta2",
+    "b3N": "Beta3",
     "diag_frac": "c"
   };
 
@@ -746,15 +778,80 @@ function setLogYAxis(is_log)
   main_chart.update();
 }
 
+function toggleDatasets()
+{
+  let only_diagnosed = document.getElementById("check_only_diagnosed").checked;
+  let calibration_mode = document.getElementById("check_calibration_mode").checked;
+
+  for (let i = 0; i < 2; ++i)
+    main_chart.data.datasets[i].hidden = true;
+
+  for (let i = 2; i < 5; ++i)
+    main_chart.data.datasets[i].hidden = only_diagnosed || calibration_mode;
+
+  for (let i = 5; i < 10; ++i)
+    main_chart.data.datasets[i].hidden = calibration_mode;
+
+  for (let i = 10; i < 12; ++i)
+    main_chart.data.datasets[i].hidden = false; //actual total, predicted total
+
+  for (let i = 12; i < 14; ++i)
+    main_chart.data.datasets[i].hidden = !calibration_mode; //actual deaths, predicted deaths
+
+  main_chart.update();
+}
+
 function showOnlyDiagnosed(flag)
 {
-  for (let i = 0; i < 5; ++i)
-    main_chart.data.datasets[i].hidden = flag;
-  if (!flag)
-  { //Keep susceptible and exposed hidden
+  if (flag)
+  {
+    for (let i = 0; i < 5; ++i)
+      main_chart.data.datasets[i].hidden = true;
+  }
+  else
+  {
+    for (let i = 0; i < 2; ++i)
+      main_chart.data.datasets[i].hidden = true;
+
+    let calibration_mode = document.getElementById("check_calibration_mode").checked;
+    for (let i = 2; i < 5; ++i)
+      main_chart.data.datasets[i].hidden = calibration_mode;
+  }
+  main_chart.update();
+}
+
+function showCalibrationMode(flag)
+{
+  if (flag)
+  {
+    for (let i = 0; i < 10; ++i)
+      main_chart.data.datasets[i].hidden = true;
+    for (let i = 10; i < 14; ++i)
+      main_chart.data.datasets[i].hidden = false;
+  }
+  else
+  {
+    let only_diagnosed = document.getElementById("check_only_diagnosed").checked;
     main_chart.data.datasets[0].hidden = true;
     main_chart.data.datasets[1].hidden = true;
+    for (let i = 2; i < 10; ++i)
+      main_chart.data.datasets[i].hidden = only_diagnosed;
+
+    main_chart.data.datasets[12].hidden = true;
+    main_chart.data.datasets[13].hidden = true;
   }
+  // for (let i = 0; i < 10; ++i)
+  //   main_chart.data.datasets[i].hidden = flag;
+  // for (let i = 12; i < 14; ++i)
+  //     main_chart.data.datasets[i].hidden = !flag;
+  // if (!flag)
+  // { //Keep susceptible and exposed hidden
+  //   main_chart.data.datasets[0].hidden = true;
+  //   main_chart.data.datasets[1].hidden = true;
+  //
+  //   // main_chart.data.datasets[12].hidden = true;
+  //   // main_chart.data.datasets[13].hidden = true;
+  // }
   main_chart.update();
 }
 
@@ -816,10 +913,10 @@ function initializeSimulationParameters(hist_length, pred_length)
   const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
   const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
   const prob_I0_R  = 1;
-  const prob_I1_R  = 0.8; //mild to recovered
-  const prob_I1_I2 = 1 - prob_I1_R; //mild to severe
-  const prob_I2_R  = 0.15/(prob_I1_I2); //severe to recovered
-  const prob_I2_I3 = 1 - prob_I2_R; //severe to critical
+  const prob_I1_R  = 0.8;  //mild to recovered
+  const prob_I1_I2 = 1 - prob_I1_R; //mild to severe  //0.2
+  const prob_I2_R  = 0.15/(prob_I1_I2); //severe to recovered  //0.75
+  const prob_I2_I3 = 1 - prob_I2_R; //severe to critical //0.25
   const prob_I3_D  = 0.02/(prob_I1_I2*prob_I2_I3); //critical to dead
   const prob_I3_R  = 1 - prob_I3_D; //critical to recovered
 
@@ -902,9 +999,9 @@ function getPredictionData(start_date)
     data_cat[4].push({t: date, y: Math.round(sol_history[i][10])}); //recovered unreported: Ru
     data_cat[5].push({t: date, y: Math.round(sol_history[i][9])}); //recovered diagnosed: Rd
     data_cat[6].push({t: date, y: Math.round(sol_history[i][11])}); //fatal: D
-    data_cat[7].push({t: date, y: Math.round(sol_history[i][8])}); //critical: I3
+    data_cat[7].push({t: date, y: Math.round(sol_history[i][4]) + Math.round(sol_history[i][6])}); //mild diagnosed: I1d + Iq
     data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //severe: I2
-    data_cat[9].push({t: date, y: Math.round(sol_history[i][4]) + Math.round(sol_history[i][6])}); //mild diagnosed: I1d + Iq
+    data_cat[9].push({t: date, y: Math.round(sol_history[i][8])}); //critical: I3
 
     let num_confirmed_cases = 0;
     for (let j = 0; j < report_sum_indices.length; ++j)
@@ -991,6 +1088,8 @@ function predictModel(params)
   return solution_hist;
 }
 
+var block_size = 3;
+
 function getParameterVector(params)
 {
   return getParameterVector1(params);
@@ -998,29 +1097,54 @@ function getParameterVector(params)
 
 function getParameterVector1(params)
 {
-  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n_c = (params.T_hist - 1); //no. of c values to optimize
+  let Nt = params.T_hist - 1;
+  let num_blocks = Math.ceil(Nt / block_size);
 
   let param_vec = [];
 
-  for (let i = 0; i < n_b1; ++i)
-    param_vec.push(params.b1N[i]);
+  for (let i = 0; i < num_blocks; ++i)
+  {
+    let sum = 0;
+    let cnt = 0;
+    for (let j = 0; j < block_size; ++j)
+    {
+      let ind = block_size*i + j;
+      if (ind < Nt)
+      {
+        sum += params.b1N[ind];
+        cnt++;
+      }
+    }
+    param_vec.push(sum/cnt);
+  }
 
-  for (let i = 0; i < n_c; ++i)
-    param_vec.push(params.diag_frac[i]);
+  for (let i = 0; i < num_blocks; ++i)
+  {
+    let sum = 0;
+    let cnt = 0;
+    for (let j = 0; j < block_size; ++j)
+    {
+      let ind = block_size*i + j;
+      if (ind < Nt)
+      {
+        sum += params.diag_frac[ind];
+        cnt++;
+      }
+    }
+    param_vec.push(sum/cnt);
+  }
 
-  param_vec.push(params.E0_0);
-  param_vec.push(params.a0);
-  param_vec.push(params.a10);
-  param_vec.push(params.a11);
-  param_vec.push(params.g0);
-  param_vec.push(params.g1);
-  // param_vec[n_b1 + n_c] = params.mu;
-  // param_vec[n_b1 + n_c + 1] = params.g0;
-  // param_vec[n_b1 + n_c + 2] = params.g1;
-  // param_vec[n_b1 + n_c + 3] = params.a0;
-  // param_vec[n_b1 + n_c + 4] = params.a10;
-  // param_vec[n_b1 + n_c + 5] = params.a11;
+  // param_vec.push(params.E0_0);
+  // param_vec.push(params.a0);
+  // param_vec.push(params.a10);
+  // param_vec.push(params.a11);
+  // param_vec.push(params.g0);
+  // param_vec.push(params.g1);
+  // param_vec.push(params.p1);
+  // param_vec.push(params.g2);
+  // param_vec.push(params.p2);
+  // param_vec.push(params.g3);
+  // param_vec.push(params.mu);
   return param_vec;
 }
 
@@ -1077,22 +1201,33 @@ function updateParameterStructFromVector(params, param_vec, extrapolate_to_end =
 
 function updateParameterStructFromVector1(params, param_vec)
 {
-  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n_c = (params.T_hist - 1); //no. of c values to optimize
+  let Nt = params.T_hist - 1;
+  let num_blocks = Math.ceil(Nt / block_size);
 
-  for (let i = 0; i < n_b1; ++i)
-    params.b1N[i] = param_vec[i];
-
-  for (let i = 0; i < n_c; ++i)
-    params.diag_frac[i] = param_vec[n_b1 + i]
-
-  params.E0_0 = param_vec[n_b1 + n_c];
-  params.a0   = param_vec[n_b1 + n_c + 1];
-  params.a10  = param_vec[n_b1 + n_c + 2];
-  params.a11  = param_vec[n_b1 + n_c + 3];
-  params.g0   = param_vec[n_b1 + n_c + 4];
-  params.g1   = param_vec[n_b1 + n_c + 5];
-  // params.mu = Math.max(param_vec[n_b1 + n_c], 0.0);
+  for (let i = 0; i < num_blocks; ++i)
+  {
+    for (let j = 0; j < block_size; ++j)
+    {
+      let ind = block_size*i + j;
+      if (ind < Nt)
+      {
+        params.b1N[ind] = param_vec[i];
+        params.diag_frac[ind] = param_vec[num_blocks + i]
+      }
+    }
+  }
+  // let off = 2*num_blocks;
+  // params.E0_0 = param_vec[off];
+  // params.a0   = param_vec[off + 1];
+  // params.a10  = param_vec[off + 2];
+  // params.a11  = param_vec[off + 3];
+  // params.g0   = param_vec[off + 4];
+  // params.g1   = param_vec[off + 5];
+  // params.p1   = param_vec[off + 6];
+  // params.g2   = param_vec[off + 7];
+  // params.p2   = param_vec[off + 8];
+  // params.g3   = param_vec[off + 9];
+  // params.mu   = param_vec[off + 10];
 }
 
 function updateParameterStructFromVector2(params, param_vec)
@@ -1125,44 +1260,50 @@ function getParameterBounds(params)
 
 function getParameterBounds1(params)
 {
-  let n_b1 = (params.T_hist - 1); //no. of beta_1 values to optimize
-  let n_c = (params.T_hist - 1); //no. of c values to optimize
+  let Nt = params.T_hist - 1;
+  let num_blocks = Math.ceil(Nt / block_size);
+
   let bounds = [];
 
-  for (let i = 0; i < n_b1; ++i)
+  for (let i = 0; i < num_blocks; ++i)
     bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //b1N
 
-  for (let i = 0; i < n_c; ++i)
+  for (let i = 0; i < num_blocks; ++i)
     bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //c
 
-  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //E0_0
-  bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //a0
-  bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //a10
-  bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //a11
-  bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //g0
-  bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //g1
+  // bounds.push({min: 1.0, max: 5.0, step: 1e-4}); //E0_0
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a10
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a11
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g0
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g1
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //p1
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g2
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //p2
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g3
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //mu
 
   return bounds;
 }
 
-function limitParameters(params, modify_to_end = false)
-{
-  const imax = (modify_to_end) ? params.b1N.length : (params.T_hist - 1); //no. of beta_1 values to optimize
-
-  for (let i = 0; i < imax; ++i)
-  {
-    params.b1N[i]       = Math.min(Math.max(params.b1N[i]      , 0.05), 1.0); //beta_1 >= 0
-    params.diag_frac[i] = Math.min(Math.max(params.diag_frac[i], 0.05), 1.0); // 0 <= c <= 1
-  }
-
-  // params.mu = Math.max(param_vec[n_b1 + n_c], 0.0);
-  // params.E0_0 = Math.max(param_vec[n_b1 + n_c], 1.0);
-  // params.g0 = Math.min(Math.max(param_vec[n_b1 + n_c + 1], 0.0), 1.0);
-  // params.g1 = Math.min(Math.max(param_vec[n_b1 + n_c + 2], 0.0), 1.0);
-  // params.a0 = Math.min(Math.max(param_vec[n_b1 + n_c + 3], 0.0), 1.0);
-  // params.a10 = Math.min(Math.max(param_vec[n_b1 + n_c + 4], 0.0), 1.0);
-  // params.a11 = Math.min(Math.max(param_vec[n_b1 + n_c + 5], 0.0), 1.0);
-}
+// function limitParameters(params, modify_to_end = false)
+// {
+//   const imax = (modify_to_end) ? params.b1N.length : (params.T_hist - 1); //no. of beta_1 values to optimize
+//
+//   for (let i = 0; i < imax; ++i)
+//   {
+//     params.b1N[i]       = Math.min(Math.max(params.b1N[i]      , 0.05), 1.0); //beta_1 >= 0
+//     params.diag_frac[i] = Math.min(Math.max(params.diag_frac[i], 0.05), 1.0); // 0 <= c <= 1
+//   }
+//
+//   // params.mu = Math.max(param_vec[n_b1 + n_c], 0.0);
+//   // params.E0_0 = Math.max(param_vec[n_b1 + n_c], 1.0);
+//   // params.g0 = Math.min(Math.max(param_vec[n_b1 + n_c + 1], 0.0), 1.0);
+//   // params.g1 = Math.min(Math.max(param_vec[n_b1 + n_c + 2], 0.0), 1.0);
+//   // params.a0 = Math.min(Math.max(param_vec[n_b1 + n_c + 3], 0.0), 1.0);
+//   // params.a10 = Math.min(Math.max(param_vec[n_b1 + n_c + 4], 0.0), 1.0);
+//   // params.a11 = Math.min(Math.max(param_vec[n_b1 + n_c + 5], 0.0), 1.0);
+// }
 
 function getLimitingStepSize(param_vec, dparam_vec, bounds)
 {
@@ -1188,7 +1329,15 @@ function getLimitingStepSize(param_vec, dparam_vec, bounds)
 
 function randomizeParameterVector(param_vec, bounds)
 {
+  // for (let i = 0; i < param_vec.length; ++i)
+    // param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
 
+  for (let i = 0; i < param_vec.length; ++i)
+  {
+    let step = 2*Math.random() - 1.0;
+    param_vec[i] += 0.05*step*(bounds[i].max - bounds[i].min);
+    param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
+  }
 }
 
 function optimizeParameters()
@@ -1205,6 +1354,7 @@ function optimizeParameters()
   let dparam_vec = new Array(n).fill(0);
   let param_vec0 = new Array(n).fill(0);
   let param_vec_opt = new Array(n).fill(0);
+  copyVector(param_vec, param_vec_opt);
 
   //Calculate initial residual norm
   let res = getFitResidual(params);
@@ -1215,7 +1365,7 @@ function optimizeParameters()
   const resnorm_reduction_tol = 1e-8;
   const min_eta = 1e-10;
 
-  for (let pass = 0; pass < 10; ++pass)
+  for (let pass = 0; pass < 50; ++pass)
   {
     res = getFitResidual(params);
     let resnorm = getL2Norm(res);
@@ -1227,6 +1377,9 @@ function optimizeParameters()
     for (iter = 0; iter < 1000; ++iter)
     {
       let jac = getFitJacobian(params, param_bounds);
+
+      //reset params struct, since Jacobian calc can change values slightly (by machine tolerances)
+      updateParameterStructFromVector(params, param_vec);
 
       //Update parameter vector using gradient descent:
       //u(n+1) = u(n) - eta * (dR/du)^T R(u(n))
@@ -1241,7 +1394,7 @@ function optimizeParameters()
 
       let eta = 0.5*getLimitingStepSize(param_vec0, dparam_vec, param_bounds);
 
-      console.log("  Iter " + iter + ": " + resnorm.toExponential(10) + ", eta: " + eta.toExponential(4));
+      // console.log("  Iter " + iter + ": " + resnorm.toExponential(4) + ", eta: " + eta.toExponential(4));
 
       if (eta < min_eta)
         break;
@@ -1282,21 +1435,21 @@ function optimizeParameters()
 
     } //gradient descent
 
-    // let res2 = getFitResidual(params);
-    // let resnorm2 = getL2Norm(res2);
-    // console.log(resnorm - resnorm2);
-
     let resnorm_rel = resnorm/resnorm_init;
-    console.log("Pass " + pass + ", num_iter: " + iter + ", resnorm: " + resnorm.toExponential(10) + ", relative: " + resnorm_rel.toFixed(4));
+    console.log("Pass " + pass + ", num_iter: " + iter + ", resnorm: " + resnorm.toExponential(4) + ", relative: " + resnorm_rel.toFixed(4));
 
     if (resnorm_rel < resnorm_rel_opt)
     {
       resnorm_rel_opt = resnorm_rel;
-      for (let i = 0; i < n; ++i)
-        param_vec_opt[i] = param_vec[i]
+      copyVector(param_vec, param_vec_opt);
     }
 
+    randomizeParameterVector(param_vec, param_bounds);
+    updateParameterStructFromVector(params, param_vec);
+
   } //passes
+
+  console.log("Optimal relative resnorm: " + resnorm_rel_opt.toFixed(4));
 
   //Copy final solution to global simulation parameters
   updateParameterStructFromVector(sim_params, param_vec_opt, true);
@@ -1311,11 +1464,23 @@ function optimizeParameters()
 
 function getFitResidual(params)
 {
-  const num_eq = 2;
+  const num_eq = 3;
 
   // limitParameters(params);
   let sol_hist = predictModel(params);
   let residual = new Array(num_eq*(sol_hist.length-1)).fill(0);
+
+  // let resnorm0 = 0.0;
+  // for (let i = 1; i < sol_hist.length; ++i)
+  // {
+  //   let active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
+  //   resnorm0 += active_true*active_true + data_real.categorized[i].y[1]*data_real.categorized[i].y[1] + data_real.categorized[i].y[2]*data_real.categorized[i].y[2];
+  // }
+  // resnorm0 = Math.sqrt(resnorm0);
+  // let weightA = 1.0/resnorm0;
+  // let weightR = 1.0/resnorm0;
+  // let weightF = 1.0/resnorm0;
+  // let weightAR = 1.0/resnorm0;
 
   for (let i = 1; i < sol_hist.length; ++i)
   {
@@ -1326,18 +1491,21 @@ function getFitResidual(params)
     let weightA = (num_active_true == 0) ? 1 : 1/num_active_true;
     let weightR = (data_real.categorized[i].y[1] == 0) ? 1 : 1/data_real.categorized[i].y[1];
     let weightF = (data_real.categorized[i].y[2] == 0) ? 1 : 1/data_real.categorized[i].y[2];
-    let weightAR = (num_active_true + data_real.categorized[i].y[1] == 0) ? 1 : 1/(num_active_true + data_real.categorized[i].y[1]);
-    // let weightARF = (data_real.categorized[i].y[0] == 0) ? 1 : 1/data_real.categorized[i].y[0];
+    // let weightAR = (num_active_true + data_real.categorized[i].y[1] == 0) ? 1 : 1/(num_active_true + data_real.categorized[i].y[1]);
+    let weightARF = (data_real.categorized[i].y[0] == 0) ? 1 : 1/data_real.categorized[i].y[0];
 
-    // residual[num_eq*(i-1)] = (num_active_pred - num_active_true) * weightA;
-    residual[num_eq*(i-1)] = (num_active_pred - num_active_true + sol_hist[i][9] - data_real.categorized[i].y[1]) * weightAR;
+    residual[num_eq*(i-1)] = (num_active_pred - num_active_true) * weightA;
+    // residual[num_eq*(i-1)] = (num_active_pred - num_active_true + sol_hist[i][9] - data_real.categorized[i].y[1]) * weightAR;
     // residual[num_eq*(i-1)] = (num_active_pred + sol_hist[i][9] + sol_hist[i][11] - data_real.categorized[i].y[0]) * weightARF;
+    // residual[num_eq*(i-1)] = (Math.abs(num_active_pred - num_active_true) +
+    //                           Math.abs(sol_hist[i][9] - data_real.categorized[i].y[1]) +
+    //                           Math.abs(sol_hist[i][11] - data_real.categorized[i].y[2])) * weightARF;
 
     //Error in no. of recovered-diagnosed patients
-    // residual[num_eq*(i-1) + 1] = (sol_hist[i][9] - data_real.categorized[i].y[1]) * weightR;
+    residual[num_eq*(i-1) + 1] = (sol_hist[i][9] - data_real.categorized[i].y[1]) * weightR;
 
     //Error in no. of fatalities
-    residual[num_eq*(i-1) + 1] = (sol_hist[i][11] - data_real.categorized[i].y[2]) * weightF;
+    residual[num_eq*(i-1) + 2] = (sol_hist[i][11] - data_real.categorized[i].y[2]) * weightF;
 
     //Differences
     // let num_active_pred0 = sol_hist[i-1][4] + sol_hist[i-1][6] + sol_hist[i-1][7] + sol_hist[i-1][8]; //I1d + I1q + I2 + I3
@@ -1360,7 +1528,7 @@ function getFitResidual(params)
 
 function getFitJacobian(params, param_bounds)
 {
-  const m = 2*(params.T_hist - 1);
+  const m = 3*(params.T_hist - 1);
 
   let param_vec = getParameterVector(params);
   const n = param_vec.length;
@@ -1410,7 +1578,7 @@ function getCurrentPredictionError()
     res_sq += err_a*err_a + err_r*err_r + err_d*err_d;
     res0_sq += active_true*active_true + data_real.categorized[i].y[1]*data_real.categorized[i].y[1] + data_real.categorized[i].y[2]*data_real.categorized[i].y[2];
   }
-  return Math.sqrt(res_sq)/Math.sqrt(res0_sq);
+  return Math.sqrt(res_sq/res0_sq);
 }
 
 function getL2Norm(vec)
@@ -1419,4 +1587,10 @@ function getL2Norm(vec)
   for (let i = 0; i < vec.length; ++i)
     norm += vec[i]*vec[i];
   return Math.sqrt(norm);
+}
+
+function copyVector(vfrom, vto)
+{
+  for (let i = 0; i < vfrom.length; ++i)
+    vto[i] = vfrom[i];
 }
