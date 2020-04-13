@@ -1065,8 +1065,8 @@ function getErrorData()
   //Save off original parameters
   const total_length = sim_params.b1N.length;
   let b1N = sim_params.b1N.slice();
-  let b2N = sim_params.b1N.slice();
-  let b3N = sim_params.b1N.slice();
+  let b2N = sim_params.b2N.slice();
+  let b3N = sim_params.b3N.slice();
   let diag_frac = sim_params.diag_frac.slice();
 
   const names = ["a0", "a10", "a11", "g0", "g1", "p1", "g2", "p2", "g3", "mu"];
