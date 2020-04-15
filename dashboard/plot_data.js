@@ -37,15 +37,39 @@ var custom_country_data = {
       b1N: [0.85, 0.125], //values of b1N for each intervention segment defined in t_start
       b2N: [0, 0], //values of b2N
       b3N: [0, 0],
-      diag_frac: [0.11, 0.11],
+      diag_frac: [0.1, 0.1],
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
 }
 
+// var custom_country_data = {
+//   "Sri Lanka" : {
+//       t_start: [0, 13, 31, 61, 92, 122, 153, 184], //indices to start dates of any interventions
+//       b1N: [0.85, 0.125, 0.4, 0.125, 0.4, 0.125, 0.4, 0.125], //values of b1N for each intervention segment defined in t_start
+//       b2N: [0, 0, 0, 0, 0, 0, 0, 0], //values of b2N
+//       b3N: [0, 0, 0, 0, 0, 0, 0, 0],
+//       diag_frac: [0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11],
+//       E0_0: 5, //no. of individuals exposed at start
+//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
+//   }
+// }
+
+// var custom_country_data = {
+//   "Sri Lanka" : {
+//       t_start: [0, 13, 31, 45, 61, 75, 92, 106, 122, 136, 153, 167, 184, 198], //indices to start dates of any interventions
+//       b1N: [0.85, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(14).fill(0), //values of b2N
+//       b3N: new Array(14).fill(0),
+//       diag_frac: new Array(14).fill(0.11),
+//       E0_0: 5, //no. of individuals exposed at start
+//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
+//   }
+// }
+
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
-  T_pred: 7,    //prediction length
+  T_pred: 14,    //prediction length
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
@@ -927,7 +951,7 @@ function updateLegend(day = last_active_tooltip_day)
 function initializeSimulationParameters(hist_length, pred_length)
 {
   //allocate maximum possible through sliders so that we don't have to resize later
-  let total_length = hist_length + 200;
+  let total_length = hist_length + 280;
 
   //Periods [days]
   const T_incub0 = 3;
@@ -952,7 +976,7 @@ function initializeSimulationParameters(hist_length, pred_length)
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
-    dt: 0.5/24.0,                                                       //timestep size [days]
+    dt: 1.0/24.0,                                                       //timestep size [days]
     param_error: default_controls.param_error,                          //assumed error in rate parameters
     b1N: new Array(total_length).fill(default_controls.b1N),            //transmission rate from mild to susceptible
     b2N: new Array(total_length).fill(default_controls.b2N),            //transmission rate from severe to susceptible
@@ -1083,7 +1107,7 @@ function getErrorData()
     sim_params.b1N[i] = b1N[i] * f_lower;
     sim_params.b2N[i] = b2N[i] * f_lower;
     sim_params.b3N[i] = b3N[i] * f_lower;
-    sim_params.diag_frac[i] = diag_frac[i] * f_lower;
+    // sim_params.diag_frac[i] = diag_frac[i] * f_lower;
   }
   for (let name of names)
     sim_params[name] = params_orig[name] * f_lower;
@@ -1095,7 +1119,7 @@ function getErrorData()
     sim_params.b1N[i] = b1N[i] * f_upper;
     sim_params.b2N[i] = b2N[i] * f_upper;
     sim_params.b3N[i] = b3N[i] * f_upper;
-    sim_params.diag_frac[i] = Math.min(diag_frac[i] * f_upper, 1.0);
+    // sim_params.diag_frac[i] = Math.min(diag_frac[i] * f_upper, 1.0);
   }
   for (let name of names)
     sim_params[name] = params_orig[name] * f_upper;
