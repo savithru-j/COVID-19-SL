@@ -34,7 +34,7 @@ var data_start_dates = {
 var custom_country_data = {
   "Sri Lanka" : {
       t_start: [0, 13], //indices to start dates of any interventions
-      b1N: [0.85, 0.125], //values of b1N for each intervention segment defined in t_start
+      b1N: [0.85, 0.14], //values of b1N for each intervention segment defined in t_start
       b2N: [0, 0], //values of b2N
       b3N: [0, 0],
       diag_frac: [0.1, 0.1],
@@ -43,13 +43,18 @@ var custom_country_data = {
   }
 }
 
+// var b1_f = 0.3;
+// var b1_q90 = 0.14 + 0.1*(b1_f - 0.14);
+// var b1_q50 = 0.14 + 0.5*(b1_f - 0.14);
+// var b1_cyc = b1_q50;
+
 // var custom_country_data = {
 //   "Sri Lanka" : {
-//       t_start: [0, 13, 31, 61, 92, 122, 153, 184], //indices to start dates of any interventions
-//       b1N: [0.85, 0.125, 0.4, 0.125, 0.4, 0.125, 0.4, 0.125], //values of b1N for each intervention segment defined in t_start
-//       b2N: [0, 0, 0, 0, 0, 0, 0, 0], //values of b2N
-//       b3N: [0, 0, 0, 0, 0, 0, 0, 0],
-//       diag_frac: [0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11],
+//       t_start: [0, 13, 50], //indices to start dates of any interventions
+//       b1N: [0.85, 0.14, b1_f], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(3).fill(0), //values of b2N
+//       b3N: new Array(3).fill(0),
+//       diag_frac: new Array(3).fill(0.1),
 //       E0_0: 5, //no. of individuals exposed at start
 //       Rd_0: 1, //no. of recovered-diagnosed individuals at start
 //   }
@@ -57,15 +62,40 @@ var custom_country_data = {
 
 // var custom_country_data = {
 //   "Sri Lanka" : {
-//       t_start: [0, 13, 31, 45, 61, 75, 92, 106, 122, 136, 153, 167, 184, 198], //indices to start dates of any interventions
-//       b1N: [0.85, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125, 0.3, 0.125], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(14).fill(0), //values of b2N
-//       b3N: new Array(14).fill(0),
-//       diag_frac: new Array(14).fill(0.11),
+//       t_start: [0, 13, 50, 84], //indices to start dates of any interventions
+//       b1N: [0.85, 0.14, 0.3, 0.14], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(4).fill(0), //values of b2N
+//       b3N: new Array(4).fill(0),
+//       diag_frac: new Array(4).fill(0.1),
 //       E0_0: 5, //no. of individuals exposed at start
 //       Rd_0: 1, //no. of recovered-diagnosed individuals at start
 //   }
 // }
+
+// var custom_country_data = {
+//   "Sri Lanka" : {
+//       t_start: [0, 13, 61, 92, 122, 153, 184, 214, 245, 275, 306, 336], //indices to start dates of any interventions
+//       b1N: [0.85, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(12).fill(0), //values of b2N
+//       b3N: new Array(12).fill(0),
+//       diag_frac: new Array(12).fill(0.1),
+//       E0_0: 5, //no. of individuals exposed at start
+//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
+//   }
+// }
+
+// var custom_country_data = {
+//   "Sri Lanka" : {
+//       t_start: [0, 13, 61, 75, 92, 106, 122, 136, 153, 167, 184, 198, 214, 228, 245, 259, 275, 289, 306], //indices to start dates of any interventions
+//       b1N: [0.85, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(19).fill(0), //values of b2N
+//       b3N: new Array(19).fill(0),
+//       diag_frac: new Array(19).fill(0.1),
+//       E0_0: 5, //no. of individuals exposed at start
+//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
+//   }
+// }
+
 
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
@@ -90,9 +120,50 @@ var last_active_tooltip_day = 0;
 var active_control_parameter = "b1N";
 var active_country = "Sri Lanka";
 
+var logarithmic_ticks = {
+  min: 0,
+  //max: 100000,
+  callback: function (value, index, values) {
+    if (value === 10000000) return "10M";
+    if (value === 1000000) return "1M";
+    if (value === 100000) return "100k";
+    if (value === 10000) return "10k";
+    if (value === 1000) return "1k";
+    if (value === 100) return "100";
+    if (value === 10) return "10";
+    if (value === 0) return "0";
+    return null;
+  }
+};
+
+var linear_ticks = {
+  min: 0,
+  //max: 100000,
+  callback: function (value, index, values) {
+    if (value == 0) return "0";
+    if (value < 1e3) return value.toFixed(0);
+    if (value < 1e6) return (value/1e3).toFixed(1) + "k";
+    if (value < 1e9) return (value/1e6).toFixed(1) + "M";
+    if (value < 1e12) return (value/1e9).toFixed(1) + "B";
+    return null;
+  }
+};
+
 
 window.onload = function()
 {
+  //TODO: Temporary code for generating spikes in beta-1
+  // for (let t = 61; t < 350; t += 14)
+  // {
+  //   custom_country_data["Sri Lanka"].t_start.push(t);
+  //   custom_country_data["Sri Lanka"].t_start.push(t+1);
+  //   custom_country_data["Sri Lanka"].b1N.push(0.60);
+  //   custom_country_data["Sri Lanka"].b1N.push(0.14);
+  // }
+  // custom_country_data["Sri Lanka"].b2N = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0);
+  // custom_country_data["Sri Lanka"].b3N = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0);
+  // custom_country_data["Sri Lanka"].diag_frac = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0.1);
+
   generateCountryDropDown();
   changeCountry(active_country);
 
@@ -102,6 +173,7 @@ window.onload = function()
 
   document.getElementById("slider_param_error").value = default_controls.param_error * 100;
   document.getElementById("slider_param_error_value").innerHTML = (default_controls.param_error * 100).toFixed(1);
+
 }
 
 function generateCountryDropDown()
@@ -272,6 +344,10 @@ function setupChart()
   {
     yaxis_config.type = 'logarithmic';
     yaxis_config.ticks = logarithmic_ticks;
+  }
+  else {
+    yaxis_config.type = 'linear';
+    yaxis_config.ticks = linear_ticks;
   }
 
   const bar_width_frac = 1.0;
@@ -802,22 +878,6 @@ function refreshControlChartData()
 
 function setLogYAxis(is_log)
 {
-  let logarithmic_ticks = {
-    min: 0,
-    //max: 100000,
-    callback: function (value, index, values) {
-      if (value === 10000000) return "10M";
-      if (value === 1000000) return "1M";
-      if (value === 100000) return "100k";
-      if (value === 10000) return "10k";
-      if (value === 1000) return "1k";
-      if (value === 100) return "100";
-      if (value === 10) return "10";
-      if (value === 0) return "0";
-      return null;
-    }
-  };
-
   if (is_log)
   {
     main_chart.options.scales.yAxes[0].type = 'logarithmic';
@@ -826,7 +886,7 @@ function setLogYAxis(is_log)
   else
   {
     main_chart.options.scales.yAxes[0].type = 'linear';
-    main_chart.options.scales.yAxes[0].ticks = {display: true};
+    main_chart.options.scales.yAxes[0].ticks = linear_ticks;
   }
   main_chart.update();
 }
@@ -1001,6 +1061,8 @@ function initializeSimulationParameters(hist_length, pred_length)
 
   //Modify any parameters that are specific to the currently active country.
   customizeParametersByCountry(active_country, params);
+
+  //console.log("R0: " + 0.3*(1/(params.a10 + params.a11) + prob_E1_I0/params.g0 + (1-prob_E1_I0)/(params.p1 + params.g1)) );
 
   return params;
 }
@@ -1188,7 +1250,7 @@ function predictModel(params)
 
     for (let j = 0; j < nt_sub; j++)
     {
-      let dS = -(b1*(u[2] + u[3] + u[4] + u[5]) + b2*u[7] + b3*u[8])*u[0];
+      let dS = -(b1*(u[2] + u[3] + u[5]) + b2*u[7] + b3*u[8])*u[0];
       let du = [ dS,                                                                                                                  //S
                 -dS - a0*u[1],                                                                                                        //E0
                       a0*u[1] - a1*u[2],                                                                                              //E1
