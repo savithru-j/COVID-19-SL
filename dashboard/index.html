@@ -199,10 +199,17 @@
 
       </div>
       <div class="column" style="width:80%;">
-        <div class="small" style="text-align:right; color:grey;">
-          <span class="tooltip">Prediction error:
-            <span class="tiny tooltiptext">This is an estimate of the error between the predicted data and the real data. Smaller error values indicate a better fit.</span>
-          </span>&nbsp;<span id="prediction_error">0.0</span>
+        <div class="small" style="color:grey;">
+          <span style="padding-left:4em;">
+            <span class="tooltip">R0 value:
+              <span class="tiny tooltiptext">Basic reproduction number</span>
+            </span>&nbsp;<span id="R0_value">0.0</span>
+          </span>
+          <span style="float:right;">
+            <span class="tooltip">Prediction error:
+              <span class="tiny tooltiptext">This is an estimate of the error between the predicted data and the real data. Smaller error values indicate a better fit.</span>
+            </span>&nbsp;<span id="prediction_error">0.0</span>
+          </span>
         </div>
         <canvas class="full" id="control_chart_canvas"></canvas>
         <!-- <br> -->

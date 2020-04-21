@@ -201,6 +201,7 @@ function changeCountry(country_name)
 
   data_predicted = getPredictionData(data_real.total[0].t);
   document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
+  document.getElementById("R0_value").innerHTML = getR0(sim_params, 0).toFixed(1);
 
   if (main_chart)
     refreshAllChartData();
@@ -551,6 +552,7 @@ function setupChart()
                     //var value = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y;
 
                     updateLegend(tooltipItem.index);
+                    document.getElementById("R0_value").innerHTML = getR0(sim_params, tooltipItem.index).toFixed(1);
 
                     if (tooltipItem.datasetIndex >= 10)
                       return (data.datasets[tooltipItem.datasetIndex].label +
@@ -701,7 +703,14 @@ function setupControlChart()
         },
         hover: {
           onHover: function(e, el) {
-            control_chart_canvas.style.cursor = el[0] ? "pointer" : "default";
+            if (el[0])
+            {
+              control_chart_canvas.style.cursor = "pointer";
+              document.getElementById("R0_value").innerHTML = getR0(sim_params, el[0]._index).toFixed(1);
+            }
+            else {
+              control_chart_canvas.style.cursor = "default";
+            }
           }
         },
         plugins: {
@@ -1046,6 +1055,7 @@ function initializeSimulationParameters(hist_length, pred_length)
     population: 1E7,                                                    //population of country
     E0_0: 5,                                                            //number of non-infectious exposed individuals at start
     Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
+    f: prob_E1_I0,                                                      //exposed to asymptomatic probability
     //rate parameters below [1/day]
     a0: (1/T_incub0) * prob_E0_E1,
     a10: (1/T_incub1) * prob_E1_I0,
@@ -1062,9 +1072,18 @@ function initializeSimulationParameters(hist_length, pred_length)
   //Modify any parameters that are specific to the currently active country.
   customizeParametersByCountry(active_country, params);
 
-  //console.log("R0: " + 0.3*(1/(params.a10 + params.a11) + prob_E1_I0/params.g0 + (1-prob_E1_I0)/(params.p1 + params.g1)) );
-
   return params;
+}
+
+//Computes the basic reproduction number (R0) from the model parameters
+function getR0(params, ind)
+{
+  let b1N = params.b1N[ind];
+  let b2N = params.b2N[ind];
+  let b3N = params.b3N[ind];
+  let a1 = params.a10 + params.a11;
+  let tmp = b1N + params.p1*(b2N + b3N*params.p2/(params.mu + params.g3)) / (params.p2 + params.g2);
+  return (b1N/a1 + b1N*params.f/params.g0 + (1-params.f)/(params.p1 + params.g1)*tmp);
 }
 
 function updateParameters(force = false)
