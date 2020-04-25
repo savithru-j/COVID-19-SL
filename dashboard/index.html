@@ -271,8 +271,8 @@
         The system of coupled differential equations that model the evolution of the number of individuals in each of the 12 classes is given by:
         $$
           \begin{align}
-          \dot{S} &= -\left( \beta_1(E_1 + I_0 + I_{1D} + I_{1U}) + \beta_2 I_2 + \beta_3 I_3 \right) S \\
-          \dot{E}_0 &= \left( \beta_1(E_1 + I_0 + I_{1D} + I_{1U}) + \beta_2 I_2 + \beta_3 I_3 \right) S - a_0 E_0 \\
+          \dot{S} &= -\left( \beta_e E_1 + \beta_0 I_0 + \beta_{1D} I_{1D} + \beta_{1U} I_{1U} + \beta_2 I_2 + \beta_3 I_3 \right) S \\
+          \dot{E}_0 &= \left( \beta_e E_1 + \beta_0 I_0 + \beta_{1D} I_{1D} + \beta_{1U} I_{1U} + \beta_2 I_2 + \beta_3 I_3 \right) S - a_0 E_0 \\
           \dot{E}_1 &= a_0 E_0 - a_1 E_1 \\
           \dot{I}_0 &= f a_1 E_1 - \gamma_0 I_0 \\
           \dot{I}_{1D} &= c(1-f) a_1 E_1 - (\gamma_1 + p_1) I_{1D} \\

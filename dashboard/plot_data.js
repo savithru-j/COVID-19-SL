@@ -33,11 +33,11 @@ var data_start_dates = {
 
 var custom_country_data = {
   "Sri Lanka" : {
-      t_start: [0, 13], //indices to start dates of any interventions
-      b1N: [0.85, 0.14], //values of b1N for each intervention segment defined in t_start
-      b2N: [0, 0], //values of b2N
-      b3N: [0, 0],
-      diag_frac: [0.1, 0.1],
+      t_start: [0, 13, 34, 41], //indices to start dates of any interventions
+      b1N: [0.85, 0.14, 0.2, 0.3], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(4).fill(0), //values of b2N
+      b3N: new Array(4).fill(0),
+      diag_frac: new Array(4).fill(0.1),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
