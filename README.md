@@ -1,4 +1,6 @@
-#### This project is an ongoing effort to fit an epidemiology model to the spread of COVID-19 cases in Sri Lanka. 
+## Interactive COVID-19 simulator
 
-### Check out the [**dashboard here**](https://savithru-j.github.io/COVID-19-SL/dashboard/index.html).
+This project is an ongoing effort to develop an epidemiology model to predict the spread of the COVID-19 disease in Sri Lanka. The model is based on the classical SEIR model, with additional states to account for asymptomatic individuals, quarantine procedures, and testing levels.
 
+
+#### Check out the [**interactive dashboard here**](https://savithru-j.github.io/COVID-19-SL/dashboard/index.html).
