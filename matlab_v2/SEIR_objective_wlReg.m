@@ -17,10 +17,14 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt)
     model.confirmed = evolutions.I0(2,:)'+evolutions.I1(2,:)'+evolutions.I2(2,:)'+evolutions.I3(2,:)'+evolutions.R(2,:)'+evolutions.D(2,:)';
     model.deaths    = evolutions.D(2,:)';
     model.recovered = evolutions.R(2,:)';
+    
+    err_c = model.confirmed - gt.confirmed';
+    err_d = model.deaths    - gt.deaths';
+    err_r = model.recovered - gt.recovered';
 
-    f1  = norm(model.confirmed - gt.confirmed,2) / norm(gt.confirmed,2);        % L2 confirmed
-    f2  = norm(model.deaths    - gt.deaths,2)    / norm(gt.deaths,   2);        % L2 deaths
-    f3  = norm(model.recovered - gt.recovered,2) / norm(gt.recovered,2);        % L2 recovered   
+    f1  = (err_c'*err_c) / (gt.confirmed*gt.confirmed');  % L2 sq. confirmed
+    f2  = (err_d'*err_d) / (gt.deaths*gt.deaths');        % L2 sq. deaths
+    f3  = (err_r'*err_r) / (gt.recovered*gt.recovered');  % L2 sq. recovered   
     
     % wavelet regularizer
     n_wl    = fix(log2(t_evolve));    
@@ -31,7 +35,8 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt)
     w       = [1          1           0           0.01];
     f       =  w(1)*f1  + w(2)*f2   + w(3)*f3   + w(4)*reg;
     
-    disp(sprintf('conf = %d | dead = %d | rec = %d | reg = %d', w(1)*f1, w(2)*f2, w(3)*f3, w(4)*reg))        
+    fprintf('conf = %1.4e | dead = %1.4e | rec = %1.4e | reg = %1.4e | cost = %1.4e\n', ...
+            w(1)*f1, w(2)*f2, w(3)*f3, w(4)*reg, f)        
 end
 
 
