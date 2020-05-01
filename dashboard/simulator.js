@@ -199,7 +199,7 @@ function changeCountry(country_name)
   data_real = getCountryData(country_name);
   sim_params = initializeSimulationParameters(data_real.total.length, default_controls.T_pred);
 
-  data_predicted = getPredictionData(data_real.total[0].t);
+  data_predicted = getPredictionDataNew(data_real.total[0].t);
   document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
   document.getElementById("R0_value").innerHTML = getR0(sim_params, 0).toFixed(1);
 
@@ -1116,7 +1116,7 @@ function updateParameters(force = false)
 
   if (requires_update)
   {
-    data_predicted = getPredictionData(data_real.total[0].t);
+    data_predicted = getPredictionDataNew(data_real.total[0].t);
     refreshAllChartData();
     document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
   }
@@ -1295,4 +1295,69 @@ function predictModel(params)
   }
 
   return solution_hist;
+}
+
+function getPredictionDataNew(start_date)
+{
+  let pop_hist = predictModelNew(sim_params); //population history
+  // let sol_error_data = getErrorData();
+
+  let data_agg = [], data_lower = [], data_upper = [];
+  let data_cat = new Array(10);
+  for (let i = 0; i < data_cat.length; ++i)
+    data_cat[i] = new Array();
+
+  // const report_sum_indices = [4, 6, 7, 8, 9, 11]; //I1d + I1q + I2 + I3 + Rd + D
+
+  for (let i = 0; i < pop_hist.length; i++)
+  {
+    let date = start_date.clone().add(i,'days');
+
+    //Accumulate data into categories for plotting
+    data_cat[0].push({t: date, y: Math.round(pop_hist[i].S)}); //susceptible: S
+    data_cat[1].push({t: date, y: pop_hist[i].getNumExposed()}); //exposed: E0 + E1
+    data_cat[2].push({t: date, y: pop_hist[i].getNumAsymptomatic()}); //asymptomatic: I0
+    data_cat[3].push({t: date, y: Math.round(pop_hist[i].I1[0])}); //mild unreported: I1u
+    data_cat[4].push({t: date, y: Math.round(pop_hist[i].R[0])}); //recovered unreported: Ru
+    data_cat[5].push({t: date, y: Math.round(pop_hist[i].R[1])}); //recovered diagnosed: Rd
+    data_cat[6].push({t: date, y: Math.round(pop_hist[i].D[0])}); //fatal: D
+    data_cat[7].push({t: date, y: Math.round(pop_hist[i].I1[1])}); //mild diagnosed: I1d + Iq
+    data_cat[8].push({t: date, y: Math.round(pop_hist[i].I2[0])}); //severe: I2
+    data_cat[9].push({t: date, y: Math.round(pop_hist[i].I3[0])}); //critical: I3
+
+    let num_diagnosed = pop_hist[i].getNumDiagnosed();
+    data_agg.push({t: date, y: num_diagnosed});
+    data_lower.push({t: date, y: num_diagnosed});
+    data_upper.push({t: date, y: num_diagnosed});
+  }
+
+  return {total: data_agg, categorized: data_cat, lower: data_lower, upper: data_upper};
+}
+
+function predictModelNew(params)
+{
+  //Create initial population object
+  let pop0 = new Population(params.population);
+  pop0.E0 = params.E0_0;
+  pop0.R[1] = params.Rd_0; //recovered-diagnosed
+  pop0.S = pop0.N - pop0.E0 - pop0.R[1];
+
+  let population_hist = [pop0];
+
+  const nt = params.T_hist + params.T_pred - 1;
+  const nt_sub = 1.0/params.dt;
+
+  for (let t = 0; t < nt; t++)
+  {
+    let pop_new = population_hist[t].clone();
+
+    for (let j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
+      pop_new.evolve(params, t);
+
+    pop_new.report(params, t); //report once daily
+
+    population_hist.push(pop_new); //save solution daily
+  }
+
+  return population_hist;
 }
