@@ -37,7 +37,11 @@ class Population
 
   getNumExposed() { return Math.round(this.E0) + Math.round(this.E1[0]) + Math.round(this.E1[1]); }
   getNumAsymptomatic() { return Math.round(this.I0[0]) + Math.round(this.I0[1]); }
-  // getNumInfected() { return Math.round(this.I0[0]) + Math.round(this.I0[1]); }
+  getNumMild() { return Math.round(this.I1[0]) + Math.round(this.I1[1]); }
+  getNumSevere() { return Math.round(this.I2[0]) + Math.round(this.I2[1]); }
+  getNumCritical() { return Math.round(this.I3[0]) + Math.round(this.I3[1]); }
+  getNumRecovered() { return Math.round(this.R[0]) + Math.round(this.R[1]); }
+  getNumFatal() { return Math.round(this.D[0]) + Math.round(this.D[1]); }
 
   getNumDiagnosed() {
     return Math.round(this.E1[1]) + Math.round(this.I0[1]) + Math.round(this.I1[1])
@@ -105,8 +109,24 @@ class Population
 
   report(params, t)
   {
-    let num_reported_I1 = this.I1[0] * params.diag_frac[t];
-    this.I1[0] -= num_reported_I1;
-    this.I1[1] += num_reported_I1;
+    let delta = this.E1[0] * params.ce[t];
+    this.E1[0] -= delta;
+    this.E1[1] += delta;
+
+    delta = this.I0[0] * params.c0[t];
+    this.I0[0] -= delta;
+    this.I0[1] += delta;
+
+    delta = this.I1[0] * params.c1[t];
+    this.I1[0] -= delta;
+    this.I1[1] += delta;
+
+    delta = this.I2[0] * params.c2[t];
+    this.I2[0] -= delta;
+    this.I2[1] += delta;
+
+    delta = this.I3[0] * params.c3[t];
+    this.I3[0] -= delta;
+    this.I3[1] += delta;
   }
 }

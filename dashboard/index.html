@@ -96,16 +96,13 @@
 
         <div id="canvas_container">
           <canvas class="full" id="chart_canvas"></canvas>
-          <div class="teeny" id="legend" style="width:24em;">
+          <div class="teeny" id="legend" style="width:28em;">
             <center><b></b></center>
             <div class="clearfix">
-              <div class="legend_column" style="width:50%; padding-right:5px;">
-                <b><div id="legend_date" style="padding-bottom:5px"></div></b>
+              <div class="legend_column" style="width:34%; padding-right:5px;">
+                <b><div id="legend_date" style="padding-bottom:5px"></div>&nbsp;</b>
                 <div class="exposed">Exposed</div>
                 <div class="asymptomatic">Asymptomatic</div>
-                <div class="mild_hidden">Mild - unreported</div>
-                <div class="recovered_hidden">Recovered - unreported</div>
-                <hr>
                 <div class="recovered">Recovered</div>
                 <div>Fatal</div>
                 <div class="infected">Active diagnosed</div>
@@ -113,31 +110,38 @@
                 <div class="severe" style="text-indent:1em;">- Severe</div>
                 <div class="critical" style="text-indent:1em;">- Critical</div>
                 <hr>
-                <div>Total diagnosed cases</div>
+                <div>Total cases</div>
               </div>
-              <div class="legend_column" style="width:25%; padding-right:5px;">
-                <b><div class="legend_value" style="padding-bottom:5px">Predicted</div></b>
-                <div class="legend_value exposed" id="legend_pred1">0</div>
-                <div class="legend_value asymptomatic" id="legend_pred2">0</div>
-                <div class="legend_value mild_hidden" id="legend_pred3">0</div>
-                <div class="legend_value recovered_hidden" id="legend_pred4">0</div>
+              <div class="legend_column" style="width:22%; padding-right:5px;">
+                <b><div class="legend_value" style="padding-bottom:5px">Predicted<br>unreported</br></div></b>
+                <div class="legend_value exposed" id="legend_predu0">0</div>
+                <div class="legend_value asymptomatic" id="legend_predu1">0</div>
+                <div class="legend_value recovered" id="legend_predu2">0</div>
+                <div class="legend_value" id="legend_predu3">0</div>
+                <div class="legend_value infected" id="legend_predu_infected">0</div>
+                <div class="legend_value mild" id="legend_predu4">0</div>
+                <div class="legend_value severe" id="legend_predu5">0</div>
+                <div class="legend_value critical" id="legend_predu6">0</div>
                 <hr>
-                <div class="legend_value recovered" id="legend_pred5">0</div>
-                <div class="legend_value" id="legend_pred6">0</div>
+                <div class="legend_value" id="legend_predu_total">0</div>
+              </div>
+              <div class="legend_column" style="width:22%; padding-right:5px;">
+                <b><div class="legend_value" style="padding-bottom:5px">Predicted<br>diagnosed</br></div></b>
+                <div class="legend_value exposed" id="legend_pred0">0</div>
+                <div class="legend_value asymptomatic" id="legend_pred1">0</div>
+                <div class="legend_value recovered" id="legend_pred2">0</div>
+                <div class="legend_value" id="legend_pred3">0</div>
                 <div class="legend_value infected" id="legend_pred_infected">0</div>
-                <div class="legend_value mild" id="legend_pred7">0</div>
-                <div class="legend_value severe" id="legend_pred8">0</div>
-                <div class="legend_value critical" id="legend_pred9">0</div>
+                <div class="legend_value mild" id="legend_pred4">0</div>
+                <div class="legend_value severe" id="legend_pred5">0</div>
+                <div class="legend_value critical" id="legend_pred6">0</div>
                 <hr>
                 <div class="legend_value" id="legend_pred_total">0</div>
               </div>
-              <div class="legend_column" style="width:25%;">
-                <b><div class="legend_value" style="padding-bottom:5px">Actual</div></b>
+              <div class="legend_column" style="width:22%;">
+                <b><div class="legend_value" style="padding-bottom:5px">Actual<br>diagnosed</br></div></b>
                 <div class="legend_value exposed">-</div>
                 <div class="legend_value asymptomatic">-</div>
-                <div class="legend_value mild_hidden">-</div>
-                <div class="legend_value recovered_hidden">-</div>
-                <hr>
                 <div class="legend_value recovered" id="legend_true_recovered">0</div>
                 <div class="legend_value" id="legend_true_fatal">0</div>
                 <div class="legend_value infected" id="legend_true_infected">0</div>

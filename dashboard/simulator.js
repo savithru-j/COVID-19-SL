@@ -37,7 +37,11 @@ var custom_country_data = {
       b1N: [0.85, 0.14, 0.2, 0.3], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(4).fill(0), //values of b2N
       b3N: new Array(4).fill(0),
-      diag_frac: new Array(4).fill(0.1),
+      ce: new Array(4).fill(0),
+      c0: new Array(4).fill(0),
+      c1: new Array(4).fill(0.1),
+      c2: new Array(4).fill(1.0),
+      c3: new Array(4).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -54,7 +58,7 @@ var custom_country_data = {
 //       b1N: [0.85, 0.14, b1_f], //values of b1N for each intervention segment defined in t_start
 //       b2N: new Array(3).fill(0), //values of b2N
 //       b3N: new Array(3).fill(0),
-//       diag_frac: new Array(3).fill(0.1),
+//       c1: new Array(3).fill(0.1),
 //       E0_0: 5, //no. of individuals exposed at start
 //       Rd_0: 1, //no. of recovered-diagnosed individuals at start
 //   }
@@ -66,7 +70,7 @@ var custom_country_data = {
 //       b1N: [0.85, 0.14, 0.3, 0.14], //values of b1N for each intervention segment defined in t_start
 //       b2N: new Array(4).fill(0), //values of b2N
 //       b3N: new Array(4).fill(0),
-//       diag_frac: new Array(4).fill(0.1),
+//       c1: new Array(4).fill(0.1),
 //       E0_0: 5, //no. of individuals exposed at start
 //       Rd_0: 1, //no. of recovered-diagnosed individuals at start
 //   }
@@ -78,7 +82,7 @@ var custom_country_data = {
 //       b1N: [0.85, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14], //values of b1N for each intervention segment defined in t_start
 //       b2N: new Array(12).fill(0), //values of b2N
 //       b3N: new Array(12).fill(0),
-//       diag_frac: new Array(12).fill(0.1),
+//       c1: new Array(12).fill(0.1),
 //       E0_0: 5, //no. of individuals exposed at start
 //       Rd_0: 1, //no. of recovered-diagnosed individuals at start
 //   }
@@ -90,7 +94,7 @@ var custom_country_data = {
 //       b1N: [0.85, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc], //values of b1N for each intervention segment defined in t_start
 //       b2N: new Array(19).fill(0), //values of b2N
 //       b3N: new Array(19).fill(0),
-//       diag_frac: new Array(19).fill(0.1),
+//       c1: new Array(19).fill(0.1),
 //       E0_0: 5, //no. of individuals exposed at start
 //       Rd_0: 1, //no. of recovered-diagnosed individuals at start
 //   }
@@ -103,7 +107,12 @@ var default_controls = {
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
-  diag_frac: 0.5, //fraction of mild-patients that are diagnosed,
+  ce: 0.0,      //fraction of exposed patients diagnosed daily
+  c0: 0.0,      //fraction of asymptomatic patients diagnosed daily
+  c1: 0.5,      //fraction of mild patients diagnosed daily
+  c2: 1.0,      //fraction of severe patients diagnosed daily
+  c3: 1.0,      //fraction of critical patients diagnosed daily
+  CFR: 0.02,    //case fatality ratio
   param_error: 0.05 //error in parameters
 }
 
@@ -162,7 +171,7 @@ window.onload = function()
   // }
   // custom_country_data["Sri Lanka"].b2N = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0);
   // custom_country_data["Sri Lanka"].b3N = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0);
-  // custom_country_data["Sri Lanka"].diag_frac = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0.1);
+  // custom_country_data["Sri Lanka"].c1 = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0.1);
 
   generateCountryDropDown();
   changeCountry(active_country);
@@ -207,7 +216,6 @@ function changeCountry(country_name)
     refreshAllChartData();
   else {
     setupChart();
-    updateLegend();
     setupControlChart();
   }
 }
@@ -276,11 +284,15 @@ function customizeParametersByCountry(country_name, params)
         params.b1N[j] = data.b1N[i];
         params.b2N[j] = data.b2N[i];
         params.b3N[j] = data.b3N[i];
-        params.diag_frac[j] = data.diag_frac[i];
+        params.ce[j] = data.ce[i];
+        params.c0[j] = data.c0[i];
+        params.c1[j] = data.c1[i];
+        params.c2[j] = data.c2[i];
+        params.c3[j] = data.c3[i];
       }
     }
 
-    //Update initial E0 and Ru
+    //Update initial E0 and Rd
     if (data.E0_0)
       params.E0_0 = data.E0_0;
 
@@ -357,62 +369,62 @@ function setupChart()
 	let main_chart_config = {
 			data: {
 				datasets: [
-				{
-					label: 'Susceptible',
-					backgroundColor: '#eeeeec',
-					data: data_predicted.categorized[0],
-					type: 'bar',
-					stack: 'stack0',
-					hidden: true,
-					barPercentage: bar_width_frac,
-					categoryPercentage: cat_width_frac,
-					order: 13
-				},
+				// {
+				// 	label: 'Susceptible',
+				// 	backgroundColor: '#eeeeec',
+				// 	data: data_predicted.categorized[0],
+				// 	type: 'bar',
+				// 	stack: 'stack0',
+				// 	hidden: true,
+				// 	barPercentage: bar_width_frac,
+				// 	categoryPercentage: cat_width_frac,
+				// 	order: 13
+				// },
 				{
 					label: 'Exposed',
 					backgroundColor: 'rgba(255, 220, 160, 0.75)',
-					data: data_predicted.categorized[1],
+					//data: data_predicted.categorized[1],
 					type: 'bar',
 					stack: 'stack0',
 					hidden: true,
 					barPercentage: bar_width_frac,
 					categoryPercentage: cat_width_frac,
-					order: 12
+					order: 10
 				},
         {
           label: 'Asymptomatic',
           backgroundColor: 'rgba(180, 240, 255, 0.75)',
-          data: data_predicted.categorized[2],
-          type: 'bar',
-          stack: 'stack0',
-          barPercentage: bar_width_frac,
-          categoryPercentage: cat_width_frac,
-          order: 11
-        },
-        {
-          label: 'Mildly infected - unreported',
-          backgroundColor: 'rgba(255, 200, 0, 0.5)',
-          data: data_predicted.categorized[3],
-          type: 'bar',
-          stack: 'stack0',
-          barPercentage: bar_width_frac,
-          categoryPercentage: cat_width_frac,
-          order: 10
-        },
-        {
-          label: 'Recovered - unreported',
-          backgroundColor: 'rgba(130, 210, 50, 0.4)',
-          data: data_predicted.categorized[4],
+          //data: data_predicted.categorized[2],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
           categoryPercentage: cat_width_frac,
           order: 9
         },
+        // {
+        //   label: 'Mildly infected - unreported',
+        //   backgroundColor: 'rgba(255, 200, 0, 0.5)',
+        //   data: data_predicted.categorized[3],
+        //   type: 'bar',
+        //   stack: 'stack0',
+        //   barPercentage: bar_width_frac,
+        //   categoryPercentage: cat_width_frac,
+        //   order: 10
+        // },
+        // {
+        //   label: 'Recovered - unreported',
+        //   backgroundColor: 'rgba(130, 210, 50, 0.4)',
+        //   data: data_predicted.categorized[4],
+        //   type: 'bar',
+        //   stack: 'stack0',
+        //   barPercentage: bar_width_frac,
+        //   categoryPercentage: cat_width_frac,
+        //   order: 9
+        // },
         {
           label: 'Recovered',
           backgroundColor: 'rgba(130, 210, 50, 0.75)', //#73d216',
-          data: data_predicted.categorized[5],
+          //data: data_predicted.categorized[5],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
@@ -422,7 +434,7 @@ function setupChart()
         {
           label: 'Fatal',
           backgroundColor: 'rgba(10, 10, 10, 0.75)',
-          data: data_predicted.categorized[6],
+          //data: data_predicted.categorized[6],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
@@ -432,7 +444,7 @@ function setupChart()
         {
           label: 'Mildly infected',
           backgroundColor: 'rgba(255, 200, 0, 0.75)',
-          data: data_predicted.categorized[7],
+          //data: data_predicted.categorized[7],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
@@ -442,7 +454,7 @@ function setupChart()
         {
           label: 'Severely infected',
           backgroundColor: 'rgba(240, 150, 40, 0.75)',
-          data: data_predicted.categorized[8],
+          //data: data_predicted.categorized[8],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
@@ -452,7 +464,7 @@ function setupChart()
         {
           label: 'Critically infected',
           backgroundColor: 'rgba(200, 0, 0, 0.75)',
-          data: data_predicted.categorized[9],
+          //data: data_predicted.categorized[9],
           type: 'bar',
           stack: 'stack0',
           barPercentage: bar_width_frac,
@@ -463,7 +475,7 @@ function setupChart()
 					label: 'Actual diagnosed',
 					backgroundColor: 'rgba(1,1,1,0)',
 					borderColor: '#3465a4',
-					data: data_real.total,
+					//data: data_real.total,
 					type: 'line',
 					fill: true,
 					borderWidth: 2,
@@ -475,7 +487,7 @@ function setupChart()
 					backgroundColor: 'rgba(1,1,1,0)',
 					borderColor: '#729fcf',
 					borderDash: [5, 5],
-					data: data_predicted.total,
+					//data: data_predicted.total,
 					type: 'line',
 					fill: true,
 					borderWidth: 2,
@@ -486,7 +498,7 @@ function setupChart()
           label: 'Actual deaths',
           backgroundColor: 'rgba(1,1,1,0)',
           borderColor: 'rgb(10, 10, 10)',
-          data: data_real.fatal,
+          //data: data_real.fatal,
           hidden: true,
           type: 'line',
           fill: true,
@@ -499,7 +511,7 @@ function setupChart()
           backgroundColor: 'rgba(1,1,1,0)',
           borderColor: 'rgb(80, 80, 80)',
           borderDash: [5, 5],
-          data: data_predicted.categorized[6],
+          //data: data_predicted.categorized[6],
           hidden: true,
           type: 'line',
           fill: true,
@@ -511,23 +523,23 @@ function setupChart()
           label: 'Predicted lower',
           backgroundColor: 'rgba(200,200,200,0.4)',
           borderColor: 'rgba(100,100,100, 0.4)',
-          data: data_predicted.lower,
+          //data: data_predicted.lower,
           type: 'line',
           fill: '+1',
           borderWidth: 1,
           pointRadius: 0,
-          order: 14
+          order: 11
         },
         {
           label: 'Predicted upper',
           backgroundColor: 'rgba(200,200,200,0.4)',
           borderColor: 'rgba(100,100,100, 0.4)',
-          data: data_predicted.upper,
+          //data: data_predicted.upper,
           type: 'line',
           fill: '-1',
           borderWidth: 1,
           pointRadius: 0,
-          order: 15
+          order: 12
         },
 				]
 			},
@@ -634,6 +646,8 @@ function setupChart()
   //Save off original axes (before any pan/zoom is applied)
   main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id] = main_chart.options.scales.xAxes[0];
   main_chart.$zoom._originalOptions[main_chart.options.scales.yAxes[0].id] = main_chart.options.scales.yAxes[0];
+
+  refreshMainChartData();
 };
 
 function setupControlChart()
@@ -844,15 +858,15 @@ function refreshMainChartData()
 {
   if (main_chart)
   {
-    let n_cat = data_predicted.categorized.length;
+    let n_cat = data_predicted.cat_diag.length;
     for (let i = 0; i < n_cat; ++i)
-      main_chart.data.datasets[i].data = data_predicted.categorized[i];
+      main_chart.data.datasets[i].data = data_predicted.cat_diag[i];
 
     main_chart.data.datasets[n_cat].data = data_real.total;
     main_chart.data.datasets[n_cat+1].data = data_predicted.total;
 
     main_chart.data.datasets[n_cat+2].data = data_real.fatal;
-    main_chart.data.datasets[n_cat+3].data = data_predicted.categorized[6];
+    main_chart.data.datasets[n_cat+3].data = data_predicted.cat_diag[3];
 
     main_chart.data.datasets[n_cat+4].data = data_predicted.lower;
     main_chart.data.datasets[n_cat+5].data = data_predicted.upper;
@@ -998,9 +1012,20 @@ function updateLegend(day = last_active_tooltip_day)
 
   document.getElementById("legend_date").innerHTML = data_predicted.total[day].t.format("MMM-DD-YYYY");
 
-  for (let i = 1; i < data_predicted.categorized.length; ++i)
-    document.getElementById("legend_pred" + i).innerHTML = formatNumber(data_predicted.categorized[i][day].y);
-  document.getElementById("legend_pred_infected").innerHTML = formatNumber(data_predicted.categorized[7][day].y + data_predicted.categorized[8][day].y + data_predicted.categorized[9][day].y);
+  let num_total = 0;
+  for (let i = 0; i < data_predicted.cat_diag.length; ++i)
+  {
+    document.getElementById("legend_predu" + i).innerHTML = formatNumber(data_predicted.cat_sum[i][day].y - data_predicted.cat_diag[i][day].y);
+    document.getElementById("legend_pred" + i).innerHTML = formatNumber(data_predicted.cat_diag[i][day].y);
+    num_total += data_predicted.cat_sum[i][day].y;
+  }
+
+  let num_infected_diag = data_predicted.cat_diag[4][day].y + data_predicted.cat_diag[5][day].y + data_predicted.cat_diag[6][day].y;
+  let num_infected_sum = data_predicted.cat_sum[4][day].y + data_predicted.cat_sum[5][day].y + data_predicted.cat_sum[6][day].y;
+  document.getElementById("legend_predu_infected").innerHTML = formatNumber(num_infected_sum - num_infected_diag);
+  document.getElementById("legend_pred_infected").innerHTML = formatNumber(num_infected_diag);
+
+  document.getElementById("legend_predu_total").innerHTML = formatNumber(num_total - data_predicted.total[day].y);
   document.getElementById("legend_pred_total").innerHTML = formatNumber(data_predicted.total[day].y);
 
   let true_data = ['-', '-', '-', '-'];
@@ -1022,6 +1047,37 @@ function initializeSimulationParameters(hist_length, pred_length)
   //allocate maximum possible through sliders so that we don't have to resize later
   let total_length = hist_length + 280;
 
+  let params = {
+    T_hist: hist_length,
+    T_pred: pred_length,
+    dt: 1.0/24.0,                                                       //timestep size [days]
+    param_error: default_controls.param_error,                          //assumed error in rate parameters
+    b1N: new Array(total_length).fill(default_controls.b1N),            //transmission rate from mild to susceptible
+    b2N: new Array(total_length).fill(default_controls.b2N),            //transmission rate from severe to susceptible
+    b3N: new Array(total_length).fill(default_controls.b3N),            //transmission rate from critical to susceptible
+    quarantine_input: new Array(total_length).fill(0.0),                //no. of patients added directly to quarantine
+    ce: new Array(total_length).fill(default_controls.ce),              //fraction of exposed patients diagnosed daily
+    c0: new Array(total_length).fill(default_controls.c0),              //fraction of asymptomatic patients diagnosed daily
+    c1: new Array(total_length).fill(default_controls.c1),              //fraction of mild patients diagnosed daily
+    c2: new Array(total_length).fill(default_controls.c2),              //fraction of severe patients diagnosed daily
+    c3: new Array(total_length).fill(default_controls.c3),              //fraction of critical patients diagnosed daily
+    CFR: default_controls.CFR,                                          //case fatality ratio
+    f: 0.3,                                                             //exposed to asymptomatic probability
+    population: 1E7,                                                    //population of country
+    E0_0: 5,                                                            //number of non-infectious exposed individuals at start
+    Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
+  }
+
+  setRateParameters(params);
+
+  //Modify any parameters that are specific to the currently active country.
+  customizeParametersByCountry(active_country, params);
+
+  return params;
+}
+
+function setRateParameters(params)
+{
   //Periods [days]
   const T_incub0 = 3;
   const T_incub1 = 2;
@@ -1032,47 +1088,27 @@ function initializeSimulationParameters(hist_length, pred_length)
 
   //Probabilities
   const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
-  const prob_E1_I0 = 0.3 / prob_E0_E1;  //exposed to asymptomatic
+  const prob_E1_I0 = params.f / prob_E0_E1;  //exposed to asymptomatic
   const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
   const prob_I0_R  = 1;
   const prob_I1_R  = 0.8;  //mild to recovered
   const prob_I1_I2 = 1 - prob_I1_R; //mild to severe  //0.2
   const prob_I2_R  = 0.15/(prob_I1_I2); //severe to recovered  //0.75
   const prob_I2_I3 = 1 - prob_I2_R; //severe to critical //0.25
-  const prob_I3_D  = 0.02/(prob_I1_I2*prob_I2_I3); //critical to dead
+  const prob_I3_D  = params.CFR/(prob_I1_I2*prob_I2_I3); //critical to dead
   const prob_I3_R  = 1 - prob_I3_D; //critical to recovered
 
-  let params = {
-    T_hist: hist_length,
-    T_pred: pred_length,
-    dt: 1.0/24.0,                                                       //timestep size [days]
-    param_error: default_controls.param_error,                          //assumed error in rate parameters
-    b1N: new Array(total_length).fill(default_controls.b1N),            //transmission rate from mild to susceptible
-    b2N: new Array(total_length).fill(default_controls.b2N),            //transmission rate from severe to susceptible
-    b3N: new Array(total_length).fill(default_controls.b3N),            //transmission rate from critical to susceptible
-    quarantine_input: new Array(total_length).fill(0.0),                //no. of patients added directly to quarantine
-    diag_frac: new Array(total_length).fill(default_controls.diag_frac),//fraction of I1 patients that are diagnosed
-    population: 1E7,                                                    //population of country
-    E0_0: 5,                                                            //number of non-infectious exposed individuals at start
-    Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
-    f: prob_E1_I0,                                                      //exposed to asymptomatic probability
-    //rate parameters below [1/day]
-    a0: (1/T_incub0) * prob_E0_E1,
-    a10: (1/T_incub1) * prob_E1_I0,
-    a11: (1/T_incub1) * prob_E1_I1,
-    g0: (1/T_asympt) * prob_I0_R,
-    g1: (1/T_mild)   * prob_I1_R,
-    p1: (1/T_mild)   * prob_I1_I2,
-    g2: (1/T_severe) * prob_I2_R,
-    p2: (1/T_severe) * prob_I2_I3,
-    g3: (1/T_icu)    * prob_I3_R,
-    mu: (1/T_icu)    * prob_I3_D,
-  }
-
-  //Modify any parameters that are specific to the currently active country.
-  customizeParametersByCountry(active_country, params);
-
-  return params;
+  //set rate parameters [1/day]
+  params.a0  = (1/T_incub0) * prob_E0_E1;
+  params.a10 = (1/T_incub1) * prob_E1_I0;
+  params.a11 = (1/T_incub1) * prob_E1_I1;
+  params.g0  = (1/T_asympt) * prob_I0_R;
+  params.g1  = (1/T_mild)   * prob_I1_R;
+  params.p1  = (1/T_mild)   * prob_I1_I2;
+  params.g2  = (1/T_severe) * prob_I2_R;
+  params.p2  = (1/T_severe) * prob_I2_I3;
+  params.g3  = (1/T_icu)    * prob_I3_R;
+  params.mu  = (1/T_icu)    * prob_I3_D;
 }
 
 //Computes the basic reproduction number (R0) from the model parameters
@@ -1122,48 +1158,48 @@ function updateParameters(force = false)
   }
 }
 
-function getPredictionData(start_date)
-{
-  let sol_history = predictModel(sim_params);
-  let sol_error_data = getErrorData();
-
-  let data_agg = [], data_lower = [], data_upper = [];
-  let data_cat = new Array(10);
-  for (let i = 0; i < data_cat.length; ++i)
-    data_cat[i] = new Array();
-
-  const report_sum_indices = [4, 6, 7, 8, 9, 11]; //I1d + I1q + I2 + I3 + Rd + D
-
-  for (let i = 0; i < sol_history.length; i++)
-  {
-    let date = start_date.clone().add(i,'days');
-
-    //Accumulate data into categories for plotting
-    data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //susceptible: S
-    data_cat[1].push({t: date, y: Math.round(sol_history[i][1]) + Math.round(sol_history[i][2])}); //exposed: E0 + E1
-    data_cat[2].push({t: date, y: Math.round(sol_history[i][3])}); //asymptomatic: I0
-    data_cat[3].push({t: date, y: Math.round(sol_history[i][5])}); //mild unreported: I1u
-    data_cat[4].push({t: date, y: Math.round(sol_history[i][10])}); //recovered unreported: Ru
-    data_cat[5].push({t: date, y: Math.round(sol_history[i][9])}); //recovered diagnosed: Rd
-    data_cat[6].push({t: date, y: Math.round(sol_history[i][11])}); //fatal: D
-    data_cat[7].push({t: date, y: Math.round(sol_history[i][4]) + Math.round(sol_history[i][6])}); //mild diagnosed: I1d + Iq
-    data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //severe: I2
-    data_cat[9].push({t: date, y: Math.round(sol_history[i][8])}); //critical: I3
-
-    let num_confirmed_cases = 0, num_confirmed_cases_lower = 0,  num_confirmed_cases_upper = 0;
-    for (let j = 0; j < report_sum_indices.length; ++j)
-    {
-      num_confirmed_cases += Math.round(sol_history[i][report_sum_indices[j]]);
-      num_confirmed_cases_lower += Math.round(sol_error_data.lower[i][report_sum_indices[j]]);
-      num_confirmed_cases_upper += Math.round(sol_error_data.upper[i][report_sum_indices[j]]);
-    }
-    data_agg.push({t: date, y: num_confirmed_cases});
-    data_lower.push({t: date, y: Math.min(num_confirmed_cases, num_confirmed_cases_lower, num_confirmed_cases_upper)});
-    data_upper.push({t: date, y: Math.max(num_confirmed_cases, num_confirmed_cases_lower, num_confirmed_cases_upper)});
-  }
-
-  return {total: data_agg, categorized: data_cat, lower: data_lower, upper: data_upper};
-}
+// function getPredictionData(start_date)
+// {
+//   let sol_history = predictModel(sim_params);
+//   let sol_error_data = getErrorData();
+//
+//   let data_agg = [], data_lower = [], data_upper = [];
+//   let data_cat = new Array(10);
+//   for (let i = 0; i < data_cat.length; ++i)
+//     data_cat[i] = new Array();
+//
+//   const report_sum_indices = [4, 6, 7, 8, 9, 11]; //I1d + I1q + I2 + I3 + Rd + D
+//
+//   for (let i = 0; i < sol_history.length; i++)
+//   {
+//     let date = start_date.clone().add(i,'days');
+//
+//     //Accumulate data into categories for plotting
+//     data_cat[0].push({t: date, y: Math.round(sol_history[i][0])}); //susceptible: S
+//     data_cat[1].push({t: date, y: Math.round(sol_history[i][1]) + Math.round(sol_history[i][2])}); //exposed: E0 + E1
+//     data_cat[2].push({t: date, y: Math.round(sol_history[i][3])}); //asymptomatic: I0
+//     data_cat[3].push({t: date, y: Math.round(sol_history[i][5])}); //mild unreported: I1u
+//     data_cat[4].push({t: date, y: Math.round(sol_history[i][10])}); //recovered unreported: Ru
+//     data_cat[5].push({t: date, y: Math.round(sol_history[i][9])}); //recovered diagnosed: Rd
+//     data_cat[6].push({t: date, y: Math.round(sol_history[i][11])}); //fatal: D
+//     data_cat[7].push({t: date, y: Math.round(sol_history[i][4]) + Math.round(sol_history[i][6])}); //mild diagnosed: I1d + Iq
+//     data_cat[8].push({t: date, y: Math.round(sol_history[i][7])}); //severe: I2
+//     data_cat[9].push({t: date, y: Math.round(sol_history[i][8])}); //critical: I3
+//
+//     let num_confirmed_cases = 0, num_confirmed_cases_lower = 0,  num_confirmed_cases_upper = 0;
+//     for (let j = 0; j < report_sum_indices.length; ++j)
+//     {
+//       num_confirmed_cases += Math.round(sol_history[i][report_sum_indices[j]]);
+//       num_confirmed_cases_lower += Math.round(sol_error_data.lower[i][report_sum_indices[j]]);
+//       num_confirmed_cases_upper += Math.round(sol_error_data.upper[i][report_sum_indices[j]]);
+//     }
+//     data_agg.push({t: date, y: num_confirmed_cases});
+//     data_lower.push({t: date, y: Math.min(num_confirmed_cases, num_confirmed_cases_lower, num_confirmed_cases_upper)});
+//     data_upper.push({t: date, y: Math.max(num_confirmed_cases, num_confirmed_cases_lower, num_confirmed_cases_upper)});
+//   }
+//
+//   return {total: data_agg, categorized: data_cat, lower: data_lower, upper: data_upper};
+// }
 
 function getErrorData()
 {
@@ -1172,7 +1208,6 @@ function getErrorData()
   let b1N = sim_params.b1N.slice();
   let b2N = sim_params.b2N.slice();
   let b3N = sim_params.b3N.slice();
-  let diag_frac = sim_params.diag_frac.slice();
 
   const names = ["a0", "a10", "a11", "g0", "g1", "p1", "g2", "p2", "g3", "mu"];
 
@@ -1188,7 +1223,6 @@ function getErrorData()
     sim_params.b1N[i] = b1N[i] * f_lower;
     sim_params.b2N[i] = b2N[i] * f_lower;
     sim_params.b3N[i] = b3N[i] * f_lower;
-    // sim_params.diag_frac[i] = diag_frac[i] * f_lower;
   }
   for (let name of names)
     sim_params[name] = params_orig[name] * f_lower;
@@ -1200,7 +1234,6 @@ function getErrorData()
     sim_params.b1N[i] = b1N[i] * f_upper;
     sim_params.b2N[i] = b2N[i] * f_upper;
     sim_params.b3N[i] = b3N[i] * f_upper;
-    // sim_params.diag_frac[i] = Math.min(diag_frac[i] * f_upper, 1.0);
   }
   for (let name of names)
     sim_params[name] = params_orig[name] * f_upper;
@@ -1213,7 +1246,6 @@ function getErrorData()
     sim_params.b1N[i] = b1N[i];
     sim_params.b2N[i] = b2N[i];
     sim_params.b3N[i] = b3N[i];
-    sim_params.diag_frac[i] = diag_frac[i];
   }
   for (let name of names)
     sim_params[name] = params_orig[name];
@@ -1221,81 +1253,81 @@ function getErrorData()
   return {lower: sol_history_lower, upper: sol_history_upper};
 }
 
-function predictModel(params)
-{
-  //Rates [1/day]
-  const a0 = params.a0;
-  const a10 = params.a10;
-  const a11 = params.a11;
-  const a1 = a10 + a11;
-  const g0 = params.g0;
-  const g1 = params.g1;
-  const p1 = params.p1;
-  const g2 = params.g2;
-  const p2 = params.p2;
-  const g3 = params.g3;
-  const mu = params.mu;
-
-  //Initial solution
-  let N = params.population;
-  let E0_0 = params.E0_0;
-  let E1_0 = 0;
-  let I0_0 = 0;
-  let I1d_0 = 0;
-  let I1u_0 = 0;
-  let I1q_0 = 0;
-  let I2_0 = 0;
-  let I3_0 = 0;
-  let Rd_0 = params.Rd_0;
-  let Ru_0 = 0;
-  let D_0 = 0;
-  let S_0 = N - E0_0 - E1_0 - I0_0 - I1d_0 - I1u_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Ru_0 - D_0;
-
-  //Solution vector: [S, E0, E1, I0, I1d, I1u, I1q, I2, I3, Rd, Ru, D]
-  let solution_hist = [[S_0, E0_0, E1_0, I0_0, I1d_0, I1u_0, I1q_0, I2_0, I3_0, Rd_0, Ru_0, D_0]];
-
-  const nt = params.T_hist + params.T_pred - 1;
-  const nt_sub = 1.0/params.dt;
-
-  for (let i = 0; i < nt; i++)
-  {
-    let u = solution_hist[i].slice(); //copy last solution vector
-
-    let b1 = params.b1N[i] / N;
-    let b2 = params.b2N[i] / N;
-    let b3 = params.b3N[i] / N;
-    let q_input = params.quarantine_input[i];
-    let c = params.diag_frac[i];
-
-    for (let j = 0; j < nt_sub; j++)
-    {
-      let dS = -(b1*(u[2] + u[3] + u[5]) + b2*u[7] + b3*u[8])*u[0];
-      let du = [ dS,                                                                                                                  //S
-                -dS - a0*u[1],                                                                                                        //E0
-                      a0*u[1] - a1*u[2],                                                                                              //E1
-                               a10*u[2] - g0*u[3],                                                                                    //I0
-                             c*a11*u[2]          - (g1 + p1)*u[4],                                                                    //I1d
-                         (1-c)*a11*u[2]                          - (g1 + p1)*u[5],                                                    //I1u
-                q_input                                                          - (g1 + p1)*u[6],                                    //I1q
-                                                         p1*(u[4]          + u[5]          + u[6]) - (g2 + p2)*u[7],                  //I2
-                                                                                                            p2*u[7] - (g3 + mu)*u[8], //I3
-                                                         g1*(u[4]                          + u[6])        + g2*u[7]        + g3*u[8], //Rd
-                                          g0*u[3] +                       g1*u[5],                                                    //Ru
-                                                                                                                             mu*u[8]  //D
-               ];
-
-      for (let k = 0; k < u.length; k++)
-        u[k] += du[k]*params.dt;
-    } //sub-timestepping [hrs]
-
-    if (u[1] < 0.5)
-      u[1] = 0.0;
-
-    solution_hist.push(u); //save solution daily
-  }
-
-  return solution_hist;
-}
+// function predictModel(params)
+// {
+//   //Rates [1/day]
+//   const a0 = params.a0;
+//   const a10 = params.a10;
+//   const a11 = params.a11;
+//   const a1 = a10 + a11;
+//   const g0 = params.g0;
+//   const g1 = params.g1;
+//   const p1 = params.p1;
+//   const g2 = params.g2;
+//   const p2 = params.p2;
+//   const g3 = params.g3;
+//   const mu = params.mu;
+//
+//   //Initial solution
+//   let N = params.population;
+//   let E0_0 = params.E0_0;
+//   let E1_0 = 0;
+//   let I0_0 = 0;
+//   let I1d_0 = 0;
+//   let I1u_0 = 0;
+//   let I1q_0 = 0;
+//   let I2_0 = 0;
+//   let I3_0 = 0;
+//   let Rd_0 = params.Rd_0;
+//   let Ru_0 = 0;
+//   let D_0 = 0;
+//   let S_0 = N - E0_0 - E1_0 - I0_0 - I1d_0 - I1u_0 - I1q_0 - I2_0 - I3_0 - Rd_0 - Ru_0 - D_0;
+//
+//   //Solution vector: [S, E0, E1, I0, I1d, I1u, I1q, I2, I3, Rd, Ru, D]
+//   let solution_hist = [[S_0, E0_0, E1_0, I0_0, I1d_0, I1u_0, I1q_0, I2_0, I3_0, Rd_0, Ru_0, D_0]];
+//
+//   const nt = params.T_hist + params.T_pred - 1;
+//   const nt_sub = 1.0/params.dt;
+//
+//   for (let i = 0; i < nt; i++)
+//   {
+//     let u = solution_hist[i].slice(); //copy last solution vector
+//
+//     let b1 = params.b1N[i] / N;
+//     let b2 = params.b2N[i] / N;
+//     let b3 = params.b3N[i] / N;
+//     let q_input = params.quarantine_input[i];
+//     let c = params.diag_frac[i];
+//
+//     for (let j = 0; j < nt_sub; j++)
+//     {
+//       let dS = -(b1*(u[2] + u[3] + u[5]) + b2*u[7] + b3*u[8])*u[0];
+//       let du = [ dS,                                                                                                                  //S
+//                 -dS - a0*u[1],                                                                                                        //E0
+//                       a0*u[1] - a1*u[2],                                                                                              //E1
+//                                a10*u[2] - g0*u[3],                                                                                    //I0
+//                              c*a11*u[2]          - (g1 + p1)*u[4],                                                                    //I1d
+//                          (1-c)*a11*u[2]                          - (g1 + p1)*u[5],                                                    //I1u
+//                 q_input                                                          - (g1 + p1)*u[6],                                    //I1q
+//                                                          p1*(u[4]          + u[5]          + u[6]) - (g2 + p2)*u[7],                  //I2
+//                                                                                                             p2*u[7] - (g3 + mu)*u[8], //I3
+//                                                          g1*(u[4]                          + u[6])        + g2*u[7]        + g3*u[8], //Rd
+//                                           g0*u[3] +                       g1*u[5],                                                    //Ru
+//                                                                                                                              mu*u[8]  //D
+//                ];
+//
+//       for (let k = 0; k < u.length; k++)
+//         u[k] += du[k]*params.dt;
+//     } //sub-timestepping [hrs]
+//
+//     if (u[1] < 0.5)
+//       u[1] = 0.0;
+//
+//     solution_hist.push(u); //save solution daily
+//   }
+//
+//   return solution_hist;
+// }
 
 function getPredictionDataNew(start_date)
 {
@@ -1303,9 +1335,13 @@ function getPredictionDataNew(start_date)
   // let sol_error_data = getErrorData();
 
   let data_agg = [], data_lower = [], data_upper = [];
-  let data_cat = new Array(10);
-  for (let i = 0; i < data_cat.length; ++i)
-    data_cat[i] = new Array();
+  let data_cat_diag = new Array(7);
+  let data_cat_sum = new Array(data_cat_diag.length);
+  for (let i = 0; i < data_cat_diag.length; ++i)
+  {
+    data_cat_diag[i] = new Array();
+    data_cat_sum[i] = new Array();
+  }
 
   // const report_sum_indices = [4, 6, 7, 8, 9, 11]; //I1d + I1q + I2 + I3 + Rd + D
 
@@ -1314,16 +1350,21 @@ function getPredictionDataNew(start_date)
     let date = start_date.clone().add(i,'days');
 
     //Accumulate data into categories for plotting
-    data_cat[0].push({t: date, y: Math.round(pop_hist[i].S)}); //susceptible: S
-    data_cat[1].push({t: date, y: pop_hist[i].getNumExposed()}); //exposed: E0 + E1
-    data_cat[2].push({t: date, y: pop_hist[i].getNumAsymptomatic()}); //asymptomatic: I0
-    data_cat[3].push({t: date, y: Math.round(pop_hist[i].I1[0])}); //mild unreported: I1u
-    data_cat[4].push({t: date, y: Math.round(pop_hist[i].R[0])}); //recovered unreported: Ru
-    data_cat[5].push({t: date, y: Math.round(pop_hist[i].R[1])}); //recovered diagnosed: Rd
-    data_cat[6].push({t: date, y: Math.round(pop_hist[i].D[0])}); //fatal: D
-    data_cat[7].push({t: date, y: Math.round(pop_hist[i].I1[1])}); //mild diagnosed: I1d + Iq
-    data_cat[8].push({t: date, y: Math.round(pop_hist[i].I2[0])}); //severe: I2
-    data_cat[9].push({t: date, y: Math.round(pop_hist[i].I3[0])}); //critical: I3
+    data_cat_diag[0].push({t: date, y: Math.round(pop_hist[i].E1[1])}); //exposed: E1d
+    data_cat_diag[1].push({t: date, y: Math.round(pop_hist[i].I0[1])}); //asymptomatic: I0d
+    data_cat_diag[2].push({t: date, y: Math.round(pop_hist[i].R[1])}); //recovered: Rd
+    data_cat_diag[3].push({t: date, y: Math.round(pop_hist[i].D[1])}); //fatal: D
+    data_cat_diag[4].push({t: date, y: Math.round(pop_hist[i].I1[1])}); //mild: I1d
+    data_cat_diag[5].push({t: date, y: Math.round(pop_hist[i].I2[1])}); //severe: I2d
+    data_cat_diag[6].push({t: date, y: Math.round(pop_hist[i].I3[1])}); //critical: I3d
+
+    data_cat_sum[0].push({t: date, y: pop_hist[i].getNumExposed()}); //exposed: E0 + E1u + E1d
+    data_cat_sum[1].push({t: date, y: pop_hist[i].getNumAsymptomatic()}); //asymptomatic: I0u + I0d
+    data_cat_sum[2].push({t: date, y: pop_hist[i].getNumRecovered()}); //recovered: Ru + Rd
+    data_cat_sum[3].push({t: date, y: pop_hist[i].getNumFatal()}); //fatal: Du + Dd
+    data_cat_sum[4].push({t: date, y: pop_hist[i].getNumMild()}); //mild: I1u + I1d
+    data_cat_sum[5].push({t: date, y: pop_hist[i].getNumSevere()}); //severe: I2u + I2d
+    data_cat_sum[6].push({t: date, y: pop_hist[i].getNumCritical()}); //critical: I3u + I3d
 
     let num_diagnosed = pop_hist[i].getNumDiagnosed();
     data_agg.push({t: date, y: num_diagnosed});
@@ -1331,7 +1372,7 @@ function getPredictionDataNew(start_date)
     data_upper.push({t: date, y: num_diagnosed});
   }
 
-  return {total: data_agg, categorized: data_cat, lower: data_lower, upper: data_upper};
+  return {total: data_agg, cat_diag: data_cat_diag, cat_sum: data_cat_sum, lower: data_lower, upper: data_upper};
 }
 
 function predictModelNew(params)
