@@ -594,6 +594,18 @@ let world_data =
       "confirmed": 1939,
       "deaths": 60,
       "recovered": 252
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2171,
+      "deaths": 64,
+      "recovered": 260
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2335,
+      "deaths": 68,
+      "recovered": 310
     }
   ],
   "Albania": [
@@ -1190,6 +1202,18 @@ let world_data =
       "confirmed": 766,
       "deaths": 30,
       "recovered": 455
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 773,
+      "deaths": 31,
+      "recovered": 470
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 782,
+      "deaths": 31,
+      "recovered": 488
     }
   ],
   "Algeria": [
@@ -1786,6 +1810,18 @@ let world_data =
       "confirmed": 3848,
       "deaths": 444,
       "recovered": 1702
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 4006,
+      "deaths": 450,
+      "recovered": 1779
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 4154,
+      "deaths": 453,
+      "recovered": 1821
     }
   ],
   "Andorra": [
@@ -2382,6 +2418,18 @@ let world_data =
       "confirmed": 743,
       "deaths": 42,
       "recovered": 423
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 745,
+      "deaths": 42,
+      "recovered": 468
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 745,
+      "deaths": 43,
+      "recovered": 468
     }
   ],
   "Angola": [
@@ -2978,6 +3026,18 @@ let world_data =
       "confirmed": 27,
       "deaths": 2,
       "recovered": 7
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 27,
+      "deaths": 2,
+      "recovered": 7
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 30,
+      "deaths": 2,
+      "recovered": 11
     }
   ],
   "Antigua and Barbuda": [
@@ -3574,6 +3634,18 @@ let world_data =
       "confirmed": 24,
       "deaths": 3,
       "recovered": 11
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 24,
+      "deaths": 3,
+      "recovered": 11
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 25,
+      "deaths": 3,
+      "recovered": 15
     }
   ],
   "Argentina": [
@@ -4170,6 +4242,18 @@ let world_data =
       "confirmed": 4285,
       "deaths": 214,
       "recovered": 1192
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 4428,
+      "deaths": 218,
+      "recovered": 1256
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 4532,
+      "deaths": 225,
+      "recovered": 1292
     }
   ],
   "Armenia": [
@@ -4766,6 +4850,18 @@ let world_data =
       "confirmed": 1932,
       "deaths": 30,
       "recovered": 900
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2066,
+      "deaths": 32,
+      "recovered": 929
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2148,
+      "deaths": 33,
+      "recovered": 977
     }
   ],
   "Australia": [
@@ -5362,6 +5458,18 @@ let world_data =
       "confirmed": 6752,
       "deaths": 91,
       "recovered": 5715
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6766,
+      "deaths": 93,
+      "recovered": 5742
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 6778,
+      "deaths": 93,
+      "recovered": 5775
     }
   ],
   "Austria": [
@@ -5958,6 +6066,18 @@ let world_data =
       "confirmed": 15402,
       "deaths": 580,
       "recovered": 12779
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 15452,
+      "deaths": 584,
+      "recovered": 12907
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 15531,
+      "deaths": 589,
+      "recovered": 13110
     }
   ],
   "Azerbaijan": [
@@ -6554,6 +6674,18 @@ let world_data =
       "confirmed": 1766,
       "deaths": 23,
       "recovered": 1267
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1804,
+      "deaths": 24,
+      "recovered": 1325
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1854,
+      "deaths": 25,
+      "recovered": 1365
     }
   ],
   "Bahamas": [
@@ -7150,6 +7282,18 @@ let world_data =
       "confirmed": 80,
       "deaths": 11,
       "recovered": 23
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 81,
+      "deaths": 11,
+      "recovered": 25
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 81,
+      "deaths": 11,
+      "recovered": 24
     }
   ],
   "Bahrain": [
@@ -7746,6 +7890,18 @@ let world_data =
       "confirmed": 2921,
       "deaths": 8,
       "recovered": 1455
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 3040,
+      "deaths": 8,
+      "recovered": 1500
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 3170,
+      "deaths": 8,
+      "recovered": 1555
     }
   ],
   "Bangladesh": [
@@ -8342,6 +8498,18 @@ let world_data =
       "confirmed": 7103,
       "deaths": 163,
       "recovered": 150
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 7667,
+      "deaths": 168,
+      "recovered": 160
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 8238,
+      "deaths": 170,
+      "recovered": 174
     }
   ],
   "Barbados": [
@@ -8936,6 +9104,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 80,
+      "deaths": 7,
+      "recovered": 39
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 81,
+      "deaths": 7,
+      "recovered": 39
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 81,
       "deaths": 7,
       "recovered": 39
     }
@@ -9534,6 +9714,18 @@ let world_data =
       "confirmed": 13181,
       "deaths": 84,
       "recovered": 2072
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 14027,
+      "deaths": 89,
+      "recovered": 2386
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 14917,
+      "deaths": 93,
+      "recovered": 2918
     }
   ],
   "Belgium": [
@@ -10130,6 +10322,18 @@ let world_data =
       "confirmed": 47859,
       "deaths": 7501,
       "recovered": 11283
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 48519,
+      "deaths": 7594,
+      "recovered": 11576
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 49032,
+      "deaths": 7703,
+      "recovered": 11892
     }
   ],
   "Benin": [
@@ -10726,6 +10930,18 @@ let world_data =
       "confirmed": 64,
       "deaths": 1,
       "recovered": 33
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 64,
+      "deaths": 1,
+      "recovered": 33
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 90,
+      "deaths": 2,
+      "recovered": 42
     }
   ],
   "Bhutan": [
@@ -11319,6 +11535,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 7,
+      "deaths": 0,
+      "recovered": 5
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 7,
+      "deaths": 0,
+      "recovered": 5
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 7,
       "deaths": 0,
       "recovered": 5
@@ -11918,6 +12146,18 @@ let world_data =
       "confirmed": 1110,
       "deaths": 59,
       "recovered": 117
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1110,
+      "deaths": 59,
+      "recovered": 117
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1229,
+      "deaths": 66,
+      "recovered": 134
     }
   ],
   "Bosnia and Herzegovina": [
@@ -12514,6 +12754,18 @@ let world_data =
       "confirmed": 1677,
       "deaths": 65,
       "recovered": 710
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1757,
+      "deaths": 69,
+      "recovered": 727
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1781,
+      "deaths": 70,
+      "recovered": 755
     }
   ],
   "Brazil": [
@@ -13110,6 +13362,18 @@ let world_data =
       "confirmed": 79685,
       "deaths": 5513,
       "recovered": 34132
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 87187,
+      "deaths": 6006,
+      "recovered": 35935
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 92202,
+      "deaths": 6412,
+      "recovered": 38039
     }
   ],
   "Brunei": [
@@ -13703,6 +13967,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 138,
+      "deaths": 1,
+      "recovered": 124
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 138,
+      "deaths": 1,
+      "recovered": 124
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 138,
       "deaths": 1,
       "recovered": 124
@@ -14302,6 +14578,18 @@ let world_data =
       "confirmed": 1447,
       "deaths": 64,
       "recovered": 243
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1506,
+      "deaths": 66,
+      "recovered": 266
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1555,
+      "deaths": 68,
+      "recovered": 276
     }
   ],
   "Burkina Faso": [
@@ -14898,6 +15186,18 @@ let world_data =
       "confirmed": 641,
       "deaths": 43,
       "recovered": 498
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 645,
+      "deaths": 43,
+      "recovered": 506
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 649,
+      "deaths": 44,
+      "recovered": 517
     }
   ],
   "Cabo Verde": [
@@ -15494,6 +15794,18 @@ let world_data =
       "confirmed": 114,
       "deaths": 1,
       "recovered": 2
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 121,
+      "deaths": 1,
+      "recovered": 4
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 122,
+      "deaths": 1,
+      "recovered": 18
     }
   ],
   "Cambodia": [
@@ -16090,6 +16402,18 @@ let world_data =
       "confirmed": 122,
       "deaths": 0,
       "recovered": 119
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 122,
+      "deaths": 0,
+      "recovered": 119
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 122,
+      "deaths": 0,
+      "recovered": 120
     }
   ],
   "Cameroon": [
@@ -16683,6 +17007,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 1832,
+      "deaths": 61,
+      "recovered": 934
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1832,
+      "deaths": 61,
+      "recovered": 934
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 1832,
       "deaths": 61,
       "recovered": 934
@@ -17282,6 +17618,18 @@ let world_data =
       "confirmed": 52865,
       "deaths": 3155,
       "recovered": 20327
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 54457,
+      "deaths": 3310,
+      "recovered": 21424
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 56343,
+      "deaths": 3537,
+      "recovered": 22764
     }
   ],
   "Central African Republic": [
@@ -17876,6 +18224,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 50,
+      "deaths": 0,
+      "recovered": 10
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 50,
+      "deaths": 0,
+      "recovered": 10
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 72,
       "deaths": 0,
       "recovered": 10
     }
@@ -18474,6 +18834,18 @@ let world_data =
       "confirmed": 52,
       "deaths": 2,
       "recovered": 19
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 73,
+      "deaths": 5,
+      "recovered": 33
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 73,
+      "deaths": 5,
+      "recovered": 33
     }
   ],
   "Chile": [
@@ -19070,6 +19442,18 @@ let world_data =
       "confirmed": 14885,
       "deaths": 216,
       "recovered": 8057
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 16023,
+      "deaths": 227,
+      "recovered": 8580
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 17008,
+      "deaths": 234,
+      "recovered": 9018
     }
   ],
   "China": [
@@ -19666,6 +20050,18 @@ let world_data =
       "confirmed": 83944,
       "deaths": 4637,
       "recovered": 78474
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 83956,
+      "deaths": 4637,
+      "recovered": 78523
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 83959,
+      "deaths": 4637,
+      "recovered": 78573
     }
   ],
   "Colombia": [
@@ -20262,6 +20658,18 @@ let world_data =
       "confirmed": 6207,
       "deaths": 278,
       "recovered": 1411
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6507,
+      "deaths": 293,
+      "recovered": 1439
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 7006,
+      "deaths": 314,
+      "recovered": 1551
     }
   ],
   "Congo (Brazzaville)": [
@@ -20858,6 +21266,18 @@ let world_data =
       "confirmed": 207,
       "deaths": 8,
       "recovered": 19
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 220,
+      "deaths": 9,
+      "recovered": 19
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 229,
+      "deaths": 9,
+      "recovered": 25
     }
   ],
   "Congo (Kinshasa)": [
@@ -21454,6 +21874,18 @@ let world_data =
       "confirmed": 491,
       "deaths": 30,
       "recovered": 59
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 572,
+      "deaths": 31,
+      "recovered": 73
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 604,
+      "deaths": 32,
+      "recovered": 75
     }
   ],
   "Costa Rica": [
@@ -22050,6 +22482,18 @@ let world_data =
       "confirmed": 713,
       "deaths": 6,
       "recovered": 323
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 719,
+      "deaths": 6,
+      "recovered": 338
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 725,
+      "deaths": 6,
+      "recovered": 355
     }
   ],
   "Cote d'Ivoire": [
@@ -22646,6 +23090,18 @@ let world_data =
       "confirmed": 1238,
       "deaths": 14,
       "recovered": 557
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1275,
+      "deaths": 14,
+      "recovered": 574
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1333,
+      "deaths": 15,
+      "recovered": 597
     }
   ],
   "Croatia": [
@@ -23242,6 +23698,18 @@ let world_data =
       "confirmed": 2062,
       "deaths": 67,
       "recovered": 1288
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2076,
+      "deaths": 69,
+      "recovered": 1348
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2085,
+      "deaths": 75,
+      "recovered": 1421
     }
   ],
   "Diamond Princess": [
@@ -23835,6 +24303,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 712,
+      "deaths": 13,
+      "recovered": 645
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 712,
+      "deaths": 13,
+      "recovered": 645
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 712,
       "deaths": 13,
       "recovered": 645
@@ -24434,6 +24914,18 @@ let world_data =
       "confirmed": 1467,
       "deaths": 58,
       "recovered": 617
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1501,
+      "deaths": 61,
+      "recovered": 681
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1537,
+      "deaths": 64,
+      "recovered": 714
     }
   ],
   "Cyprus": [
@@ -25030,6 +25522,18 @@ let world_data =
       "confirmed": 843,
       "deaths": 15,
       "recovered": 148
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 850,
+      "deaths": 15,
+      "recovered": 296
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 857,
+      "deaths": 15,
+      "recovered": 296
     }
   ],
   "Czechia": [
@@ -25626,6 +26130,18 @@ let world_data =
       "confirmed": 7579,
       "deaths": 227,
       "recovered": 3108
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 7682,
+      "deaths": 236,
+      "recovered": 3314
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 7737,
+      "deaths": 240,
+      "recovered": 3372
     }
   ],
   "Denmark": [
@@ -26222,6 +26738,18 @@ let world_data =
       "confirmed": 9206,
       "deaths": 443,
       "recovered": 6558
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 9356,
+      "deaths": 452,
+      "recovered": 6741
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 9509,
+      "deaths": 460,
+      "recovered": 6924
     }
   ],
   "Djibouti": [
@@ -26818,6 +27346,18 @@ let world_data =
       "confirmed": 1077,
       "deaths": 2,
       "recovered": 599
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1089,
+      "deaths": 2,
+      "recovered": 642
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1097,
+      "deaths": 2,
+      "recovered": 672
     }
   ],
   "Dominican Republic": [
@@ -27414,6 +27954,18 @@ let world_data =
       "confirmed": 6652,
       "deaths": 293,
       "recovered": 1228
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6972,
+      "deaths": 301,
+      "recovered": 1301
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 7288,
+      "deaths": 313,
+      "recovered": 1387
     }
   ],
   "Ecuador": [
@@ -28010,6 +28562,18 @@ let world_data =
       "confirmed": 24675,
       "deaths": 883,
       "recovered": 1557
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 24934,
+      "deaths": 900,
+      "recovered": 1558
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 26336,
+      "deaths": 1063,
+      "recovered": 1913
     }
   ],
   "Egypt": [
@@ -28606,6 +29170,18 @@ let world_data =
       "confirmed": 5268,
       "deaths": 380,
       "recovered": 1335
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 5537,
+      "deaths": 392,
+      "recovered": 1381
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 5895,
+      "deaths": 406,
+      "recovered": 1460
     }
   ],
   "El Salvador": [
@@ -29202,6 +29778,18 @@ let world_data =
       "confirmed": 377,
       "deaths": 9,
       "recovered": 106
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 395,
+      "deaths": 10,
+      "recovered": 119
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 424,
+      "deaths": 10,
+      "recovered": 124
     }
   ],
   "Equatorial Guinea": [
@@ -29795,6 +30383,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 315,
+      "deaths": 1,
+      "recovered": 9
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 315,
+      "deaths": 1,
+      "recovered": 9
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 315,
       "deaths": 1,
       "recovered": 9
@@ -30394,6 +30994,18 @@ let world_data =
       "confirmed": 39,
       "deaths": 0,
       "recovered": 19
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 39,
+      "deaths": 0,
+      "recovered": 26
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 39,
+      "deaths": 0,
+      "recovered": 26
     }
   ],
   "Estonia": [
@@ -30990,6 +31602,18 @@ let world_data =
       "confirmed": 1666,
       "deaths": 50,
       "recovered": 236
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1689,
+      "deaths": 52,
+      "recovered": 249
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1694,
+      "deaths": 52,
+      "recovered": 253
     }
   ],
   "Eswatini": [
@@ -31586,6 +32210,18 @@ let world_data =
       "confirmed": 91,
       "deaths": 1,
       "recovered": 10
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 100,
+      "deaths": 1,
+      "recovered": 12
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 106,
+      "deaths": 1,
+      "recovered": 12
     }
   ],
   "Ethiopia": [
@@ -32182,6 +32818,18 @@ let world_data =
       "confirmed": 130,
       "deaths": 3,
       "recovered": 58
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 131,
+      "deaths": 3,
+      "recovered": 59
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 133,
+      "deaths": 3,
+      "recovered": 66
     }
   ],
   "Fiji": [
@@ -32775,6 +33423,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 18,
+      "deaths": 0,
+      "recovered": 12
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 18,
+      "deaths": 0,
+      "recovered": 12
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 18,
       "deaths": 0,
       "recovered": 12
@@ -33374,6 +34034,18 @@ let world_data =
       "confirmed": 4906,
       "deaths": 206,
       "recovered": 2800
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 4995,
+      "deaths": 211,
+      "recovered": 3000
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 5051,
+      "deaths": 218,
+      "recovered": 3000
     }
   ],
   "France": [
@@ -33970,6 +34642,18 @@ let world_data =
       "confirmed": 166543,
       "deaths": 24121,
       "recovered": 49118
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 167299,
+      "deaths": 24410,
+      "recovered": 50380
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 167305,
+      "deaths": 24628,
+      "recovered": 51124
     }
   ],
   "Gabon": [
@@ -34563,6 +35247,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 276,
+      "deaths": 3,
+      "recovered": 67
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 276,
+      "deaths": 3,
+      "recovered": 67
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 276,
       "deaths": 3,
       "recovered": 67
@@ -35162,6 +35858,18 @@ let world_data =
       "confirmed": 10,
       "deaths": 1,
       "recovered": 8
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 11,
+      "deaths": 1,
+      "recovered": 8
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 12,
+      "deaths": 1,
+      "recovered": 8
     }
   ],
   "Georgia": [
@@ -35758,6 +36466,18 @@ let world_data =
       "confirmed": 517,
       "deaths": 6,
       "recovered": 178
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 539,
+      "deaths": 6,
+      "recovered": 184
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 566,
+      "deaths": 7,
+      "recovered": 207
     }
   ],
   "Germany": [
@@ -36354,6 +37074,18 @@ let world_data =
       "confirmed": 161539,
       "deaths": 6467,
       "recovered": 120400
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 163009,
+      "deaths": 6623,
+      "recovered": 123500
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 164077,
+      "deaths": 6736,
+      "recovered": 126900
     }
   ],
   "Ghana": [
@@ -36950,6 +37682,18 @@ let world_data =
       "confirmed": 1671,
       "deaths": 16,
       "recovered": 188
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2074,
+      "deaths": 17,
+      "recovered": 212
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2074,
+      "deaths": 17,
+      "recovered": 212
     }
   ],
   "Greece": [
@@ -37546,6 +38290,18 @@ let world_data =
       "confirmed": 2576,
       "deaths": 139,
       "recovered": 577
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2591,
+      "deaths": 140,
+      "recovered": 1374
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2612,
+      "deaths": 140,
+      "recovered": 1374
     }
   ],
   "Guatemala": [
@@ -38142,6 +38898,18 @@ let world_data =
       "confirmed": 557,
       "deaths": 16,
       "recovered": 62
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 599,
+      "deaths": 16,
+      "recovered": 66
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 644,
+      "deaths": 16,
+      "recovered": 72
     }
   ],
   "Guinea": [
@@ -38738,6 +39506,18 @@ let world_data =
       "confirmed": 1351,
       "deaths": 7,
       "recovered": 313
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1495,
+      "deaths": 7,
+      "recovered": 329
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1537,
+      "deaths": 7,
+      "recovered": 342
     }
   ],
   "Guyana": [
@@ -39334,6 +40114,18 @@ let world_data =
       "confirmed": 78,
       "deaths": 8,
       "recovered": 18
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 82,
+      "deaths": 9,
+      "recovered": 22
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 82,
+      "deaths": 9,
+      "recovered": 22
     }
   ],
   "Haiti": [
@@ -39930,6 +40722,18 @@ let world_data =
       "confirmed": 76,
       "deaths": 6,
       "recovered": 8
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 81,
+      "deaths": 8,
+      "recovered": 8
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 85,
+      "deaths": 8,
+      "recovered": 10
     }
   ],
   "Holy See": [
@@ -40524,6 +41328,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 10,
+      "deaths": 0,
+      "recovered": 2
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 11,
+      "deaths": 0,
+      "recovered": 2
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 11,
       "deaths": 0,
       "recovered": 2
     }
@@ -41122,6 +41938,18 @@ let world_data =
       "confirmed": 738,
       "deaths": 66,
       "recovered": 73
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 771,
+      "deaths": 71,
+      "recovered": 79
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 804,
+      "deaths": 75,
+      "recovered": 112
     }
   ],
   "Hungary": [
@@ -41718,6 +42546,18 @@ let world_data =
       "confirmed": 2727,
       "deaths": 300,
       "recovered": 536
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2775,
+      "deaths": 312,
+      "recovered": 581
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2863,
+      "deaths": 323,
+      "recovered": 609
     }
   ],
   "Iceland": [
@@ -42314,6 +43154,18 @@ let world_data =
       "confirmed": 1797,
       "deaths": 10,
       "recovered": 1656
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1797,
+      "deaths": 10,
+      "recovered": 1670
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1798,
+      "deaths": 10,
+      "recovered": 1689
     }
   ],
   "India": [
@@ -42910,6 +43762,18 @@ let world_data =
       "confirmed": 33062,
       "deaths": 1079,
       "recovered": 8437
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 34863,
+      "deaths": 1154,
+      "recovered": 9068
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 37257,
+      "deaths": 1223,
+      "recovered": 10007
     }
   ],
   "Indonesia": [
@@ -43506,6 +44370,18 @@ let world_data =
       "confirmed": 9771,
       "deaths": 784,
       "recovered": 1391
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 10118,
+      "deaths": 792,
+      "recovered": 1522
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 10551,
+      "deaths": 800,
+      "recovered": 1591
     }
   ],
   "Iran": [
@@ -44102,6 +44978,18 @@ let world_data =
       "confirmed": 93657,
       "deaths": 5957,
       "recovered": 73791
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 94640,
+      "deaths": 6028,
+      "recovered": 75103
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 95646,
+      "deaths": 6091,
+      "recovered": 76318
     }
   ],
   "Iraq": [
@@ -44698,6 +45586,18 @@ let world_data =
       "confirmed": 2003,
       "deaths": 92,
       "recovered": 1346
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2085,
+      "deaths": 93,
+      "recovered": 1375
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2153,
+      "deaths": 94,
+      "recovered": 1414
     }
   ],
   "Ireland": [
@@ -45293,6 +46193,18 @@ let world_data =
       "date": "2020-4-29",
       "confirmed": 20253,
       "deaths": 1190,
+      "recovered": 13386
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 20612,
+      "deaths": 1232,
+      "recovered": 13386
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 20833,
+      "deaths": 1265,
       "recovered": 13386
     }
   ],
@@ -45890,6 +46802,18 @@ let world_data =
       "confirmed": 15834,
       "deaths": 215,
       "recovered": 8233
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 15946,
+      "deaths": 222,
+      "recovered": 8561
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 16101,
+      "deaths": 225,
+      "recovered": 9156
     }
   ],
   "Italy": [
@@ -46486,6 +47410,18 @@ let world_data =
       "confirmed": 203591,
       "deaths": 27682,
       "recovered": 71252
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 205463,
+      "deaths": 27967,
+      "recovered": 75945
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 207428,
+      "deaths": 28236,
+      "recovered": 78249
     }
   ],
   "Jamaica": [
@@ -47082,6 +48018,18 @@ let world_data =
       "confirmed": 396,
       "deaths": 7,
       "recovered": 29
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 422,
+      "deaths": 8,
+      "recovered": 29
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 432,
+      "deaths": 8,
+      "recovered": 31
     }
   ],
   "Japan": [
@@ -47678,6 +48626,18 @@ let world_data =
       "confirmed": 13895,
       "deaths": 413,
       "recovered": 2368
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 14088,
+      "deaths": 430,
+      "recovered": 2460
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 14305,
+      "deaths": 455,
+      "recovered": 2975
     }
   ],
   "Jordan": [
@@ -48274,6 +49234,18 @@ let world_data =
       "confirmed": 451,
       "deaths": 8,
       "recovered": 356
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 453,
+      "deaths": 8,
+      "recovered": 362
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 459,
+      "deaths": 8,
+      "recovered": 364
     }
   ],
   "Kazakhstan": [
@@ -48870,6 +49842,18 @@ let world_data =
       "confirmed": 3138,
       "deaths": 25,
       "recovered": 819
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 3402,
+      "deaths": 25,
+      "recovered": 866
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 3597,
+      "deaths": 25,
+      "recovered": 922
     }
   ],
   "Kenya": [
@@ -49466,6 +50450,18 @@ let world_data =
       "confirmed": 384,
       "deaths": 15,
       "recovered": 129
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 396,
+      "deaths": 17,
+      "recovered": 144
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 411,
+      "deaths": 21,
+      "recovered": 150
     }
   ],
   "Korea, South": [
@@ -50062,6 +51058,18 @@ let world_data =
       "confirmed": 10765,
       "deaths": 247,
       "recovered": 9059
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 10774,
+      "deaths": 248,
+      "recovered": 9072
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 10780,
+      "deaths": 250,
+      "recovered": 9123
     }
   ],
   "Kuwait": [
@@ -50658,6 +51666,18 @@ let world_data =
       "confirmed": 3740,
       "deaths": 24,
       "recovered": 1389
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 4024,
+      "deaths": 26,
+      "recovered": 1539
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 4377,
+      "deaths": 30,
+      "recovered": 1602
     }
   ],
   "Kyrgyzstan": [
@@ -51254,6 +52274,18 @@ let world_data =
       "confirmed": 729,
       "deaths": 8,
       "recovered": 437
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 746,
+      "deaths": 8,
+      "recovered": 462
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 756,
+      "deaths": 8,
+      "recovered": 504
     }
   ],
   "Latvia": [
@@ -51849,6 +52881,18 @@ let world_data =
       "date": "2020-4-29",
       "confirmed": 849,
       "deaths": 15,
+      "recovered": 348
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 858,
+      "deaths": 15,
+      "recovered": 348
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 870,
+      "deaths": 16,
       "recovered": 348
     }
   ],
@@ -52446,6 +53490,18 @@ let world_data =
       "confirmed": 721,
       "deaths": 24,
       "recovered": 150
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 725,
+      "deaths": 24,
+      "recovered": 150
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 729,
+      "deaths": 24,
+      "recovered": 192
     }
   ],
   "Liberia": [
@@ -53042,6 +54098,18 @@ let world_data =
       "confirmed": 141,
       "deaths": 16,
       "recovered": 45
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 141,
+      "deaths": 16,
+      "recovered": 45
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 152,
+      "deaths": 18,
+      "recovered": 45
     }
   ],
   "Liechtenstein": [
@@ -53635,6 +54703,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 82,
+      "deaths": 1,
+      "recovered": 55
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 82,
+      "deaths": 1,
+      "recovered": 55
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 82,
       "deaths": 1,
       "recovered": 55
@@ -54234,6 +55314,18 @@ let world_data =
       "confirmed": 1375,
       "deaths": 45,
       "recovered": 563
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1385,
+      "deaths": 45,
+      "recovered": 589
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1399,
+      "deaths": 45,
+      "recovered": 594
     }
   ],
   "Luxembourg": [
@@ -54830,6 +55922,18 @@ let world_data =
       "confirmed": 3769,
       "deaths": 89,
       "recovered": 3134
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 3784,
+      "deaths": 90,
+      "recovered": 3213
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 3802,
+      "deaths": 92,
+      "recovered": 3213
     }
   ],
   "Madagascar": [
@@ -55426,6 +56530,18 @@ let world_data =
       "confirmed": 128,
       "deaths": 0,
       "recovered": 90
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 128,
+      "deaths": 0,
+      "recovered": 92
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 132,
+      "deaths": 0,
+      "recovered": 94
     }
   ],
   "Malaysia": [
@@ -56022,6 +57138,18 @@ let world_data =
       "confirmed": 5945,
       "deaths": 100,
       "recovered": 4087
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6002,
+      "deaths": 102,
+      "recovered": 4171
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 6071,
+      "deaths": 103,
+      "recovered": 4210
     }
   ],
   "Maldives": [
@@ -56616,6 +57744,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 278,
+      "deaths": 1,
+      "recovered": 17
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 468,
+      "deaths": 1,
+      "recovered": 17
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 491,
       "deaths": 1,
       "recovered": 17
     }
@@ -57214,6 +58354,18 @@ let world_data =
       "confirmed": 463,
       "deaths": 4,
       "recovered": 339
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 465,
+      "deaths": 4,
+      "recovered": 351
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 467,
+      "deaths": 4,
+      "recovered": 383
     }
   ],
   "Mauritania": [
@@ -57807,6 +58959,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 8,
+      "deaths": 1,
+      "recovered": 6
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 8,
+      "deaths": 1,
+      "recovered": 6
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 8,
       "deaths": 1,
       "recovered": 6
@@ -58406,6 +59570,18 @@ let world_data =
       "confirmed": 332,
       "deaths": 10,
       "recovered": 306
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 332,
+      "deaths": 10,
+      "recovered": 310
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 332,
+      "deaths": 10,
+      "recovered": 312
     }
   ],
   "Mexico": [
@@ -59002,6 +60178,18 @@ let world_data =
       "confirmed": 17799,
       "deaths": 1732,
       "recovered": 11423
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 19224,
+      "deaths": 1859,
+      "recovered": 11423
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 20739,
+      "deaths": 1972,
+      "recovered": 12377
     }
   ],
   "Moldova": [
@@ -59598,6 +60786,18 @@ let world_data =
       "confirmed": 3771,
       "deaths": 111,
       "recovered": 1114
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 3897,
+      "deaths": 116,
+      "recovered": 1182
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 3980,
+      "deaths": 122,
+      "recovered": 1272
     }
   ],
   "Monaco": [
@@ -60194,6 +61394,18 @@ let world_data =
       "confirmed": 95,
       "deaths": 4,
       "recovered": 58
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 95,
+      "deaths": 4,
+      "recovered": 64
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 95,
+      "deaths": 4,
+      "recovered": 73
     }
   ],
   "Mongolia": [
@@ -60787,6 +61999,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 38,
+      "deaths": 0,
+      "recovered": 10
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 38,
+      "deaths": 0,
+      "recovered": 10
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 38,
       "deaths": 0,
       "recovered": 10
@@ -61386,6 +62610,18 @@ let world_data =
       "confirmed": 322,
       "deaths": 7,
       "recovered": 203
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 322,
+      "deaths": 7,
+      "recovered": 214
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 322,
+      "deaths": 7,
+      "recovered": 233
     }
   ],
   "Morocco": [
@@ -61982,6 +63218,18 @@ let world_data =
       "confirmed": 4321,
       "deaths": 168,
       "recovered": 928
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 4423,
+      "deaths": 170,
+      "recovered": 984
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 4569,
+      "deaths": 171,
+      "recovered": 1083
     }
   ],
   "Namibia": [
@@ -62575,6 +63823,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 16,
+      "deaths": 0,
+      "recovered": 8
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 16,
+      "deaths": 0,
+      "recovered": 8
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 16,
       "deaths": 0,
       "recovered": 8
@@ -63174,6 +64434,18 @@ let world_data =
       "confirmed": 57,
       "deaths": 0,
       "recovered": 16
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 57,
+      "deaths": 0,
+      "recovered": 16
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 59,
+      "deaths": 0,
+      "recovered": 16
     }
   ],
   "Netherlands": [
@@ -63770,6 +65042,18 @@ let world_data =
       "confirmed": 38998,
       "deaths": 4727,
       "recovered": 119
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 39512,
+      "deaths": 4811,
+      "recovered": 125
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 39989,
+      "deaths": 4909,
+      "recovered": 138
     }
   ],
   "New Zealand": [
@@ -64366,6 +65650,18 @@ let world_data =
       "confirmed": 1476,
       "deaths": 19,
       "recovered": 1241
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1479,
+      "deaths": 19,
+      "recovered": 1252
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1485,
+      "deaths": 20,
+      "recovered": 1263
     }
   ],
   "Nicaragua": [
@@ -64960,6 +66256,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 13,
+      "deaths": 3,
+      "recovered": 7
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 14,
+      "deaths": 3,
+      "recovered": 7
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 14,
       "deaths": 3,
       "recovered": 7
     }
@@ -65558,6 +66866,18 @@ let world_data =
       "confirmed": 713,
       "deaths": 32,
       "recovered": 435
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 719,
+      "deaths": 32,
+      "recovered": 452
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 728,
+      "deaths": 33,
+      "recovered": 478
     }
   ],
   "Nigeria": [
@@ -66154,6 +67474,18 @@ let world_data =
       "confirmed": 1728,
       "deaths": 51,
       "recovered": 307
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1932,
+      "deaths": 58,
+      "recovered": 319
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2170,
+      "deaths": 68,
+      "recovered": 351
     }
   ],
   "North Macedonia": [
@@ -66750,6 +68082,18 @@ let world_data =
       "confirmed": 1442,
       "deaths": 73,
       "recovered": 627
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1465,
+      "deaths": 77,
+      "recovered": 738
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1494,
+      "deaths": 81,
+      "recovered": 807
     }
   ],
   "Norway": [
@@ -67345,6 +68689,18 @@ let world_data =
       "date": "2020-4-29",
       "confirmed": 7710,
       "deaths": 207,
+      "recovered": 32
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 7738,
+      "deaths": 210,
+      "recovered": 32
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 7783,
+      "deaths": 210,
       "recovered": 32
     }
   ],
@@ -67942,6 +69298,18 @@ let world_data =
       "confirmed": 2274,
       "deaths": 10,
       "recovered": 364
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2348,
+      "deaths": 11,
+      "recovered": 495
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2447,
+      "deaths": 11,
+      "recovered": 495
     }
   ],
   "Pakistan": [
@@ -68538,6 +69906,18 @@ let world_data =
       "confirmed": 15525,
       "deaths": 343,
       "recovered": 3425
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 16817,
+      "deaths": 385,
+      "recovered": 4315
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 18114,
+      "deaths": 417,
+      "recovered": 4715
     }
   ],
   "Panama": [
@@ -69134,6 +70514,18 @@ let world_data =
       "confirmed": 6378,
       "deaths": 178,
       "recovered": 527
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6532,
+      "deaths": 188,
+      "recovered": 576
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 6720,
+      "deaths": 192,
+      "recovered": 622
     }
   ],
   "Papua New Guinea": [
@@ -69727,6 +71119,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 8,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 8,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 8,
       "deaths": 0,
       "recovered": 0
@@ -70326,6 +71730,18 @@ let world_data =
       "confirmed": 239,
       "deaths": 9,
       "recovered": 102
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 266,
+      "deaths": 10,
+      "recovered": 113
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 333,
+      "deaths": 10,
+      "recovered": 115
     }
   ],
   "Peru": [
@@ -70922,6 +72338,18 @@ let world_data =
       "confirmed": 33931,
       "deaths": 943,
       "recovered": 10037
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 36976,
+      "deaths": 1051,
+      "recovered": 10405
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 40459,
+      "deaths": 1124,
+      "recovered": 11129
     }
   ],
   "Philippines": [
@@ -71518,6 +72946,18 @@ let world_data =
       "confirmed": 8212,
       "deaths": 558,
       "recovered": 1023
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 8488,
+      "deaths": 568,
+      "recovered": 1043
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 8772,
+      "deaths": 579,
+      "recovered": 1084
     }
   ],
   "Poland": [
@@ -72114,6 +73554,18 @@ let world_data =
       "confirmed": 12640,
       "deaths": 624,
       "recovered": 3025
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 12877,
+      "deaths": 644,
+      "recovered": 3236
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 13105,
+      "deaths": 651,
+      "recovered": 3491
     }
   ],
   "Portugal": [
@@ -72710,6 +74162,18 @@ let world_data =
       "confirmed": 24505,
       "deaths": 973,
       "recovered": 1470
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 25045,
+      "deaths": 989,
+      "recovered": 1519
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 25351,
+      "deaths": 1007,
+      "recovered": 1647
     }
   ],
   "Qatar": [
@@ -73306,6 +74770,18 @@ let world_data =
       "confirmed": 12564,
       "deaths": 10,
       "recovered": 1243
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 13409,
+      "deaths": 10,
+      "recovered": 1372
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 14096,
+      "deaths": 12,
+      "recovered": 1436
     }
   ],
   "Romania": [
@@ -73902,6 +75378,18 @@ let world_data =
       "confirmed": 11978,
       "deaths": 693,
       "recovered": 3569
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 12240,
+      "deaths": 717,
+      "recovered": 4017
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 12567,
+      "deaths": 744,
+      "recovered": 4328
     }
   ],
   "Russia": [
@@ -74498,6 +75986,18 @@ let world_data =
       "confirmed": 99399,
       "deaths": 972,
       "recovered": 10286
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 106498,
+      "deaths": 1073,
+      "recovered": 11619
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 114431,
+      "deaths": 1169,
+      "recovered": 13220
     }
   ],
   "Rwanda": [
@@ -75094,6 +76594,18 @@ let world_data =
       "confirmed": 225,
       "deaths": 0,
       "recovered": 98
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 243,
+      "deaths": 0,
+      "recovered": 104
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 249,
+      "deaths": 0,
+      "recovered": 109
     }
   ],
   "Saint Lucia": [
@@ -75687,6 +77199,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 17,
+      "deaths": 0,
+      "recovered": 15
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 17,
+      "deaths": 0,
+      "recovered": 15
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 17,
       "deaths": 0,
       "recovered": 15
@@ -76286,6 +77810,18 @@ let world_data =
       "confirmed": 16,
       "deaths": 0,
       "recovered": 8
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 16,
+      "deaths": 0,
+      "recovered": 8
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 16,
+      "deaths": 0,
+      "recovered": 8
     }
   ],
   "San Marino": [
@@ -76882,6 +78418,18 @@ let world_data =
       "confirmed": 563,
       "deaths": 41,
       "recovered": 69
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 569,
+      "deaths": 41,
+      "recovered": 78
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 580,
+      "deaths": 41,
+      "recovered": 82
     }
   ],
   "Saudi Arabia": [
@@ -77478,6 +79026,18 @@ let world_data =
       "confirmed": 21402,
       "deaths": 157,
       "recovered": 2953
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 22753,
+      "deaths": 162,
+      "recovered": 3163
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 24097,
+      "deaths": 169,
+      "recovered": 3555
     }
   ],
   "Senegal": [
@@ -78074,6 +79634,18 @@ let world_data =
       "confirmed": 882,
       "deaths": 9,
       "recovered": 315
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 933,
+      "deaths": 9,
+      "recovered": 334
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1024,
+      "deaths": 9,
+      "recovered": 356
     }
   ],
   "Serbia": [
@@ -78619,57 +80191,69 @@ let world_data =
     },
     {
       "date": "2020-4-21",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 6890,
+      "deaths": 130,
+      "recovered": 977
     },
     {
       "date": "2020-4-22",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 7144,
+      "deaths": 134,
+      "recovered": 1025
     },
     {
       "date": "2020-4-23",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 7276,
+      "deaths": 139,
+      "recovered": 1067
     },
     {
       "date": "2020-4-24",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 7483,
+      "deaths": 144,
+      "recovered": 1094
     },
     {
       "date": "2020-4-25",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 7779,
+      "deaths": 151,
+      "recovered": 1152
     },
     {
       "date": "2020-4-26",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 8042,
+      "deaths": 156,
+      "recovered": 1182
     },
     {
       "date": "2020-4-27",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 8275,
+      "deaths": 162,
+      "recovered": 1209
     },
     {
       "date": "2020-4-28",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 8497,
+      "deaths": 168,
+      "recovered": 1260
     },
     {
       "date": "2020-4-29",
-      "confirmed": 6630,
-      "deaths": 125,
-      "recovered": 870
+      "confirmed": 8724,
+      "deaths": 173,
+      "recovered": 1292
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 9009,
+      "deaths": 179,
+      "recovered": 1343
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 9009,
+      "deaths": 179,
+      "recovered": 1343
     }
   ],
   "Seychelles": [
@@ -79263,6 +80847,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 11,
+      "deaths": 0,
+      "recovered": 6
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 11,
+      "deaths": 0,
+      "recovered": 6
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 11,
       "deaths": 0,
       "recovered": 6
@@ -79862,6 +81458,18 @@ let world_data =
       "confirmed": 15641,
       "deaths": 14,
       "recovered": 1188
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 16169,
+      "deaths": 15,
+      "recovered": 1244
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 17101,
+      "deaths": 16,
+      "recovered": 1268
     }
   ],
   "Slovakia": [
@@ -80458,6 +82066,18 @@ let world_data =
       "confirmed": 1391,
       "deaths": 22,
       "recovered": 484
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1396,
+      "deaths": 23,
+      "recovered": 524
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1403,
+      "deaths": 23,
+      "recovered": 558
     }
   ],
   "Slovenia": [
@@ -81054,6 +82674,18 @@ let world_data =
       "confirmed": 1418,
       "deaths": 89,
       "recovered": 230
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1429,
+      "deaths": 91,
+      "recovered": 233
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1434,
+      "deaths": 92,
+      "recovered": 233
     }
   ],
   "Somalia": [
@@ -81650,6 +83282,18 @@ let world_data =
       "confirmed": 582,
       "deaths": 28,
       "recovered": 20
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 601,
+      "deaths": 28,
+      "recovered": 31
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 601,
+      "deaths": 28,
+      "recovered": 31
     }
   ],
   "South Africa": [
@@ -82246,6 +83890,18 @@ let world_data =
       "confirmed": 5350,
       "deaths": 103,
       "recovered": 2073
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 5647,
+      "deaths": 103,
+      "recovered": 2073
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 5951,
+      "deaths": 116,
+      "recovered": 2382
     }
   ],
   "Spain": [
@@ -82842,6 +84498,18 @@ let world_data =
       "confirmed": 212917,
       "deaths": 24275,
       "recovered": 108947
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 213435,
+      "deaths": 24543,
+      "recovered": 112050
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 213435,
+      "deaths": 24543,
+      "recovered": 112050
     }
   ],
   "Sri Lanka": [
@@ -83438,6 +85106,18 @@ let world_data =
       "confirmed": 649,
       "deaths": 7,
       "recovered": 136
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 663,
+      "deaths": 7,
+      "recovered": 154
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 690,
+      "deaths": 7,
+      "recovered": 162
     }
   ],
   "Sudan": [
@@ -84034,6 +85714,18 @@ let world_data =
       "confirmed": 375,
       "deaths": 28,
       "recovered": 32
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 442,
+      "deaths": 31,
+      "recovered": 39
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 533,
+      "deaths": 36,
+      "recovered": 46
     }
   ],
   "Suriname": [
@@ -84627,6 +86319,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 10,
+      "deaths": 1,
+      "recovered": 8
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 10,
+      "deaths": 1,
+      "recovered": 8
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 10,
       "deaths": 1,
       "recovered": 8
@@ -85226,6 +86930,18 @@ let world_data =
       "confirmed": 20302,
       "deaths": 2462,
       "recovered": 1005
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 21092,
+      "deaths": 2586,
+      "recovered": 1005
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 21520,
+      "deaths": 2653,
+      "recovered": 1005
     }
   ],
   "Switzerland": [
@@ -85822,6 +87538,18 @@ let world_data =
       "confirmed": 29407,
       "deaths": 1716,
       "recovered": 22600
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 29586,
+      "deaths": 1737,
+      "recovered": 23400
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 29705,
+      "deaths": 1754,
+      "recovered": 23900
     }
   ],
   "Taiwan*": [
@@ -86418,6 +88146,18 @@ let world_data =
       "confirmed": 429,
       "deaths": 6,
       "recovered": 311
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 429,
+      "deaths": 6,
+      "recovered": 322
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 429,
+      "deaths": 6,
+      "recovered": 324
     }
   ],
   "Tanzania": [
@@ -87011,6 +88751,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 480,
+      "deaths": 16,
+      "recovered": 167
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 480,
+      "deaths": 16,
+      "recovered": 167
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 480,
       "deaths": 16,
       "recovered": 167
@@ -87610,6 +89362,18 @@ let world_data =
       "confirmed": 2947,
       "deaths": 54,
       "recovered": 2665
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2954,
+      "deaths": 54,
+      "recovered": 2684
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2960,
+      "deaths": 54,
+      "recovered": 2719
     }
   ],
   "Togo": [
@@ -88206,6 +89970,18 @@ let world_data =
       "confirmed": 109,
       "deaths": 7,
       "recovered": 64
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 116,
+      "deaths": 9,
+      "recovered": 65
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 123,
+      "deaths": 9,
+      "recovered": 66
     }
   ],
   "Trinidad and Tobago": [
@@ -88802,6 +90578,18 @@ let world_data =
       "confirmed": 116,
       "deaths": 8,
       "recovered": 71
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 116,
+      "deaths": 8,
+      "recovered": 72
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 116,
+      "deaths": 8,
+      "recovered": 83
     }
   ],
   "Tunisia": [
@@ -89398,6 +91186,18 @@ let world_data =
       "confirmed": 980,
       "deaths": 40,
       "recovered": 294
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 994,
+      "deaths": 41,
+      "recovered": 305
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 998,
+      "deaths": 41,
+      "recovered": 316
     }
   ],
   "Turkey": [
@@ -89994,6 +91794,18 @@ let world_data =
       "confirmed": 117589,
       "deaths": 3081,
       "recovered": 44040
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 120204,
+      "deaths": 3174,
+      "recovered": 48886
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 122392,
+      "deaths": 3258,
+      "recovered": 53808
     }
   ],
   "Uganda": [
@@ -90588,6 +92400,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 81,
+      "deaths": 0,
+      "recovered": 52
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 83,
+      "deaths": 0,
+      "recovered": 52
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 85,
       "deaths": 0,
       "recovered": 52
     }
@@ -91186,6 +93010,18 @@ let world_data =
       "confirmed": 9866,
       "deaths": 250,
       "recovered": 1103
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 10406,
+      "deaths": 261,
+      "recovered": 1238
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 10861,
+      "deaths": 272,
+      "recovered": 1413
     }
   ],
   "United Arab Emirates": [
@@ -91782,6 +93618,18 @@ let world_data =
       "confirmed": 11929,
       "deaths": 98,
       "recovered": 2329
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 12481,
+      "deaths": 105,
+      "recovered": 2429
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 13038,
+      "deaths": 111,
+      "recovered": 2543
     }
   ],
   "United Kingdom": [
@@ -92378,6 +94226,18 @@ let world_data =
       "confirmed": 166441,
       "deaths": 26166,
       "recovered": 857
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 172481,
+      "deaths": 26842,
+      "recovered": 859
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 178685,
+      "deaths": 27583,
+      "recovered": 892
     }
   ],
   "Uruguay": [
@@ -92974,6 +94834,18 @@ let world_data =
       "confirmed": 630,
       "deaths": 15,
       "recovered": 412
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 643,
+      "deaths": 17,
+      "recovered": 417
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 648,
+      "deaths": 17,
+      "recovered": 435
     }
   ],
   "US": [
@@ -93570,6 +95442,18 @@ let world_data =
       "confirmed": 1039909,
       "deaths": 60967,
       "recovered": 120720
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1069424,
+      "deaths": 62996,
+      "recovered": 153947
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1103461,
+      "deaths": 64943,
+      "recovered": 164015
     }
   ],
   "Uzbekistan": [
@@ -94166,6 +96050,18 @@ let world_data =
       "confirmed": 2002,
       "deaths": 9,
       "recovered": 1096
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 2039,
+      "deaths": 9,
+      "recovered": 1133
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 2086,
+      "deaths": 9,
+      "recovered": 1212
     }
   ],
   "Venezuela": [
@@ -94762,6 +96658,18 @@ let world_data =
       "confirmed": 331,
       "deaths": 10,
       "recovered": 142
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 333,
+      "deaths": 16,
+      "recovered": 142
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 335,
+      "deaths": 10,
+      "recovered": 148
     }
   ],
   "Vietnam": [
@@ -95358,6 +97266,18 @@ let world_data =
       "confirmed": 270,
       "deaths": 0,
       "recovered": 222
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 270,
+      "deaths": 0,
+      "recovered": 219
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 270,
+      "deaths": 0,
+      "recovered": 219
     }
   ],
   "Zambia": [
@@ -95954,6 +97874,18 @@ let world_data =
       "confirmed": 97,
       "deaths": 3,
       "recovered": 54
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 106,
+      "deaths": 3,
+      "recovered": 55
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 109,
+      "deaths": 3,
+      "recovered": 74
     }
   ],
   "Zimbabwe": [
@@ -96550,6 +98482,18 @@ let world_data =
       "confirmed": 32,
       "deaths": 4,
       "recovered": 5
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 40,
+      "deaths": 4,
+      "recovered": 5
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 40,
+      "deaths": 4,
+      "recovered": 5
     }
   ],
   "Dominica": [
@@ -97143,6 +99087,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 16,
+      "deaths": 0,
+      "recovered": 13
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 16,
+      "deaths": 0,
+      "recovered": 13
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 16,
       "deaths": 0,
       "recovered": 13
@@ -97742,6 +99698,18 @@ let world_data =
       "confirmed": 20,
       "deaths": 0,
       "recovered": 13
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 20,
+      "deaths": 0,
+      "recovered": 13
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 20,
+      "deaths": 0,
+      "recovered": 13
     }
   ],
   "Mozambique": [
@@ -98336,6 +100304,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 76,
+      "deaths": 0,
+      "recovered": 12
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 76,
+      "deaths": 0,
+      "recovered": 12
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 79,
       "deaths": 0,
       "recovered": 12
     }
@@ -98934,6 +100914,18 @@ let world_data =
       "confirmed": 43,
       "deaths": 3,
       "recovered": 21
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 43,
+      "deaths": 3,
+      "recovered": 21
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 44,
+      "deaths": 3,
+      "recovered": 27
     }
   ],
   "Timor-Leste": [
@@ -99530,6 +101522,18 @@ let world_data =
       "confirmed": 24,
       "deaths": 0,
       "recovered": 6
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 24,
+      "deaths": 0,
+      "recovered": 16
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 24,
+      "deaths": 0,
+      "recovered": 16
     }
   ],
   "Belize": [
@@ -100126,6 +102130,18 @@ let world_data =
       "confirmed": 18,
       "deaths": 2,
       "recovered": 9
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 18,
+      "deaths": 2,
+      "recovered": 9
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 18,
+      "deaths": 2,
+      "recovered": 13
     }
   ],
   "Laos": [
@@ -100722,6 +102738,18 @@ let world_data =
       "confirmed": 19,
       "deaths": 0,
       "recovered": 7
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 19,
+      "deaths": 0,
+      "recovered": 8
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 19,
+      "deaths": 0,
+      "recovered": 8
     }
   ],
   "Libya": [
@@ -101317,6 +103345,18 @@ let world_data =
       "date": "2020-4-29",
       "confirmed": 61,
       "deaths": 2,
+      "recovered": 18
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 61,
+      "deaths": 3,
+      "recovered": 18
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 63,
+      "deaths": 3,
       "recovered": 18
     }
   ],
@@ -101914,6 +103954,18 @@ let world_data =
       "confirmed": 344,
       "deaths": 2,
       "recovered": 71
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 344,
+      "deaths": 2,
+      "recovered": 76
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 353,
+      "deaths": 2,
+      "recovered": 76
     }
   ],
   "Guinea-Bissau": [
@@ -102508,6 +104560,18 @@ let world_data =
     {
       "date": "2020-4-29",
       "confirmed": 205,
+      "deaths": 1,
+      "recovered": 19
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 205,
+      "deaths": 1,
+      "recovered": 19
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 257,
       "deaths": 1,
       "recovered": 19
     }
@@ -103106,6 +105170,18 @@ let world_data =
       "confirmed": 482,
       "deaths": 25,
       "recovered": 129
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 490,
+      "deaths": 26,
+      "recovered": 135
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 508,
+      "deaths": 26,
+      "recovered": 196
     }
   ],
   "Saint Kitts and Nevis": [
@@ -103702,6 +105778,18 @@ let world_data =
       "confirmed": 15,
       "deaths": 0,
       "recovered": 4
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 15,
+      "deaths": 0,
+      "recovered": 6
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 15,
+      "deaths": 0,
+      "recovered": 8
     }
   ],
   "Kosovo": [
@@ -104235,69 +106323,81 @@ let world_data =
     },
     {
       "date": "2020-4-19",
-      "confirmed": 510,
+      "confirmed": 561,
       "deaths": 12,
-      "recovered": 93
+      "recovered": 102
     },
     {
       "date": "2020-4-20",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 598,
+      "deaths": 15,
+      "recovered": 123
     },
     {
       "date": "2020-4-21",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 604,
+      "deaths": 18,
+      "recovered": 128
     },
     {
       "date": "2020-4-22",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 630,
+      "deaths": 18,
+      "recovered": 138
     },
     {
       "date": "2020-4-23",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 669,
+      "deaths": 19,
+      "recovered": 159
     },
     {
       "date": "2020-4-24",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 703,
+      "deaths": 19,
+      "recovered": 162
     },
     {
       "date": "2020-4-25",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 731,
+      "deaths": 20,
+      "recovered": 165
     },
     {
       "date": "2020-4-26",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 763,
+      "deaths": 21,
+      "recovered": 166
     },
     {
       "date": "2020-4-27",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 780,
+      "deaths": 22,
+      "recovered": 201
     },
     {
       "date": "2020-4-28",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 790,
+      "deaths": 22,
+      "recovered": 232
     },
     {
       "date": "2020-4-29",
-      "confirmed": 510,
-      "deaths": 12,
-      "recovered": 93
+      "confirmed": 799,
+      "deaths": 22,
+      "recovered": 249
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 806,
+      "deaths": 22,
+      "recovered": 271
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 806,
+      "deaths": 22,
+      "recovered": 271
     }
   ],
   "Burma": [
@@ -104894,6 +106994,18 @@ let world_data =
       "confirmed": 150,
       "deaths": 6,
       "recovered": 27
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 151,
+      "deaths": 6,
+      "recovered": 27
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 151,
+      "deaths": 6,
+      "recovered": 31
     }
   ],
   "MS Zaandam": [
@@ -105487,6 +107599,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 9,
+      "deaths": 2,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 9,
+      "deaths": 2,
+      "recovered": 0
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 9,
       "deaths": 2,
       "recovered": 0
@@ -106086,6 +108210,18 @@ let world_data =
       "confirmed": 23,
       "deaths": 1,
       "recovered": 5
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 23,
+      "deaths": 1,
+      "recovered": 5
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 23,
+      "deaths": 1,
+      "recovered": 8
     }
   ],
   "Burundi": [
@@ -106679,6 +108815,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 11,
+      "deaths": 1,
+      "recovered": 4
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 11,
+      "deaths": 1,
+      "recovered": 4
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 11,
       "deaths": 1,
       "recovered": 4
@@ -107278,6 +109426,18 @@ let world_data =
       "confirmed": 104,
       "deaths": 4,
       "recovered": 12
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 124,
+      "deaths": 7,
+      "recovered": 21
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 136,
+      "deaths": 7,
+      "recovered": 21
     }
   ],
   "Malawi": [
@@ -107874,6 +110034,18 @@ let world_data =
       "confirmed": 36,
       "deaths": 3,
       "recovered": 7
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 37,
+      "deaths": 3,
+      "recovered": 7
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 37,
+      "deaths": 3,
+      "recovered": 9
     }
   ],
   "South Sudan": [
@@ -108470,6 +110642,18 @@ let world_data =
       "confirmed": 34,
       "deaths": 0,
       "recovered": 0
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 35,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 45,
+      "deaths": 0,
+      "recovered": 0
     }
   ],
   "Western Sahara": [
@@ -109063,6 +111247,18 @@ let world_data =
     },
     {
       "date": "2020-4-29",
+      "confirmed": 6,
+      "deaths": 0,
+      "recovered": 5
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6,
+      "deaths": 0,
+      "recovered": 5
+    },
+    {
+      "date": "2020-5-1",
       "confirmed": 6,
       "deaths": 0,
       "recovered": 5
@@ -109662,6 +111858,18 @@ let world_data =
       "confirmed": 8,
       "deaths": 0,
       "recovered": 4
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 14,
+      "deaths": 0,
+      "recovered": 4
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 16,
+      "deaths": 1,
+      "recovered": 4
     }
   ],
   "Yemen": [
@@ -110258,6 +112466,1234 @@ let world_data =
       "confirmed": 6,
       "deaths": 0,
       "recovered": 1
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 6,
+      "deaths": 2,
+      "recovered": 1
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 7,
+      "deaths": 2,
+      "recovered": 1
+    }
+  ],
+  "Comoros": [
+    {
+      "date": "2020-1-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-30",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-31",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-1",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-2",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-3",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-4",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-5",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-6",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-7",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-8",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-9",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-10",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-11",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-12",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-13",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-14",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-15",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-16",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-17",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-18",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-19",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-20",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-21",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-1",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-2",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-3",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-4",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-5",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-6",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-7",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-8",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-9",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-10",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-11",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-12",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-13",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-14",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-15",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-16",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-17",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-18",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-19",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-20",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-21",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-30",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-31",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-1",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-2",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-3",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-4",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-5",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-6",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-7",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-8",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-9",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-10",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-11",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-12",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-13",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-14",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-15",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-16",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-17",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-18",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-19",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-20",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-21",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 1,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 1,
+      "deaths": 0,
+      "recovered": 0
+    }
+  ],
+  "Tajikistan": [
+    {
+      "date": "2020-1-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-30",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-1-31",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-1",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-2",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-3",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-4",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-5",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-6",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-7",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-8",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-9",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-10",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-11",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-12",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-13",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-14",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-15",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-16",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-17",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-18",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-19",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-20",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-21",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-2-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-1",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-2",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-3",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-4",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-5",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-6",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-7",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-8",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-9",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-10",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-11",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-12",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-13",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-14",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-15",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-16",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-17",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-18",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-19",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-20",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-21",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-30",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-3-31",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-1",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-2",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-3",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-4",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-5",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-6",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-7",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-8",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-9",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-10",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-11",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-12",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-13",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-14",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-15",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-16",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-17",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-18",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-19",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-20",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-21",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-22",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-23",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-24",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-25",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-26",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-27",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-28",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-29",
+      "confirmed": 0,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-4-30",
+      "confirmed": 15,
+      "deaths": 0,
+      "recovered": 0
+    },
+    {
+      "date": "2020-5-1",
+      "confirmed": 15,
+      "deaths": 0,
+      "recovered": 0
     }
   ]
 }
