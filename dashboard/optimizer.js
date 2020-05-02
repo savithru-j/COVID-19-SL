@@ -427,8 +427,8 @@ function getCurrentPredictionError()
       active_pred += data_predicted.cat_diag[j][i].y;
 
     let err_a = active_pred - active_true;
-    let err_r = data_predicted.cat_diag[5][i].y - data_real.categorized[i].y[1]; //recovered
-    let err_d = data_predicted.cat_diag[6][i].y - data_real.categorized[i].y[2]; //fatal
+    let err_r = data_predicted.cat_diag[2][i].y - data_real.categorized[i].y[1]; //recovered
+    let err_d = data_predicted.cat_diag[3][i].y - data_real.categorized[i].y[2]; //fatal
 
     res_sq += err_a*err_a + err_r*err_r + err_d*err_d;
     res0_sq += active_true*active_true + data_real.categorized[i].y[1]*data_real.categorized[i].y[1] + data_real.categorized[i].y[2]*data_real.categorized[i].y[2];

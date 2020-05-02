@@ -46,15 +46,21 @@
 
         <div class="control">
           <div style="text-align:left; padding-bottom:3px;">Select country:</div>
-          <select id="dropdown_country" style="min-height:30px" onchange="changeCountry(this.value)"></select>
+          <select id="dropdown_country" class="small" style="min-height:30px;" onchange="changeCountry(this.value)"></select>
+        </div>
+
+        <div class="control">
+          <input type="radio" id="radio_data_diagnosed" name="plot_data_type" value="cat_diag" checked onchange="refreshMainChartData()">
+          <label for="radio_data_diagnosed">Show diagnosed cases</label>
+        </div>
+
+        <div style="margin-top:5px;">
+          <input type="radio" id="radio_data_sum" name="plot_data_type" value="cat_sum" onchange="refreshMainChartData()">
+          <label for="radio_data_sum">Show all cases</label>
         </div>
 
         <div class="control">
           <input type="checkbox" id="check_log_y" onchange="setLogYAxis(this.checked)">Log-scale y-axis</input>
-        </div>
-
-        <div class="control">
-          <input type="checkbox" id="check_only_diagnosed" onchange="toggleDatasets()">Only show diagnosed cases</input>
         </div>
 
         <div class="control">
@@ -75,7 +81,12 @@
         </div>
 
         <div class="control full">
-            <input class"control" type="range" style="width: 90%;" id="slider_param_error" onmousemove="updateParameters()" min=0 max=100 step=0.5></input>
+            <input class"control" type="range" style="width: 90%;" id="slider_param_CFR" onmousemove="updateParameters()" min=0 max=5 step=0.1></input>
+            <div class="small">Case fatality rate (CFR): <span id="slider_param_CFR_value"></span>%</div>
+        </div>
+
+        <div class="control full">
+            <input class"control" type="range" style="width: 90%;" id="slider_param_error" onmousemove="updateParameters()" min=0 max=20 step=0.5></input>
             <div class="small">Uncertainty in parameters: <span id="slider_param_error_value"></span>%</div>
         </div>
 
@@ -164,7 +175,18 @@
         <div>
           <!-- <center> -->
             <div>Select a parameter to edit on graph:</div>
-            <div class="control">
+            <select id="dropdown_parameter" class="small" style="min-height:30px; margin-top:5px;" onchange="changeControlChartParameter(this.value)">
+              <option value="b1N">Transmission rate $$\beta$$₁</option>
+              <option value="b2N">Transmission rate $$\beta$$₂</option>
+              <option value="b3N">Transmission rate $$\beta$$₃</option>
+              <option value="ce">Daily diagnosis fraction $$c$$ₑ</option>
+              <option value="c0">Daily diagnosis fraction $$c$$₀</option>
+              <option value="c1">Daily diagnosis fraction $$c$$₁</option>
+              <option value="c2">Daily diagnosis fraction $$c$$₂</option>
+              <option value="c3">Daily diagnosis fraction $$c$$₃</option>
+            </select>
+
+            <!-- <div class="control">
               <input type="radio" id="radio_beta1" name="control_chart_param" value="b1N" checked onchange="changeControlChartParameter(this.value)">
               <label for="radio_beta1" style="padding-right:10px;">
                 <span class="tooltip">Transmission rate \(\beta_1\)
@@ -192,30 +214,35 @@
             </div>
 
             <div style="margin-top:5px;">
-              <input type="radio" id="radio_c" name="control_chart_param" value="diag_frac" onchange="changeControlChartParameter(this.value)">
+              <input type="radio" id="radio_c" name="control_chart_param" value="c1" onchange="changeControlChartParameter(this.value)">
               <label for="radio_c">
                 <span class="tooltip">Reported fraction \(c\)
                   <span class="tiny tooltiptext">Fraction of mildly infected cases that are reported</span>
                 </span>
               </label>
-            </div>
+            </div> -->
 
             <button type="button" class="control small" id="btn_reset_params" onclick="resetParameters()">Reset parameters</button>
         </div>
 
       </div>
       <div class="column" style="width:80%;">
-        <div class="small" style="color:grey;">
-          <span style="padding-left:4em;">
+        <div class="small clearfix" style="color:grey;">
+          <div class="column" style="width:15%; padding-left:4em;">
             <span class="tooltip">R0 value:
               <span class="tiny tooltiptext">Basic reproduction number</span>
             </span>&nbsp;<span id="R0_value">0.0</span>
-          </span>
-          <span style="float:right;">
-            <span class="tooltip">Prediction error:
-              <span class="tiny tooltiptext">This is an estimate of the error between the predicted data and the real data. Smaller error values indicate a better fit.</span>
-            </span>&nbsp;<span id="prediction_error">0.0</span>
-          </span>
+          </div>
+          <div class="column" id="control_chart_title" style="width:70%; text-align:center;">
+            Transmission rate of unreported exposed, asymptomatic, or mildly-infected individuals
+          </div>
+          <div class="column" style="width:15%;">
+            <span style="float:right;">
+              <span class="tooltip">Prediction error:
+                <span class="tiny tooltiptext">This is an estimate of the error between the predicted data and the real data. Smaller error values indicate a better fit.</span>
+              </span>&nbsp;<span id="prediction_error">0.0</span>
+            </span>
+          </div>
         </div>
         <canvas class="full" id="control_chart_canvas"></canvas>
         <!-- <br> -->
