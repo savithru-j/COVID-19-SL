@@ -5,6 +5,8 @@
 'use strict';
 
 var block_size = 3;
+var tail_block_size = 5;
+const opt_array_names = ["b1N", "c1"]; //["b1N", "ce", "c0", "c1"];
 
 function getParameterVector(params)
 {
@@ -13,41 +15,28 @@ function getParameterVector(params)
 
 function getParameterVector1(params)
 {
-  let Nt = params.T_hist - 1;
+  let Nt = params.T_hist - tail_block_size;
   let num_blocks = Math.ceil(Nt / block_size);
 
   let param_vec = [];
 
-  for (let i = 0; i < num_blocks; ++i)
+  for (let name of opt_array_names)
   {
-    let sum = 0;
-    let cnt = 0;
-    for (let j = 0; j < block_size; ++j)
+    for (let i = 0; i < num_blocks; ++i)
     {
-      let ind = block_size*i + j;
-      if (ind < Nt)
+      let sum = 0;
+      let cnt = 0;
+      for (let j = 0; j < block_size; ++j)
       {
-        sum += params.b1N[ind];
-        cnt++;
+        let ind = block_size*i + j;
+        if (ind < Nt)
+        {
+          sum += params[name][ind];
+          cnt++;
+        }
       }
+      param_vec.push(sum/cnt);
     }
-    param_vec.push(sum/cnt);
-  }
-
-  for (let i = 0; i < num_blocks; ++i)
-  {
-    let sum = 0;
-    let cnt = 0;
-    for (let j = 0; j < block_size; ++j)
-    {
-      let ind = block_size*i + j;
-      if (ind < Nt)
-      {
-        sum += params.diag_frac[ind];
-        cnt++;
-      }
-    }
-    param_vec.push(sum/cnt);
   }
 
   // param_vec.push(params.E0_0);
@@ -64,74 +53,46 @@ function getParameterVector1(params)
   return param_vec;
 }
 
-function getParameterVector2(params)
-{
-  const T_end = params.T_hist - 1;
-  const Nseg = 12;
-
-  const n = (Nseg-1) + 2*Nseg;
-  let param_vec = new Array(n).fill(0);
-
-  let ind_vec = [0];
-  for (let i = 0; i < Nseg; ++i)
-    ind_vec.push(Math.round(T_end*(i+1)/Nseg));
-
-  for (let i = 0; i < Nseg; ++i)
-  {
-    let jmin = ind_vec[i];
-    let jmax = ind_vec[i+1];
-
-    if (i < Nseg-1)
-      param_vec[i] = jmax;
-
-    let avg_b1N = 0, avg_c = 0;
-    for (let j = jmin; j < jmax; ++j)
-    {
-      avg_b1N += params.b1N[j];
-      avg_c += params.diag_frac[j];
-    }
-    avg_b1N /= (jmax - jmin);
-    avg_c /= (jmax - jmin);
-
-    param_vec[Nseg-1 + i] = avg_b1N;
-    param_vec[Nseg-1 + Nseg + i] = avg_c;
-  }
-
-  return param_vec;
-}
-
 function updateParameterStructFromVector(params, param_vec, extrapolate_to_end = false)
 {
   updateParameterStructFromVector1(params, param_vec);
 
   if (extrapolate_to_end)
   {
-    let i_last = (params.T_hist - 1);
-    for (let i = i_last; i < params.b1N.length; ++i)
-      params.b1N[i] = params.b1N[i_last-1];
-
-    for (let i = i_last; i < params.diag_frac.length; ++i)
-      params.diag_frac[i] = params.diag_frac[i_last-1];
+    let i_last = (params.T_hist - tail_block_size);
+    for (let name of opt_array_names)
+    {
+      let val = params[name][i_last-1];
+      for (let i = i_last; i < params[name].length; ++i)
+        params[name][i] = val;
+    }
   }
 }
 
 function updateParameterStructFromVector1(params, param_vec)
 {
-  let Nt = params.T_hist - 1;
+  let Nt = params.T_hist - tail_block_size;
   let num_blocks = Math.ceil(Nt / block_size);
 
-  for (let i = 0; i < num_blocks; ++i)
+  for (let k = 0; k < opt_array_names.length; ++k)
   {
-    for (let j = 0; j < block_size; ++j)
+    for (let i = 0; i < num_blocks; ++i)
     {
-      let ind = block_size*i + j;
-      if (ind < Nt)
+      for (let j = 0; j < block_size; ++j)
       {
-        params.b1N[ind] = param_vec[i];
-        params.diag_frac[ind] = param_vec[num_blocks + i]
+        let ind = block_size*i + j;
+        if (ind < Nt)
+        {
+          params[opt_array_names[k]][ind] = param_vec[k*num_blocks + i];
+        }
       }
     }
+
+    for (let i = Nt; i < params.T_hist; ++i)
+      params[opt_array_names[k]][i] = params[opt_array_names[k]][Nt-1];
   }
+
+
   // let off = 2*num_blocks;
   // params.E0_0 = param_vec[off];
   // params.a0   = param_vec[off + 1];
@@ -146,29 +107,6 @@ function updateParameterStructFromVector1(params, param_vec)
   // params.mu   = param_vec[off + 10];
 }
 
-function updateParameterStructFromVector2(params, param_vec)
-{
-  const T_end = params.T_hist - 1;
-  const Nseg = 12;
-
-  let ind_vec = [0];
-  for (let i = 0; i < Nseg-1; ++i)
-    ind_vec.push(Math.round(param_vec[i]));
-  ind_vec.push(T_end);
-
-  for (let i = 0; i < Nseg; ++i)
-  {
-    let jmin = ind_vec[i];
-    let jmax = ind_vec[i+1];
-
-    for (let j = jmin; j < jmax; ++j)
-    {
-      params.b1N[j] = param_vec[Nseg-1 + i];
-      params.diag_frac[j] = param_vec[Nseg-1 + Nseg + i];
-    }
-  }
-}
-
 function getParameterBounds(params)
 {
   return getParameterBounds1(params);
@@ -176,16 +114,17 @@ function getParameterBounds(params)
 
 function getParameterBounds1(params)
 {
-  let Nt = params.T_hist - 1;
+  let Nt = params.T_hist - tail_block_size;
   let num_blocks = Math.ceil(Nt / block_size);
 
   let bounds = [];
 
   for (let i = 0; i < num_blocks; ++i)
-    bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //b1N
+    bounds.push({min: 0.0, max: 1.0, step: 1e-4}); //b1N
 
-  for (let i = 0; i < num_blocks; ++i)
-    bounds.push({min: 0.05, max: 1.0, step: 1e-4}); //c
+  for (let rep = 0; rep < opt_array_names.length-1; ++rep)
+    for (let i = 0; i < num_blocks; ++i)
+      bounds.push({min: 0.0, max: 1.0, step: 1e-4}); //ce, c0, c1
 
   // bounds.push({min: 1.0, max: 5.0, step: 1e-4}); //E0_0
   // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
@@ -226,15 +165,15 @@ function getLimitingStepSize(param_vec, dparam_vec, bounds)
 
 function randomizeParameterVector(param_vec, bounds)
 {
-  // for (let i = 0; i < param_vec.length; ++i)
-  //   param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
-
   for (let i = 0; i < param_vec.length; ++i)
-  {
-    let step = 2*Math.random() - 1.0;
-    param_vec[i] += 0.1*step*(bounds[i].max - bounds[i].min);
-    param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
-  }
+    param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
+
+  // for (let i = 0; i < param_vec.length; ++i)
+  // {
+  //   let step = 2*Math.random() - 1.0;
+  //   param_vec[i] += 0.1*step*(bounds[i].max - bounds[i].min);
+  //   param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
+  // }
 }
 
 function optimizeParameters()
@@ -243,9 +182,10 @@ function optimizeParameters()
   let params = sim_params;
   params.T_pred = 0;
 
-  //let params = initializeSimulationParameters(data_real.total.length, 0); //no prediction
   let param_vec = getParameterVector(params);
   let param_bounds = getParameterBounds(params);
+
+  updateParameterStructFromVector(params, param_vec);
 
   const n = param_vec.length;
   let dparam_vec = new Array(n).fill(0);
@@ -254,14 +194,17 @@ function optimizeParameters()
   copyVector(param_vec, param_vec_opt);
 
   //Calculate initial cost
+  params.cost_scaling = 1.0;
   let cost = getOptCost(params);
+  params.cost_scaling = 1.0/cost;
+  cost *= params.cost_scaling;
   let cost_init = cost;
 
   let cost_rel_opt = 1.0;
   const cost_reduction_tol = 1e-8;
-  const min_eta = 1e-10;
+  const min_eta = 1e-6;
 
-  for (let pass = 0; pass < 50; ++pass)
+  for (let pass = 0; pass < 10; ++pass)
   {
     cost = getOptCost(params);
 
@@ -269,25 +212,28 @@ function optimizeParameters()
     let stalled_iter = 0;
 
     let iter = 0;
-    for (iter = 0; iter < 1000; ++iter)
+    for (iter = 0; iter < 500; ++iter)
     {
       let cost_grad = getOptCostGradient(params, param_bounds);
+
+      trimUpdateVector(param_vec, cost_grad, param_bounds)
 
       //reset params struct, since Jacobian calc can change values slightly (by machine tolerances)
       updateParameterStructFromVector(params, param_vec);
 
-      //Update parameter vector using gradient descent:
-      //u(n+1) = u(n) - eta * (dR/du)^T R(u(n))
-      for (let i = 0; i < n; ++i)
-        param_vec0[i] = param_vec[i];
+      let eta0 = getLimitingStepSize(param_vec, cost_grad, param_bounds);
+      console.log("  Iter " + iter + ": " + cost.toExponential(4) + ", eta0: " + eta0.toExponential(4));
 
-      let eta = 0.5*getLimitingStepSize(param_vec0, cost_grad, param_bounds);
-
-      console.log("  Iter " + iter + ": " + cost.toExponential(4) + ", eta: " + eta.toExponential(4));
-
-      if (eta < min_eta)
+      if (eta0 < 1e-13)
         break;
 
+      for (let i = 0; i < n; ++i)
+      {
+        param_vec0[i] = param_vec[i];
+        cost_grad[i] *= eta0;
+      }
+
+      let eta = 1.0;
       while (eta >= min_eta)
       {
         //Update param_vec based on (scaled) update vector
@@ -299,7 +245,7 @@ function optimizeParameters()
 
         //Evaluate new cost
         let cost_new = getOptCost(params);
-        // console.log("  " + eta + ", " + getL2Norm(res));
+        // console.log("  " + eta.toExponential(4) + ", " + cost_new.toExponential(4));
 
         if (cost_new < cost)
         {
@@ -360,20 +306,20 @@ function getOptCost(params)
   for (let i = 1; i < sol_hist.length; ++i)
   {
     //Error in number of active patients
-    let num_active_pred = sol_hist[i][4] + sol_hist[i][6] + sol_hist[i][7] + sol_hist[i][8]; //I1d + I1q + I2 + I3
+    let num_active_pred = sol_hist[i].getNumActiveDiagnosed();
     let num_active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
 
     // let cA = (num_active_true == 0) ? 1 : (1.0/num_active_true);
     // let cR = (data_real.categorized[i].y[1] == 0) ? 1 : (1.0/data_real.categorized[i].y[1]);
     // let cF = (data_real.categorized[i].y[2] == 0) ? 1 : (1.0/data_real.categorized[i].y[2]);
 
-    let err_active = (num_active_pred - num_active_true);
-    let err_recov = (sol_hist[i][9] - data_real.categorized[i].y[1]);
-    let err_fatal = (sol_hist[i][11] - data_real.categorized[i].y[2]);
-    let err_AR = (num_active_pred + sol_hist[i][9] - num_active_true - data_real.categorized[i].y[1]);
+    let err_active = (sol_hist[i].getNumActiveDiagnosed() - num_active_true);
+    let err_recov = (sol_hist[i].getNumRecoveredDiagnosed() - data_real.categorized[i].y[1]);
+    let err_fatal = (sol_hist[i].getNumFatalDiagnosed() - data_real.categorized[i].y[2]);
+    // let err_AR = (num_active_pred + sol_hist[i][9] - num_active_true - data_real.categorized[i].y[1]);
 
-    // cost += wA*err_active*err_active + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
-    cost += wA*err_AR*err_AR + wF*err_fatal*err_fatal;
+    cost += wA*err_active*err_active + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
+    // cost += wA*err_AR*err_AR + wF*err_fatal*err_fatal;
   }
 
   if (isNaN(cost))
@@ -381,7 +327,7 @@ function getOptCost(params)
     console.log("getOptimizationCost: found NaN");
     return {};
   }
-  return cost;
+  return cost * params.cost_scaling;
 }
 
 function getOptCostGradient(params, param_bounds)
@@ -416,15 +362,28 @@ function getOptCostGradient(params, param_bounds)
   return grad;
 }
 
+function trimUpdateVector(param_vec, dparam_vec, param_bounds)
+{
+  const n = dparam_vec.length;
+  for (let i = 0; i < n; ++i)
+  {
+    if ( (param_vec[i] == param_bounds[i].min && -dparam_vec[i] < 0.0) ||
+         (param_vec[i] == param_bounds[i].max && -dparam_vec[i] > 0.0) )
+         dparam_vec[i] = 0.0;
+  }
+}
+
 function getCurrentPredictionError()
 {
+  const active_ind = [0, 1, 4, 5, 6]; //E1d, I0d, I1d, I2d, I3d
+
   let res_sq = 0.0, res0_sq = 0.0;
   for (let i = 1; i < data_real.total.length; ++i)
   {
     let active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
     let active_pred = 0;
-    for (let j = 0; j < data_predicted.cat_diag.length; ++j)
-      active_pred += data_predicted.cat_diag[j][i].y;
+    for (let j = 0; j < active_ind.length; ++j)
+      active_pred += data_predicted.cat_diag[active_ind[j]][i].y;
 
     let err_a = active_pred - active_true;
     let err_r = data_predicted.cat_diag[2][i].y - data_real.categorized[i].y[1]; //recovered

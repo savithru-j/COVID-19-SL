@@ -48,6 +48,11 @@ class Population
          + Math.round(this.I2[1]) + Math.round(this.I3[1]) + Math.round(this.R[1]) + Math.round(this.D[1]);
   }
 
+  //Used by optimization: return values without rounding!
+  getNumActiveDiagnosed() { return this.E1[1] + this.I0[1] + this.I1[1] + this.I2[1] + this.I3[1]; }
+  getNumRecoveredDiagnosed() { return this.R[1]; }
+  getNumFatalDiagnosed() { return this.D[1]; }
+
   evolve(params, t)
   {
     const b1 = params.b1N[t] / this.N;
