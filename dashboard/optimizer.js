@@ -5,8 +5,8 @@
 'use strict';
 
 var block_size = 3;
-var tail_block_size = 5;
-const opt_array_names = ["b1N", "c1"]; //["b1N", "ce", "c0", "c1"];
+var tail_block_size = 10;
+const opt_array_names = ["b1N", "c1"];
 
 function getParameterVector(params)
 {
@@ -39,17 +39,17 @@ function getParameterVector1(params)
     }
   }
 
-  // param_vec.push(params.E0_0);
-  // param_vec.push(params.a0);
-  // param_vec.push(params.a10);
-  // param_vec.push(params.a11);
-  // param_vec.push(params.g0);
-  // param_vec.push(params.g1);
-  // param_vec.push(params.p1);
-  // param_vec.push(params.g2);
-  // param_vec.push(params.p2);
-  // param_vec.push(params.g3);
-  // param_vec.push(params.mu);
+  param_vec.push(params.E0_0);
+  param_vec.push(params.a0);
+  param_vec.push(params.a10);
+  param_vec.push(params.a11);
+  param_vec.push(params.g0);
+  param_vec.push(params.g1);
+  param_vec.push(params.p1);
+  param_vec.push(params.g2);
+  param_vec.push(params.p2);
+  param_vec.push(params.g3);
+  param_vec.push(params.mu);
   return param_vec;
 }
 
@@ -93,18 +93,18 @@ function updateParameterStructFromVector1(params, param_vec)
   }
 
 
-  // let off = 2*num_blocks;
-  // params.E0_0 = param_vec[off];
-  // params.a0   = param_vec[off + 1];
-  // params.a10  = param_vec[off + 2];
-  // params.a11  = param_vec[off + 3];
-  // params.g0   = param_vec[off + 4];
-  // params.g1   = param_vec[off + 5];
-  // params.p1   = param_vec[off + 6];
-  // params.g2   = param_vec[off + 7];
-  // params.p2   = param_vec[off + 8];
-  // params.g3   = param_vec[off + 9];
-  // params.mu   = param_vec[off + 10];
+  let off = opt_array_names.length*num_blocks;
+  params.E0_0 = param_vec[off];
+  params.a0   = param_vec[off + 1];
+  params.a10  = param_vec[off + 2];
+  params.a11  = param_vec[off + 3];
+  params.g0   = param_vec[off + 4];
+  params.g1   = param_vec[off + 5];
+  params.p1   = param_vec[off + 6];
+  params.g2   = param_vec[off + 7];
+  params.p2   = param_vec[off + 8];
+  params.g3   = param_vec[off + 9];
+  params.mu   = param_vec[off + 10];
 }
 
 function getParameterBounds(params)
@@ -126,17 +126,17 @@ function getParameterBounds1(params)
     for (let i = 0; i < num_blocks; ++i)
       bounds.push({min: 0.0, max: 1.0, step: 1e-4}); //ce, c0, c1
 
-  // bounds.push({min: 1.0, max: 5.0, step: 1e-4}); //E0_0
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a10
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a11
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g0
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g1
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //p1
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g2
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //p2
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //g3
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //mu
+  bounds.push({min: 1.0, max: 100.0, step: 1e-4}); //E0_0
+  bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
+  bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a10
+  bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a11
+  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g0
+  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g1
+  bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p1
+  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g2
+  bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p2
+  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g3
+  bounds.push({min: 0.0, max: 0.1, step: 1e-5}); //mu
 
   return bounds;
 }
@@ -165,15 +165,15 @@ function getLimitingStepSize(param_vec, dparam_vec, bounds)
 
 function randomizeParameterVector(param_vec, bounds)
 {
-  for (let i = 0; i < param_vec.length; ++i)
-    param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
-
   // for (let i = 0; i < param_vec.length; ++i)
-  // {
-  //   let step = 2*Math.random() - 1.0;
-  //   param_vec[i] += 0.1*step*(bounds[i].max - bounds[i].min);
-  //   param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
-  // }
+  //   param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
+
+  for (let i = 0; i < param_vec.length; ++i)
+  {
+    let step = 2*Math.random() - 1.0;
+    param_vec[i] += 0.1*step*(bounds[i].max - bounds[i].min);
+    param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
+  }
 }
 
 function optimizeParameters()
@@ -309,13 +309,26 @@ function getOptCost(params)
     let num_active_pred = sol_hist[i].getNumActiveDiagnosed();
     let num_active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
 
+    let num_recov_pred = sol_hist[i].getNumRecoveredDiagnosed();
+    let num_recov_true = data_real.categorized[i].y[1];
+
+    let num_fatal_pred = sol_hist[i].getNumFatalDiagnosed();
+    let num_fatal_true = data_real.categorized[i].y[2];
+
+    num_active_pred = (num_active_pred > 0) ? Math.log(num_active_pred) : 0;
+    num_active_true = (num_active_true > 0) ? Math.log(num_active_true) : 0;
+    num_recov_pred = (num_recov_pred > 0) ? Math.log(num_recov_pred) : 0;
+    num_recov_true = (num_recov_true > 0) ? Math.log(num_recov_true) : 0;
+    num_fatal_pred = (num_fatal_pred > 0) ? Math.log(num_fatal_pred) : 0;
+    num_fatal_true = (num_fatal_true > 0) ? Math.log(num_fatal_true) : 0;
+
     // let cA = (num_active_true == 0) ? 1 : (1.0/num_active_true);
     // let cR = (data_real.categorized[i].y[1] == 0) ? 1 : (1.0/data_real.categorized[i].y[1]);
     // let cF = (data_real.categorized[i].y[2] == 0) ? 1 : (1.0/data_real.categorized[i].y[2]);
 
-    let err_active = (sol_hist[i].getNumActiveDiagnosed() - num_active_true);
-    let err_recov = (sol_hist[i].getNumRecoveredDiagnosed() - data_real.categorized[i].y[1]);
-    let err_fatal = (sol_hist[i].getNumFatalDiagnosed() - data_real.categorized[i].y[2]);
+    let err_active = (num_active_pred - num_active_true);
+    let err_recov = (num_recov_pred - num_recov_true);
+    let err_fatal = (num_fatal_pred - num_fatal_true);
     // let err_AR = (num_active_pred + sol_hist[i][9] - num_active_true - data_real.categorized[i].y[1]);
 
     cost += wA*err_active*err_active + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
