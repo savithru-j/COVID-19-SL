@@ -31,17 +31,33 @@ var data_start_dates = {
     "Sri Lanka": "2020-03-01"
 };
 
+// var custom_country_data = {
+//   "Sri Lanka" : {
+//       t_start: [0, 13, 34, 41], //indices to start dates of any interventions
+//       b1N: [0.85, 0.14, 0.2, 0.3], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(4).fill(0), //values of b2N
+//       b3N: new Array(4).fill(0),
+//       ce: new Array(4).fill(0),
+//       c0: new Array(4).fill(0),
+//       c1: new Array(4).fill(0.1),
+//       c2: new Array(4).fill(1.0),
+//       c3: new Array(4).fill(1.0),
+//       E0_0: 5, //no. of individuals exposed at start
+//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
+//   }
+// }
+
 var custom_country_data = {
   "Sri Lanka" : {
-      t_start: [0, 13, 34, 41], //indices to start dates of any interventions
-      b1N: [0.85, 0.14, 0.2, 0.3], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(4).fill(0), //values of b2N
-      b3N: new Array(4).fill(0),
-      ce: new Array(4).fill(0),
-      c0: new Array(4).fill(0),
-      c1: new Array(4).fill(0.1),
-      c2: new Array(4).fill(1.0),
-      c3: new Array(4).fill(1.0),
+      t_start: [0, 13, 17, 25, 37, 39, 41, 45, 47, 53, 55], //indices to start dates of any interventions
+      b1N: [0.787, 0.379, 0.093, 0.045, 0.045, 0.045, 0.470, 0.730, 0.730, 0.472, 0.472], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(11).fill(0), //values of b2N
+      b3N: new Array(11).fill(0),
+      ce: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.114, 0.508],
+      c0: [0, 0, 0, 0, 0, 0, 0, 0.658, 0.801, 0.801, 0.801],
+      c1: [0.029, 0.029, 0.029, 0.029, 0.465, 0.884, 0.884, 0.973, 0.973, 0.973, 0.973],
+      c2: new Array(11).fill(1.0),
+      c3: new Array(11).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -447,7 +463,7 @@ function setupChart()
           order: 4
         },
 				{
-					label: 'Actual diagnosed',
+					label: 'Actual reported',
 					backgroundColor: 'rgba(1,1,1,0)',
 					borderColor: '#3465a4',
 					type: 'line',
@@ -457,7 +473,7 @@ function setupChart()
 					order: 0
 				},
 				{
-					label: 'Predicted diagnosed',
+					label: 'Predicted reported',
 					backgroundColor: 'rgba(1,1,1,0)',
 					borderColor: '#729fcf',
 					borderDash: [5, 5],
