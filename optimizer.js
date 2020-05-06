@@ -5,8 +5,8 @@
 'use strict';
 
 var block_size = 3;
-var tail_block_size = 10;
-const opt_array_names = ["b1N", "c1"];
+var tail_block_size = 2;
+const opt_array_names = ["b1N","c0","c1"];
 
 function getParameterVector(params)
 {
@@ -39,17 +39,17 @@ function getParameterVector1(params)
     }
   }
 
-  param_vec.push(params.E0_0);
-  param_vec.push(params.a0);
-  param_vec.push(params.a10);
-  param_vec.push(params.a11);
-  param_vec.push(params.g0);
-  param_vec.push(params.g1);
-  param_vec.push(params.p1);
-  param_vec.push(params.g2);
-  param_vec.push(params.p2);
-  param_vec.push(params.g3);
-  param_vec.push(params.mu);
+  // param_vec.push(params.E0_0);
+  // param_vec.push(params.a0);
+  // param_vec.push(params.a10);
+  // param_vec.push(params.a11);
+  // param_vec.push(params.g0);
+  // param_vec.push(params.g1);
+  // param_vec.push(params.p1);
+  // param_vec.push(params.g2);
+  // param_vec.push(params.p2);
+  // param_vec.push(params.g3);
+  // param_vec.push(params.mu);
   return param_vec;
 }
 
@@ -93,18 +93,18 @@ function updateParameterStructFromVector1(params, param_vec)
   }
 
 
-  let off = opt_array_names.length*num_blocks;
-  params.E0_0 = param_vec[off];
-  params.a0   = param_vec[off + 1];
-  params.a10  = param_vec[off + 2];
-  params.a11  = param_vec[off + 3];
-  params.g0   = param_vec[off + 4];
-  params.g1   = param_vec[off + 5];
-  params.p1   = param_vec[off + 6];
-  params.g2   = param_vec[off + 7];
-  params.p2   = param_vec[off + 8];
-  params.g3   = param_vec[off + 9];
-  params.mu   = param_vec[off + 10];
+  // let off = opt_array_names.length*num_blocks;
+  // params.E0_0 = param_vec[off];
+  // params.a0   = param_vec[off + 1];
+  // params.a10  = param_vec[off + 2];
+  // params.a11  = param_vec[off + 3];
+  // params.g0   = param_vec[off + 4];
+  // params.g1   = param_vec[off + 5];
+  // params.p1   = param_vec[off + 6];
+  // params.g2   = param_vec[off + 7];
+  // params.p2   = param_vec[off + 8];
+  // params.g3   = param_vec[off + 9];
+  // params.mu   = param_vec[off + 10];
 }
 
 function getParameterBounds(params)
@@ -126,17 +126,17 @@ function getParameterBounds1(params)
     for (let i = 0; i < num_blocks; ++i)
       bounds.push({min: 0.0, max: 1.0, step: 1e-4}); //ce, c0, c1
 
-  bounds.push({min: 1.0, max: 100.0, step: 1e-4}); //E0_0
-  bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
-  bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a10
-  bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a11
-  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g0
-  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g1
-  bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p1
-  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g2
-  bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p2
-  bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g3
-  bounds.push({min: 0.0, max: 0.1, step: 1e-5}); //mu
+  // bounds.push({min: 1.0, max: 100.0, step: 1e-4}); //E0_0
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a10
+  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a11
+  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g0
+  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g1
+  // bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p1
+  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g2
+  // bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p2
+  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g3
+  // bounds.push({min: 0.0, max: 0.1, step: 1e-5}); //mu
 
   return bounds;
 }
@@ -195,16 +195,17 @@ function optimizeParameters()
 
   //Calculate initial cost
   params.cost_scaling = 1.0;
-  let cost = getOptCost(params);
+  let cost = getOptCost(params, false);
   params.cost_scaling = 1.0/cost;
-  cost *= params.cost_scaling;
+  // cost *= params.cost_scaling;
+  cost = getOptCost(params);
   let cost_init = cost;
 
   let cost_rel_opt = 1.0;
   const cost_reduction_tol = 1e-8;
   const min_eta = 1e-6;
 
-  for (let pass = 0; pass < 10; ++pass)
+  for (let pass = 0; pass < 5; ++pass)
   {
     cost = getOptCost(params);
 
@@ -212,7 +213,7 @@ function optimizeParameters()
     let stalled_iter = 0;
 
     let iter = 0;
-    for (iter = 0; iter < 500; ++iter)
+    for (iter = 0; iter < 100; ++iter)
     {
       let cost_grad = getOptCostGradient(params, param_bounds);
 
@@ -222,7 +223,7 @@ function optimizeParameters()
       updateParameterStructFromVector(params, param_vec);
 
       let eta0 = getLimitingStepSize(param_vec, cost_grad, param_bounds);
-      console.log("  Iter " + iter + ": " + cost.toExponential(4) + ", eta0: " + eta0.toExponential(4));
+      console.log("  Iter " + iter + ": " + (cost/cost_init).toExponential(4) + ", eta0: " + eta0.toExponential(4));
 
       if (eta0 < 1e-13)
         break;
@@ -296,7 +297,7 @@ function optimizeParameters()
   return params;
 }
 
-function getOptCost(params)
+function getOptCost(params, regularize = true)
 {
   let sol_hist = predictModel(params);
 
@@ -335,12 +336,23 @@ function getOptCost(params)
     // cost += wA*err_AR*err_AR + wF*err_fatal*err_fatal;
   }
 
+  cost *= params.cost_scaling;
+
+  //Add regularization terms
+  if (regularize)
+  {
+    let reg_b1 = getL1Norm(getDCT(params.b1N, sol_hist.length));
+    let reg_c0 = getL1Norm(getDCT(params.c0, sol_hist.length));
+    let reg_c1 = getL1Norm(getDCT(params.c1, sol_hist.length));
+    cost += 0.1*reg_b1 + 0.1*reg_c0 + 0.1*reg_c1;
+  }
+
   if (isNaN(cost))
   {
     console.log("getOptimizationCost: found NaN");
     return {};
   }
-  return cost * params.cost_scaling;
+  return cost;
 }
 
 function getOptCostGradient(params, param_bounds)
@@ -408,6 +420,14 @@ function getCurrentPredictionError()
   return Math.sqrt(res_sq/res0_sq);
 }
 
+function getL1Norm(vec)
+{
+  let norm = 0.0;
+  for (let i = 0; i < vec.length; ++i)
+    norm += Math.abs(vec[i]);
+  return norm;
+}
+
 function getL2Norm(vec)
 {
   let norm = 0.0;
@@ -420,4 +440,26 @@ function copyVector(vfrom, vto)
 {
   for (let i = 0; i < vfrom.length; ++i)
     vto[i] = vfrom[i];
+}
+
+//Computes the discrete cosine transform of the vector x
+function getDCT(x, N = x.length)
+{
+  const sqrtN = Math.sqrt(N);
+  const sqrt2 = Math.sqrt(2.0);
+
+  let X = new Array(N).fill(0);
+
+  for (let k = 0; k < N; ++k)
+  {
+    let sum = 0.0;
+    for (let n = 0; n < N; ++n)
+      sum += x[n]*Math.cos(Math.PI*(n + 0.5)*k / N);
+
+    if (k == 0)
+      X[k] = sum / sqrtN;
+    else
+      X[k] = sum / sqrtN * sqrt2;
+  }
+  return X;
 }
