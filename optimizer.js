@@ -4,7 +4,7 @@
 
 'use strict';
 
-var block_size = 3;
+var block_size = 1;
 var tail_block_size = 2;
 const opt_array_names = ["b1N","c0","c1"];
 
@@ -178,6 +178,8 @@ function randomizeParameterVector(param_vec, bounds)
 
 function optimizeParameters()
 {
+  var t0 = performance.now();
+
   let T_pred_orig = sim_params.T_pred;
   let params = sim_params;
   params.T_pred = 0;
@@ -193,6 +195,9 @@ function optimizeParameters()
   let param_vec_opt = new Array(n).fill(0);
   copyVector(param_vec, param_vec_opt);
 
+  //Compute and store regularization matrix
+  params.reg_matrix = getDCTMatrix(params.T_hist);
+
   //Calculate initial cost
   params.cost_scaling = 1.0;
   let cost = getOptCost(params, false);
@@ -205,7 +210,7 @@ function optimizeParameters()
   const cost_reduction_tol = 1e-8;
   const min_eta = 1e-6;
 
-  for (let pass = 0; pass < 5; ++pass)
+  for (let pass = 0; pass < 10; ++pass)
   {
     cost = getOptCost(params);
 
@@ -291,7 +296,8 @@ function optimizeParameters()
   // limitParameters(sim_params, true);
   sim_params.T_pred = T_pred_orig;
 
-  // console.log("Final gamma: " + params.g0 + ", " + params.g1);
+  var t1 = performance.now()
+  console.log("Optimization time: " + ((t1 - t0)/1000).toFixed(3) + "s.")
 
   updateParameters(true);
   return params;
@@ -316,12 +322,12 @@ function getOptCost(params, regularize = true)
     let num_fatal_pred = sol_hist[i].getNumFatalDiagnosed();
     let num_fatal_true = data_real.categorized[i].y[2];
 
-    num_active_pred = (num_active_pred > 0) ? Math.log(num_active_pred) : 0;
-    num_active_true = (num_active_true > 0) ? Math.log(num_active_true) : 0;
-    num_recov_pred = (num_recov_pred > 0) ? Math.log(num_recov_pred) : 0;
-    num_recov_true = (num_recov_true > 0) ? Math.log(num_recov_true) : 0;
-    num_fatal_pred = (num_fatal_pred > 0) ? Math.log(num_fatal_pred) : 0;
-    num_fatal_true = (num_fatal_true > 0) ? Math.log(num_fatal_true) : 0;
+    // num_active_pred = (num_active_pred > 0) ? Math.log(num_active_pred) : 0;
+    // num_active_true = (num_active_true > 0) ? Math.log(num_active_true) : 0;
+    // num_recov_pred = (num_recov_pred > 0) ? Math.log(num_recov_pred) : 0;
+    // num_recov_true = (num_recov_true > 0) ? Math.log(num_recov_true) : 0;
+    // num_fatal_pred = (num_fatal_pred > 0) ? Math.log(num_fatal_pred) : 0;
+    // num_fatal_true = (num_fatal_true > 0) ? Math.log(num_fatal_true) : 0;
 
     // let cA = (num_active_true == 0) ? 1 : (1.0/num_active_true);
     // let cR = (data_real.categorized[i].y[1] == 0) ? 1 : (1.0/data_real.categorized[i].y[1]);
@@ -341,9 +347,13 @@ function getOptCost(params, regularize = true)
   //Add regularization terms
   if (regularize)
   {
-    let reg_b1 = getL1Norm(getDCT(params.b1N, sol_hist.length));
-    let reg_c0 = getL1Norm(getDCT(params.c0, sol_hist.length));
-    let reg_c1 = getL1Norm(getDCT(params.c1, sol_hist.length));
+    let reg_b1 = getL1Norm(getMatVecProd(params.reg_matrix, params.b1N, sol_hist.length));
+    let reg_c0 = getL1Norm(getMatVecProd(params.reg_matrix, params.c0, sol_hist.length));
+    let reg_c1 = getL1Norm(getMatVecProd(params.reg_matrix, params.c1, sol_hist.length));
+
+    // let reg_b1 = getL1Norm(getDCT(params.b1N, sol_hist.length));
+    // let reg_c0 = getL1Norm(getDCT(params.c0, sol_hist.length));
+    // let reg_c1 = getL1Norm(getDCT(params.c1, sol_hist.length));
     cost += 0.1*reg_b1 + 0.1*reg_c0 + 0.1*reg_c1;
   }
 
@@ -442,6 +452,25 @@ function copyVector(vfrom, vto)
     vto[i] = vfrom[i];
 }
 
+function getDCTMatrix(N)
+{
+  const scale_row0 = 1.0 / Math.sqrt(N);
+  const scale_rowk = Math.sqrt(2.0) / Math.sqrt(N);
+
+  let A = new Array(N*N).fill(0);
+
+  //A(0,:)
+  for (let n = 0; n < N; ++n)
+    A[n] = scale_row0; //row k = 0
+
+  //A(1:N,:)
+  for (let k = 1; k < N; ++k)
+    for (let n = 0; n < N; ++n)
+      A[k*N + n] = Math.cos(Math.PI*(n + 0.5)*k / N) * scale_rowk;
+
+  return A;
+}
+
 //Computes the discrete cosine transform of the vector x
 function getDCT(x, N = x.length)
 {
@@ -462,4 +491,31 @@ function getDCT(x, N = x.length)
       X[k] = sum / sqrtN * sqrt2;
   }
   return X;
+}
+
+function getHaarMatrix(N)
+{
+  let num_levels = Math.floor(Math.log2(N));
+  if (Math.pow(2,num_levels) != N)
+    throw("N is not a power of 2!");
+
+  let A = new Array(N*N).fill(0);
+
+  for (let l = 0; l < num_levels; ++l)
+  {
+
+  }
+
+  return A;
+}
+
+function getMatVecProd(A, x, n = x.length)
+{
+  const m = A.length / n;
+  let y = new Array(m).fill(0);
+
+  for (let i = 0; i < m; ++i)
+    for (let j = 0; j < n; ++j)
+      y[i] += A[i*n + j] * x[j];
+  return y;
 }
