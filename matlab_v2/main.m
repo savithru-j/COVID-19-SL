@@ -114,11 +114,3 @@ saveas(gca,sprintf('./_Figs/paramteres.jpeg'));
 
 
 
-
-
-
-
-
-
-
-
