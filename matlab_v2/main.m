@@ -2,9 +2,9 @@
 % added git
 % main.m
 
-clear
+clear all
 close all
-% clc
+clc
 
 %% read country data
 [country_names, country_data] = read_country_data('world_data.js');
@@ -23,7 +23,6 @@ gt.active       = gt.confirmed - gt.deaths - gt.recovered;
 gt.tvec         = 1:length(gt.active);
 
 %%
-S_0     = population;
 T.E0    = 3;
 T.E1    = 2;
 T.I0    = 6;
@@ -44,85 +43,80 @@ fr.D    = 0.02/(fr.I3*fr.I2);  % 2% fatalify rate
 fr.R_I3 = 1 - fr.D;   
 
 %%
-rr.E0   = 0;
-rr.E1   = 0;
-rr.I0   = 0.001;
-rr.I1   = 0.2;
-rr.I2   = 1;
-rr.I3   = 1;
-
-t_evolve = gt.tvec(end) + 30;               % [days]
-Beta    = [0.85*ones(1,13), 0.14*ones(1,21), 0.2*ones(1,7), 0.3*ones(1,t_evolve-41)] /S_0;
+S_0     = population;
+t_evolve= gt.tvec(end) + 30;               % [days]
+Beta    = zeros(t_evolve,1);
+Beta(:) = 0.3/S_0;                         % legacy value: [0.85*ones(1,13), 0.14*ones(1,21), 0.2*ones(1,7), 0.3*ones(1,t_evolve-41)] /S_0; 
+c       = zeros(t_evolve,4);
+c(:,1)  = 0;                               % c_I0(t) 
+c(:,2)  = .1;                              % c_I1(t) 
+c(:,3)  = 1;                               % c_I2(t) 
+c(:,4)  = 1;                               % c_I3(t) 
 dt      = 1/24;
 
-SL_population = POPULATION(S_0,T,fr,rr,Beta,dt)
+SL_population = POPULATION(S_0,T,fr,Beta,c,dt)
 SL_population.E0.N = 5;
 evolutions = SL_population.evolve(t_evolve);
-
+% 
 figure(1)
-plot_results(evolutions, gt, t_evolve)
+plot_results(evolutions, gt, t_evolve,dates)
 
-% error
 %% optimizer
-
-rng(2); %set random seed
-
-% init 
-model_population        = POPULATION(S_0,T,fr,rr,Beta,dt)
+rng(2);                                                     %set random seed
+model_population        = POPULATION(S_0,T,fr,Beta,c,dt)    % init 
 model_population.E0.N   = 5;
 
-% optimization functon
-options     = optimoptions('fmincon','MaxIterations',1000,'MaxFunctionEvaluations',2e6);
-x0          = rand(1,length(gt.confirmed)+4);
-x_lb        = [ zeros(1,length(gt.confirmed)) 0  0 1 1];
-x_ub        = [2*ones(1,length(gt.confirmed)) .1 1 1 1];                       % x(end)=c and c E [0,1]
+options     = optimoptions('fmincon',...
+                            'MaxIterations',1000,...
+                            'MaxFunctionEvaluations',2e6,...
+                            'FiniteDifferenceStepSize',0.005,...
+                            'UseParallel',true);
+x0          = rand(length(gt.confirmed),5);
+x_lb        = zeros(size(x0));
+x_ub        = zeros(size(x0));
+x_lb(:,1)   = 0;            % transmission rate
+x_lb(:,2)   = 0;            % c_I0
+x_lb(:,3)   = 0;            % c_I1
+x_lb(:,4)   = 1;            % c_I2
+x_lb(:,5)   = 1;            % c_I3
+
+x_ub(:,1)   = 2;            % transmission rate
+x_ub(:,2)   = 1;            % c_I0
+x_ub(:,3)   = 1;            % c_I1
+x_ub(:,4)   = 1;            % c_I2
+x_ub(:,5)   = 1;            % c_I3
+err_type    = 'L2_type1';   % {'log_type1','log_type2','L2_type1','L2_type2'}
 
 % wl regularizer
-optF        = @(x) SEIR_objective_wlReg(x,model_population,gt)
-tic
-[x,fval]    = fmincon(optF,x0,[],[],[],[],x_lb,x_ub,[],options);
-toc
+optF        = @(x) SEIR_objective_wlReg(x,model_population,gt,err_type)  % optimization functon
+[x,fval]    = fmincon(optF,x0(:),[],[],[],[],x_lb(:),x_ub(:),[],options);
 [fval evolutions]  = optF(x);
 
-%%
+%% Figures
 figure(2)
 t_evolve = length(evolutions.S)
-plot_results(evolutions, gt, t_evolve)
+plot_results(evolutions, gt, t_evolve,dates)
+saveas(gca,sprintf('./_Figs/fit.jpeg'));
 
 figure(3)
-plot(x)
-
-
-
-function plot_results(evolutions, gt, t_evolve)
-
 FS = 14;
-
-tvec = [1:t_evolve]';
-pred_diagnosed = (evolutions.I0(2,:) + evolutions.I1(2,:) + evolutions.I2(2,:) + ...
-                  evolutions.I3(2,:) + evolutions.R(2,:) + evolutions.D(2,:) )';
-
-hold off
-subplot(1,2,1);
-plot(tvec, pred_diagnosed, 'k-x', gt.tvec, gt.confirmed, 'b-x')
+x = reshape(x,t_evolve,5);
+plot(x,'linewidth',2)
 set(gca,'fontsize',FS);
 xlabel('Time [days]');
-ylabel('No. of diagnosed cases');
-
-legend('Predicted','Observed','location','NW');
-
-subplot(1,2,2);
-plot(tvec, sum(evolutions.D,1)', 'k-x', gt.tvec, gt.deaths, 'b-x')
-set(gca,'fontsize',FS);
-xlabel('Time [days]');
-ylabel('No. of fatalities');
-
-legend('Predicted','Observed','location','NW');
-
-
+ylabel('Rate [AU]');
+xticks(1:t_evolve)
+xticklabels(dates)
+xtickangle(90)
+legend('Beta_1','c_{I0}','c_{I1}','c_{I2}','c_{I3}');
 set(gcf, 'Units', 'Inches', 'Position', [1,1,14,6])
+saveas(gca,sprintf('./_Figs/paramteres.jpeg'));
 
-end
+
+
+
+
+
 
 
 

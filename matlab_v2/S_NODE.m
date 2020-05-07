@@ -1,12 +1,12 @@
 
 
-classdef START_NODE < handle
+classdef S_NODE < handle
    properties 
         N               % [AU]      vector with an entry for each layer of the node, [unreported layer, reported layer, quarantined layer]
    end
          
    methods   
-       function obj = START_NODE(N0)
+       function obj = S_NODE(N0)
            obj.N        = N0;       
        end
       

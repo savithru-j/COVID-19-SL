@@ -14,24 +14,34 @@ classdef POPULATION < handle
        S_0      % ~ entire population
        dt       % evolution rate
        Beta_gov % governing transmission ratio vector
-       Beta_eff % effective transmission ratio scaler              
+       Beta_eff % effective transmission ratio scaler  
+       
+       c_I0     % reporting rate c_I0(t) 
+       c_I1     % reporting rate c_I1(t) 
+       c_I2     % reporting rate c_I2(t) 
+       c_I3     % reporting rate c_I3(t) 
    end
          
    methods   
-       function obj = POPULATION(S_0,T,fr,rr,Beta_gov_0,dt)                     % T.XX  = T_duration in the node XX
-         obj.S          = START_NODE(S_0);                                      % fr.XX = fraction flowing in from the previous node(s)
-         obj.E0         = INTERMEDIATE_NODE(0,      T.E0,    fr.E0,  rr.E0);        % rr.XX = reporting_rate    
-         obj.E1         = INTERMEDIATE_NODE(0,      T.E1,    fr.E1,  rr.E1);
-         obj.I0         = INTERMEDIATE_NODE([0 0],  T.I0,    fr.I0,  rr.I0);
-         obj.I1         = INTERMEDIATE_NODE([0 0],  T.I1,    fr.I1,  rr.I1);
-         obj.I2         = INTERMEDIATE_NODE([0 0],  T.I2,    fr.I2,  rr.I2);
-         obj.I3         = INTERMEDIATE_NODE([0 0],  T.I3,    fr.I3,  rr.I3);
+       function obj = POPULATION(S_0,T,fr,Beta_gov,c,dt)                    % T.XX  = T_duration in the node XX
+         obj.S          = S_NODE(S_0);                                  % fr.XX = fraction flowing in from the previous node(s)
+         obj.E0         = INTERMEDIATE_NODE(0,      T.E0,    fr.E0);        % rr.XX = reporting_rate    
+         obj.E1         = INTERMEDIATE_NODE(0,      T.E1,    fr.E1);
+         obj.I0         = INTERMEDIATE_NODE([0 0],  T.I0,    fr.I0);
+         obj.I1         = INTERMEDIATE_NODE([0 0],  T.I1,    fr.I1);
+         obj.I2         = INTERMEDIATE_NODE([0 0],  T.I2,    fr.I2);
+         obj.I3         = INTERMEDIATE_NODE([0 0],  T.I3,    fr.I3);
          obj.R          = R_NODE([0 0],[fr.R_I0 fr.R_I1 fr.R_I2 fr.R_I3]);
          obj.D          = D_NODE([0 0],fr.D);
          
          obj.S_0        = S_0;
          obj.dt         = dt;
-         obj.Beta_gov   = Beta_gov_0;
+         obj.Beta_gov   = Beta_gov;
+         
+         obj.c_I0       = c(:,1);
+         obj.c_I1       = c(:,2);
+         obj.c_I2       = c(:,3);
+         obj.c_I3       = c(:,4);
        end
               
        function reset(self)
@@ -61,10 +71,10 @@ classdef POPULATION < handle
               self.set_Beta_effective(t);
                                           
               for i = self.dt:self.dt:1
-                  self.I0.report(self.dt);
-                  self.I1.report(self.dt);
-                  self.I2.report(self.dt);
-                  self.I3.report(self.dt);
+%                   self.I0.report(self.dt,self.c_I0(t));
+%                   self.I1.report(self.dt,self.c_I1(t));
+%                   self.I2.report(self.dt,self.c_I2(t));
+%                   self.I3.report(self.dt,self.c_I3(t));
 
                   dN_out_S  = self.S.evolve(self.Beta_eff,self.dt);
                   dN_out_E0 = self.E0.evolve( dN_out_S      ,self.dt);
@@ -80,12 +90,11 @@ classdef POPULATION < handle
                                 dN_out_I3);
                   self.D.evolve(dN_out_I3);                                
               end
-%               self.I0.report(1);
-%               self.I1.report(1);
-%               self.I2.report(1);
-%               self.I3.report(1);
+              self.I0.report(1,self.c_I0(t));
+              self.I1.report(1,self.c_I1(t));
+              self.I2.report(1,self.c_I2(t));
+              self.I3.report(1,self.c_I3(t));
 
-              
               
               pop_history.S(t)     = self.S.N;      
               pop_history.E0(t)    = self.E0.N;
@@ -96,6 +105,16 @@ classdef POPULATION < handle
               pop_history.I3(:,t)  = self.I3.N;
               pop_history.R(:,t)   = self.R.N;
               pop_history.D(:,t)   = self.D.N;
+              
+%               disp(round(cat(2,[pop_history.S(t);0],...
+%                          [pop_history.E0(t);0],...
+%                          [pop_history.E1(t);0],...
+%                           pop_history.I0(:,t),...
+%                           pop_history.I1(:,t),...
+%                           pop_history.I2(:,t),...
+%                           pop_history.I3(:,t),...
+%                           pop_history.D(:,t),...
+%                           pop_history.R(:,t))))
           end           
        end       
    end      
