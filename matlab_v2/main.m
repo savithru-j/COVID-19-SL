@@ -71,20 +71,31 @@ options     = optimoptions('fmincon',...
                             'MaxFunctionEvaluations',2e6,...
                             'FiniteDifferenceStepSize',0.005,...
                             'UseParallel',true);
-x0          = rand(length(gt.confirmed),5);
+x0          = rand(length(gt.confirmed),6);
 x_lb        = zeros(size(x0));
 x_ub        = zeros(size(x0));
 x_lb(:,1)   = 0;            % transmission rate
+x_ub(:,1)   = 2; 
 x_lb(:,2)   = 0;            % c_I0
+x_ub(:,2)   = 1;
 x_lb(:,3)   = 0;            % c_I1
+x_ub(:,3)   = 1;
 x_lb(:,4)   = 1;            % c_I2
+x_ub(:,4)   = 1;
 x_lb(:,5)   = 1;            % c_I3
+x_ub(:,5)   = 1;
 
-x_ub(:,1)   = 2;            % transmission rate
-x_ub(:,2)   = 1;            % c_I0
-x_ub(:,3)   = 1;            % c_I1
-x_ub(:,4)   = 1;            % c_I2
-x_ub(:,5)   = 1;            % c_I3
+%                                                                    case fatality ratio
+%                                                          recovery fraction from I2
+%                                                  recovery fraction from I1
+%                                            asymptomatic fraction   
+%              <------time durations-------->                 
+% index        1    2    3    4    5    6    7     8       9         10 
+% typical      3    2    6    6    4    10   0.3   0.8     0.15      0.02 
+% paramter     E0.T E1.T I0.T I1.T I2.T I3.T fr.I0 fr.R_I1 (.)/fr.I2 (.)/(fr.I3*fr.I2)
+x_lb(1:10,6)= [3    2    6    6    4    10   0.3   0.8     0.15      0.0];
+x_ub(1:10,6)= [3    2    30   30   4    10   0.3   0.8     0.15      0.02];
+
 err_type    = 'L2_type1';   % {'log_type1','log_type2','L2_type1','L2_type2'}
 
 % wl regularizer
@@ -96,12 +107,13 @@ optF        = @(x) SEIR_objective_wlReg(x,model_population,gt,err_type)  % optim
 figure(2)
 t_evolve = length(evolutions.S)
 plot_results(evolutions, gt, t_evolve,dates)
-saveas(gca,sprintf('./_Figs/fit.jpeg'));
+%saveas(gca,sprintf('./_Figs/fit.jpeg'));
 
 figure(3)
 FS = 14;
-x = reshape(x,t_evolve,5);
-plot(x,'linewidth',2)
+x = reshape(x,t_evolve,6);
+x(1:10,6)
+plot(x(:,1:5),'linewidth',2)
 set(gca,'fontsize',FS);
 xlabel('Time [days]');
 ylabel('Rate [AU]');
@@ -110,7 +122,7 @@ xticklabels(dates)
 xtickangle(90)
 legend('Beta_1','c_{I0}','c_{I1}','c_{I2}','c_{I3}');
 set(gcf, 'Units', 'Inches', 'Position', [1,1,14,6])
-saveas(gca,sprintf('./_Figs/paramteres.jpeg'));
+%saveas(gca,sprintf('./_Figs/paramteres.jpeg'));
 
 
 
