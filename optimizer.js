@@ -165,15 +165,15 @@ function getLimitingStepSize(param_vec, dparam_vec, bounds)
 
 function randomizeParameterVector(param_vec, bounds)
 {
-  // for (let i = 0; i < param_vec.length; ++i)
-  //   param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
-
   for (let i = 0; i < param_vec.length; ++i)
-  {
-    let step = 2*Math.random() - 1.0;
-    param_vec[i] += 0.1*step*(bounds[i].max - bounds[i].min);
-    param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
-  }
+    param_vec[i] = bounds[i].min + Math.random()*(bounds[i].max - bounds[i].min);
+
+  // for (let i = 0; i < param_vec.length; ++i)
+  // {
+  //   let step = 2*Math.random() - 1.0;
+  //   param_vec[i] += 0.1*step*(bounds[i].max - bounds[i].min);
+  //   param_vec[i] = Math.min(Math.max(param_vec[i], bounds[i].min), bounds[i].max);
+  // }
 }
 
 function optimizeParameters()
@@ -196,7 +196,9 @@ function optimizeParameters()
   copyVector(param_vec, param_vec_opt);
 
   //Compute and store regularization matrix
-  params.reg_matrix = getDCTMatrix(params.T_hist);
+  // params.reg_matrix = getDCTMatrix(params.T_hist);
+  params.N_haar = Math.pow(2.0, Math.round(Math.log2(params.T_hist)));
+  params.reg_matrix = getHaarMatrix(params.N_haar);
 
   //Calculate initial cost
   params.cost_scaling = 1.0;
@@ -207,10 +209,10 @@ function optimizeParameters()
   let cost_init = cost;
 
   let cost_rel_opt = 1.0;
-  const cost_reduction_tol = 1e-8;
+  const cost_reduction_tol = 1e-4;
   const min_eta = 1e-6;
 
-  for (let pass = 0; pass < 10; ++pass)
+  for (let pass = 0; pass < 5; ++pass)
   {
     cost = getOptCost(params);
 
@@ -309,18 +311,22 @@ function getOptCost(params, regularize = true)
 
   let wA = 1.0, wR = 1.0, wF = 1.0;
 
-  let cost = 0.0;
+
+  let cost = 0.0, cost0 = 0.0;
   for (let i = 1; i < sol_hist.length; ++i)
   {
     //Error in number of active patients
     let num_active_pred = sol_hist[i].getNumActiveDiagnosed();
-    let num_active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
+    // let num_active_true = data_real.categorized[i].y[0] - data_real.categorized[i].y[1] - data_real.categorized[i].y[2];
 
     let num_recov_pred = sol_hist[i].getNumRecoveredDiagnosed();
-    let num_recov_true = data_real.categorized[i].y[1];
+    // let num_recov_true = data_real.categorized[i].y[1];
 
     let num_fatal_pred = sol_hist[i].getNumFatalDiagnosed();
     let num_fatal_true = data_real.categorized[i].y[2];
+
+    let num_total_pred = num_active_pred + num_recov_pred + num_fatal_pred;
+    let num_total_true = data_real.categorized[i].y[0];
 
     // num_active_pred = (num_active_pred > 0) ? Math.log(num_active_pred) : 0;
     // num_active_true = (num_active_true > 0) ? Math.log(num_active_true) : 0;
@@ -328,33 +334,39 @@ function getOptCost(params, regularize = true)
     // num_recov_true = (num_recov_true > 0) ? Math.log(num_recov_true) : 0;
     // num_fatal_pred = (num_fatal_pred > 0) ? Math.log(num_fatal_pred) : 0;
     // num_fatal_true = (num_fatal_true > 0) ? Math.log(num_fatal_true) : 0;
+    // num_total_pred = (num_total_pred > 0) ? Math.log(num_total_pred) : 0;
+    // num_total_true = (num_total_true > 0) ? Math.log(num_total_true) : 0;
 
     // let cA = (num_active_true == 0) ? 1 : (1.0/num_active_true);
     // let cR = (data_real.categorized[i].y[1] == 0) ? 1 : (1.0/data_real.categorized[i].y[1]);
     // let cF = (data_real.categorized[i].y[2] == 0) ? 1 : (1.0/data_real.categorized[i].y[2]);
 
-    let err_active = (num_active_pred - num_active_true);
-    let err_recov = (num_recov_pred - num_recov_true);
+    // let err_active = (num_active_pred - num_active_true);
+    // let err_recov = (num_recov_pred - num_recov_true);
     let err_fatal = (num_fatal_pred - num_fatal_true);
-    // let err_AR = (num_active_pred + sol_hist[i][9] - num_active_true - data_real.categorized[i].y[1]);
+    let err_total = (num_total_pred - num_total_true);
 
-    cost += wA*err_active*err_active + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
-    // cost += wA*err_AR*err_AR + wF*err_fatal*err_fatal;
+    // cost += wA*err_active*err_active + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
+    cost += wA*err_total*err_total + wF*err_fatal*err_fatal;
+    cost0 += num_total_true*num_total_true;
   }
 
   cost *= params.cost_scaling;
+  // cost /= cost0;
 
   //Add regularization terms
   if (regularize)
   {
-    let reg_b1 = getL1Norm(getMatVecProd(params.reg_matrix, params.b1N, sol_hist.length));
-    let reg_c0 = getL1Norm(getMatVecProd(params.reg_matrix, params.c0, sol_hist.length));
-    let reg_c1 = getL1Norm(getMatVecProd(params.reg_matrix, params.c1, sol_hist.length));
+    let N = params.N_haar; //sol_hist.length
+    let reg_b1 = getL1Norm(getMatVecProd(params.reg_matrix, params.b1N, N));
+    let reg_c0 = getL1Norm(getMatVecProd(params.reg_matrix, params.c0, N));
+    let reg_c1 = getL1Norm(getMatVecProd(params.reg_matrix, params.c1, N));
 
     // let reg_b1 = getL1Norm(getDCT(params.b1N, sol_hist.length));
     // let reg_c0 = getL1Norm(getDCT(params.c0, sol_hist.length));
     // let reg_c1 = getL1Norm(getDCT(params.c1, sol_hist.length));
-    cost += 0.1*reg_b1 + 0.1*reg_c0 + 0.1*reg_c1;
+    const wgt = 1e-1;
+    cost += wgt*reg_b1 + wgt*reg_c0 + wgt*reg_c1;
   }
 
   if (isNaN(cost))
@@ -500,10 +512,25 @@ function getHaarMatrix(N)
     throw("N is not a power of 2!");
 
   let A = new Array(N*N).fill(0);
+  const inv_sqrtN = 1.0 / Math.sqrt(N);
 
-  for (let l = 0; l < num_levels; ++l)
+  for (let j = 0; j < N; ++j)
+    A[j] = inv_sqrtN;
+
+  for (let k = 1; k < N; ++k)
   {
-
+    let p = Math.floor(Math.log(k) / Math.log(2.0));
+    let k1 = Math.pow(2.0, p);
+    let k2 = k1 * 2.0;
+    let q = k - k1;
+    let t1 = N/k1;
+    let t2 = N/k2;
+    let tmp = Math.pow(2.0, p/2.0) * inv_sqrtN;
+    for (let i = 0; i < t2; ++i)
+    {
+      A[N*k + q*t1 + i] = tmp;
+      A[N*k + q*t1 + i + t2] = -tmp;
+    }
   }
 
   return A;
