@@ -7,13 +7,6 @@
 // var date_format = 'DD-MM-YYYY';
 var date_format = 'YYYY-MM-DD';
 
-var population_data = {
-  "Sri Lanka" : 21.44E+6,
-  "Singapore" : 5.61E+6,
-  "US" : 327.2E+6,
-  "United Kingdom" : 66.65E+6,
-}
-
 //Data about any quarantined index individuals in each country (required for Iq category)
 var quarantine_data = {
   "Sri Lanka" : [{t: "2020-03-13", y: 2},
@@ -263,11 +256,23 @@ function getCountryData(country_name)
   }
   else
   {
+    let first_time = true;
     for (let data of data_array)
     {
       let data_t = moment(data.date, date_format);
       if (data.confirmed + data.recovered + data.deaths > 0)
       {
+        if (first_time) //Add buffer days before first confirmed case
+        {
+          for (let i = 5; i > 0; --i)
+          {
+            let t_tmp = data_t.clone().subtract(i, 'days');
+            data_total.push({t: t_tmp, y: 0});
+            data_cat.push({t: t_tmp, y: [0, 0, 0, 0]});
+            data_fatal.push({t: t_tmp, y: 0});
+          }
+          first_time = false;
+        }
         data_total.push({t: data_t, y: data.confirmed});
         data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0]});
         data_fatal.push({t: data_t, y: data.deaths});
@@ -324,11 +329,11 @@ function customizeParametersByCountry(country_name, params)
     params.quarantine_input[i] = data_real.categorized[i].y[3];
 
   //Update population
-  let N = population_data[country_name];
+  let N = world_population[country_name];
   if (N)
     params.population = N;
   else
-    console.log("Population data not found!");
+    console.log("Population data not found for " + country_name + "!");
 }
 
 function formatNumber(num) {
