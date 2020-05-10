@@ -1005,8 +1005,16 @@ function initializeSimulationParameters(hist_length, pred_length)
     c1: new Array(total_length).fill(default_controls.c1),              //fraction of mild patients diagnosed daily
     c2: new Array(total_length).fill(default_controls.c2),              //fraction of severe patients diagnosed daily
     c3: new Array(total_length).fill(default_controls.c3),              //fraction of critical patients diagnosed daily
-    CFR: default_controls.CFR,                                          //case fatality ratio
+    T_incub0: 3,                                                        //periods [days]
+    T_incub1: 2,
+    T_asympt: 6,
+    T_mild  : 6,
+    T_severe: 4,
+    T_icu   : 10,
     f: 0.3,                                                             //exposed to asymptomatic probability
+    frac_recover_I1: 0.80,                                              //fraction of cases that recover from mild-infected stage I1
+    frac_recover_I2: 0.75,                                              //fraction of cases that recover from severe-infected stage I2
+    frac_recover_I3: 0.60,                                              //fraction of cases that recover from critical-infected stage I3
     population: 1E7,                                                    //population of country
     E0_0: 5,                                                            //number of non-infectious exposed individuals at start
     Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
@@ -1022,37 +1030,30 @@ function initializeSimulationParameters(hist_length, pred_length)
 
 function setRateParameters(params)
 {
-  //Periods [days]
-  const T_incub0 = 3;
-  const T_incub1 = 2;
-  const T_asympt = 6;
-  const T_mild   = 6;
-  const T_severe = 4;
-  const T_icu    = 10;
-
   //Probabilities
   const prob_E0_E1 = 1;  //non-infectious exposed to infectious exposed
-  const prob_E1_I0 = params.f / prob_E0_E1;  //exposed to asymptomatic
+  const prob_E1_I0 = params.f;  //exposed to asymptomatic
   const prob_E1_I1 = 1 - prob_E1_I0;  //exposed to mild
   const prob_I0_R  = 1;
-  const prob_I1_R  = 0.8;  //mild to recovered
+  const prob_I1_R  = params.frac_recover_I1;  //mild to recovered //0.8
   const prob_I1_I2 = 1 - prob_I1_R; //mild to severe  //0.2
-  const prob_I2_R  = 0.15/(prob_I1_I2); //severe to recovered  //0.75
+  const prob_I2_R  = params.frac_recover_I2; //severe to recovered  //0.75
   const prob_I2_I3 = 1 - prob_I2_R; //severe to critical //0.25
-  const prob_I3_D  = params.CFR/(prob_I1_I2*prob_I2_I3); //critical to dead
-  const prob_I3_R  = 1 - prob_I3_D; //critical to recovered
+  const prob_I3_R  = params.frac_recover_I3;; //critical to recovered //0.6
+  const prob_I3_D  = 1 - prob_I3_R; //critical to dead //0.4
+
 
   //set rate parameters [1/day]
-  params.a0  = (1/T_incub0) * prob_E0_E1;
-  params.a10 = (1/T_incub1) * prob_E1_I0;
-  params.a11 = (1/T_incub1) * prob_E1_I1;
-  params.g0  = (1/T_asympt) * prob_I0_R;
-  params.g1  = (1/T_mild)   * prob_I1_R;
-  params.p1  = (1/T_mild)   * prob_I1_I2;
-  params.g2  = (1/T_severe) * prob_I2_R;
-  params.p2  = (1/T_severe) * prob_I2_I3;
-  params.g3  = (1/T_icu)    * prob_I3_R;
-  params.mu  = (1/T_icu)    * prob_I3_D;
+  params.a0  = (1/params.T_incub0) * prob_E0_E1;
+  params.a10 = (1/params.T_incub1) * prob_E1_I0;
+  params.a11 = (1/params.T_incub1) * prob_E1_I1;
+  params.g0  = (1/params.T_asympt) * prob_I0_R;
+  params.g1  = (1/params.T_mild)   * prob_I1_R;
+  params.p1  = (1/params.T_mild)   * prob_I1_I2;
+  params.g2  = (1/params.T_severe) * prob_I2_R;
+  params.p2  = (1/params.T_severe) * prob_I2_I3;
+  params.g3  = (1/params.T_icu)    * prob_I3_R;
+  params.mu  = (1/params.T_icu)    * prob_I3_D;
 }
 
 //Computes the basic reproduction number (R0) from the model parameters
@@ -1085,13 +1086,14 @@ function updateParameters(force = false)
   let slider_param_CFR = document.getElementById("slider_param_CFR");
   if (slider_param_CFR)
   {
-    let val = Number(slider_param_CFR.value) / 100.0;
-    if (sim_params.CFR != val)
+    let CFR = Number(slider_param_CFR.value) / 100.0;
+    let frac_recover_I3 = 1.0 - CFR / ((1.0 - sim_params.frac_recover_I1)*(1.0 - sim_params.frac_recover_I2));
+    if (sim_params.frac_recover_I3 != frac_recover_I3)
     {
-      sim_params.CFR = val;
+      sim_params.frac_recover_I3 = frac_recover_I3;
       setRateParameters(sim_params);
       requires_update = true;
-      document.getElementById("slider_param_CFR_value").innerHTML = (val*100).toFixed(1);
+      document.getElementById("slider_param_CFR_value").innerHTML = (CFR*100).toFixed(1);
     }
   }
 

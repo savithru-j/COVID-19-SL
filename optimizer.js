@@ -39,7 +39,18 @@ function getParameterVector1(params)
     }
   }
 
-  // param_vec.push(params.E0_0);
+  param_vec.push(params.T_incub0);
+  param_vec.push(params.T_incub1);
+  param_vec.push(params.T_asympt);
+  param_vec.push(params.T_mild);
+  param_vec.push(params.T_severe);
+  param_vec.push(params.T_icu);
+  param_vec.push(params.f);
+  param_vec.push(params.frac_recover_I1);
+  param_vec.push(params.frac_recover_I2);
+  param_vec.push(params.frac_recover_I3);
+  param_vec.push(params.E0_0);
+
   // param_vec.push(params.a0);
   // param_vec.push(params.a10);
   // param_vec.push(params.a11);
@@ -67,6 +78,7 @@ function updateParameterStructFromVector(params, param_vec, extrapolate_to_end =
         params[name][i] = val;
     }
   }
+  setRateParameters(params);
 }
 
 function updateParameterStructFromVector1(params, param_vec)
@@ -92,8 +104,19 @@ function updateParameterStructFromVector1(params, param_vec)
       params[opt_array_names[k]][i] = params[opt_array_names[k]][Nt-1];
   }
 
+  let off = opt_array_names.length*num_blocks;
+  params.T_incub0        = param_vec[off];
+  params.T_incub1        = param_vec[off + 1];
+  params.T_asympt        = param_vec[off + 2];
+  params.T_mild          = param_vec[off + 3];
+  params.T_severe        = param_vec[off + 4];
+  params.T_icu           = param_vec[off + 5];
+  params.f               = param_vec[off + 6];
+  params.frac_recover_I1 = param_vec[off + 7];
+  params.frac_recover_I2 = param_vec[off + 8];
+  params.frac_recover_I3 = param_vec[off + 9];
+  params.E0_0            = param_vec[off + 10];
 
-  // let off = opt_array_names.length*num_blocks;
   // params.E0_0 = param_vec[off];
   // params.a0   = param_vec[off + 1];
   // params.a10  = param_vec[off + 2];
@@ -126,17 +149,18 @@ function getParameterBounds1(params)
     for (let i = 0; i < num_blocks; ++i)
       bounds.push({min: 0.0, max: 1.0, step: 1e-4}); //ce, c0, c1
 
-  // bounds.push({min: 1.0, max: 100.0, step: 1e-4}); //E0_0
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a0
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a10
-  // bounds.push({min: 0.1, max: 1.0, step: 1e-4}); //a11
-  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g0
-  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g1
-  // bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p1
-  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g2
-  // bounds.push({min: 0.0, max: 0.1, step: 1e-4}); //p2
-  // bounds.push({min: 0.0, max: 0.3, step: 1e-4}); //g3
-  // bounds.push({min: 0.0, max: 0.1, step: 1e-5}); //mu
+  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //T_incub0
+  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //T_incub1
+  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //T_asympt
+  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //T_mild
+  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //T_severe
+  bounds.push({min: 1.0, max: 10.0, step: 1e-4}); //T_icu
+
+  bounds.push({min: 0.0, max: 1.0, step: 1e-4}); //f
+  bounds.push({min: 0.6, max: 1.0, step: 1e-4}); //frac_recover_I1
+  bounds.push({min: 0.6, max: 1.0, step: 1e-4}); //frac_recover_I2
+  bounds.push({min: 0.6, max: 1.0, step: 1e-4}); //frac_recover_I3
+  bounds.push({min: 1.0, max: 100.0, step: 1e-4}); //E0_0
 
   return bounds;
 }
