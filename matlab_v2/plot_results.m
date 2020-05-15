@@ -3,7 +3,7 @@ function plot_results(evolutions, gt, t_evolve,dates)
 
 FS = 14;
 
-tvec = [1:t_evolve]';
+tvec = [1:t_evolve+1]';
 pred_diagnosed = (evolutions.I0(2,:) + evolutions.I1(2,:) + evolutions.I2(2,:) + ...
                   evolutions.I3(2,:) + evolutions.R(2,:) + evolutions.D(2,:) )';
 

@@ -66,11 +66,24 @@ classdef POPULATION < handle
                       % self.I1.N(2) * self.Beta_gov(day_idx) + ...   % Edited!!
        end
        
-       function pop_history = evolve(self,N_days)           
+       function pop_history = evolve(self,N_days)
+          
+          %Add initial condition to history
+          pop_history.S(1)     = self.S.N;      
+          pop_history.E0(1)    = self.E0.N;
+          pop_history.E1(1)    = self.E1.N;
+          pop_history.I0(:,1)  = self.I0.N;
+          pop_history.I1(:,1)  = self.I1.N;
+          pop_history.I2(:,1)  = self.I2.N;
+          pop_history.I3(:,1)  = self.I3.N;
+          pop_history.R(:,1)   = self.R.N;
+          pop_history.D(:,1)   = self.D.N;
+           
           for t = 1:N_days
-              self.set_Beta_effective(t);
                                           
               for i = self.dt:self.dt:1
+                  self.set_Beta_effective(t);
+                  
 %                   self.I0.report(self.dt,self.c_I0(t));
 %                   self.I1.report(self.dt,self.c_I1(t));
 %                   self.I2.report(self.dt,self.c_I2(t));
@@ -96,15 +109,15 @@ classdef POPULATION < handle
               self.I3.report(1,self.c_I3(t));
 
               
-              pop_history.S(t)     = self.S.N;      
-              pop_history.E0(t)    = self.E0.N;
-              pop_history.E1(t)    = self.E1.N;
-              pop_history.I0(:,t)  = self.I0.N;
-              pop_history.I1(:,t)  = self.I1.N;
-              pop_history.I2(:,t)  = self.I2.N;
-              pop_history.I3(:,t)  = self.I3.N;
-              pop_history.R(:,t)   = self.R.N;
-              pop_history.D(:,t)   = self.D.N;
+              pop_history.S(t+1)     = self.S.N;      
+              pop_history.E0(t+1)    = self.E0.N;
+              pop_history.E1(t+1)    = self.E1.N;
+              pop_history.I0(:,t+1)  = self.I0.N;
+              pop_history.I1(:,t+1)  = self.I1.N;
+              pop_history.I2(:,t+1)  = self.I2.N;
+              pop_history.I3(:,t+1)  = self.I3.N;
+              pop_history.R(:,t+1)   = self.R.N;
+              pop_history.D(:,t+1)   = self.D.N;
               
 %               disp(round(cat(2,[pop_history.S(t);0],...
 %                          [pop_history.E0(t);0],...

@@ -22,20 +22,34 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt,err_type)
     model_population.I1.frac_in     = 1 - model_population.I0.frac_in;                                      % fr.I1   = 1 - fr.I0;
     model_population.R.frac_in_I1   = x(8,6);                                                               % fr.R_I1 = 0.8;                 % 80% of I1 cases recover
     model_population.I2.frac_in     = 1 - model_population.R.frac_in_I1;                                    % fr.I2   = 1 - fr.R_I1;         % rest goes to I2    
-    model_population.R.frac_in_I2   = x(9,6)/model_population.I2.frac_in;                                   % fr.R_I2 = 0.15/fr.I2;          % 15% of sever cases recover
+    model_population.R.frac_in_I2   = x(9,6); %/model_population.I2.frac_in;                                   % fr.R_I2 = 0.15/fr.I2;          % 15% of sever cases recover
     model_population.I3.frac_in     = 1 - model_population.R.frac_in_I2;                                    % fr.I3   = 1 - fr.R_I2;
-    model_population.D.frac_in      = x(10,6)/(model_population.I3.frac_in*model_population.I2.frac_in);    % fr.D    = 0.02/(fr.I3*fr.I2);  % 2% fatalify rate    
+    model_population.D.frac_in      = min(x(10,6)/(model_population.I2.frac_in*model_population.I3.frac_in), 1);    % fr.D    = 0.02/(fr.I2*fr.I3);  % 2% fatalify rate    
     model_population.R.frac_in_I3   = 1 - model_population.D.frac_in;                                       % fr.R_I3 = 1 - fr.D;   
     
+    %Alternate way:
+    %model_population.R.frac_in_I3   = x(10,6);
+    %model_population.D.frac_in      = 1 - model_population.R.frac_in_I3;    
+    
+%     if (model_population.R.frac_in_I3 < 0)
+%        disp('negative frac');     
+%     end
+    
     model_population.reset;
+    
     model_population.E0.N = 5;
+    model_population.R.N(2) = 1; %Special case for Sri Lanka
+    model_population.S.N = model_population.S_0 - model_population.E0.N - model_population.R.N(2);
+    
     evolutions = model_population.evolve(t_evolve);    
 %     plot_results(evolutions, gt, t_evolve,[1:t_evolve]);                  % plot evaluation  
 %     drawnow
     
-    model.confirmed = evolutions.I0(2,:)'+evolutions.I1(2,:)'+evolutions.I2(2,:)'+evolutions.I3(2,:)'+evolutions.R(2,:)'+evolutions.D(2,:)';
-    model.deaths    = evolutions.D(2,:)';
-    model.recovered = evolutions.R(2,:)';
+    ind = 2:size(evolutions.I0, 2); %Skip initial condition
+    model.confirmed = (evolutions.I0(2,ind) + evolutions.I1(2,ind) + evolutions.I2(2,ind) + ...
+                       evolutions.I3(2,ind) + evolutions.R(2,ind) + evolutions.D(2,ind))';
+    model.deaths    = evolutions.D(2,ind)';
+    model.recovered = evolutions.R(2,ind)';
 
     switch err_type
         case 'log_type1'                
@@ -87,6 +101,10 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt,err_type)
 %              L2-conf    L2-dead     L2-rec      Reg_beta        Reg_c_I0 ...    
     w       = [1          2           0           w_reg           w_reg           w_reg           w_reg           w_reg];
     f       =  w(1)*f1  + w(2)*f2   + w(3)*f3   + w(4)*reg_beta + w(5)*reg_c_I0 + w(6)*reg_c_I1 + w(7)*reg_c_I2 + w(8)*reg_c_I3;
+    
+    if (isnan(f))
+       disp('found NaN'); 
+    end
     
     fprintf('conf = %1.4e | dead = %1.4e | rec = %1.4e | regs = [%1.4e %1.4e %1.4e %1.4e %1.4e] | cost = %1.4e\n', ...
             w(1)*f1, w(2)*f2, w(3)*f3,  w(4)*reg_beta, w(5)*reg_c_I0, w(6)*reg_c_I1, w(7)*reg_c_I2, w(8)*reg_c_I3, f)        
