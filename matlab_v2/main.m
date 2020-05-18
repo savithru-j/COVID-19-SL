@@ -96,6 +96,7 @@ x_ub(:,5)   = 1;
 %                                                  recovery fraction from I1
 %                                            asymptomatic fraction   
 %              <------time durations-------->                 
+
 % index        1    2    3    4    5    6    7     8       9        10 
 % typical      3    2    6    6    4    10   0.3   0.8     0.75     0.60 
 % paramter     E0.T E1.T I0.T I1.T I2.T I3.T fr.I0 fr.R_I1 fr.R_I2  CFR
@@ -104,6 +105,7 @@ x_ub(1:10,6)= [3    2    30   30   4    10   0.3   0.9     0.9      0.02];
 
 % x_lb(1:10,6)= [ 1    1    1    1    1    1   0.3   0.1     0.1      0.0];
 % x_ub(1:10,6)= [10   10   10   10   10   10   0.3   0.9     0.9      0.02];
+
 
 err_type    = 'L2_type1';   % {'log_type1','log_type2','L2_type1','L2_type2'}
 
