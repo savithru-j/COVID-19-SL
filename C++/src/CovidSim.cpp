@@ -2,6 +2,7 @@
 #include <chrono>
 
 #include "Population.h"
+#include "LinearAlgebra.h"
 
 std::vector<Population> predictModel(const ModelParams& params, const Population& pop_init);
 
@@ -15,7 +16,7 @@ int main()
   auto t0 = std::chrono::high_resolution_clock::now();
 
   std::vector<Population> pop_hist;
-  for (int i = 0; i < 1e5; i++)
+  for (int i = 0; i < 1e1; i++)
     pop_hist = predictModel(params, pop0);
 
   auto t1 = std::chrono::high_resolution_clock::now();
@@ -23,6 +24,12 @@ int main()
 
   std::cout << pop_hist.size() << std::endl;
 	std::cout << pop_hist.back() << std::endl;
+
+	Matrix A(5,6);
+	Vector x = std::vector<double>({1,2,3,4,5,6});
+	auto y = A*x;
+
+	ObservedPopulation("csv_data/srilanka.txt");
 
 	return 0;
 }

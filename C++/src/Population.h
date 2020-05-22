@@ -1,7 +1,13 @@
+#ifndef POPULATION_H
+#define POPULATION_H
+
 #include <array>
 #include <iomanip>
+#include <iostream>
+#include <fstream>
 
 #include "ModelParams.h"
+#include "ErrorHandler.h"
 
 class Population
 {
@@ -131,3 +137,54 @@ std::ostream& operator<<(std::ostream& os, const Population& pop)
             << "R : " << pop.R[0] << ", " << pop.R[1] << std::endl
             << "D : " << pop.D[0] << ", " << pop.D[1] << std::endl;
 }
+
+
+class ObservedPopulation
+{
+public:
+
+  ObservedPopulation(const std::string& filepath)
+  {
+      std::ifstream in(filepath);
+
+      // Check if object is valid
+      if (!in)
+        throwError("Cannot open file");
+
+      in >> N;
+
+      while (true)
+      {
+        if (in.eof())
+          break;
+        int c, r, d;
+        in >> c >> r >> d;
+        confirmed.push_back(c);
+        recovered.push_back(r);
+        deaths.push_back(d);
+        std::cout << c << ", " << r << ", " << d << std::endl;
+
+
+      }
+
+//      std::string str;
+//      while (std::getline(in, str))
+//      {
+//        int c, r, d;
+//        in >> c
+//        std::cout << str << std::endl;
+//        // Line contains string of length > 0 then save it in vector
+////        if(str.size() > 0)
+////          vecOfStrs.push_back(str);
+//      }
+      //Close The File
+      in.close();
+  }
+
+  int N = 0; //population
+  std::vector<int> confirmed;
+  std::vector<int> recovered;
+  std::vector<int> deaths;
+};
+
+#endif

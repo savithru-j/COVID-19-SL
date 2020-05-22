@@ -1,5 +1,7 @@
-#include <vector>
+#ifndef MODELPARAMS_H
+#define MODELPARAMS_H
 
+#include <vector>
 
 struct ModelParams
 {
@@ -48,3 +50,5 @@ struct ModelParams
   double CFR      = 0.02;         //case fatality rate
 
 };
+
+#endif
