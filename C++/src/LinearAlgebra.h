@@ -8,17 +8,23 @@ class Vector
 {
 public:
 
+  Vector() = default;
   Vector(int m, double val = 0.0) : data_(m, val) {}
 
   Vector(const std::vector<double>& v) : data_(v) {}
 
   int m() const { return data_.size(); }
+  int size() const { return data_.size(); }
 
   const double& operator()(int i) const { return data_[i]; }
   double& operator()(int i) { return data_[i]; }
 
   const double& operator[](int i) const { return data_[i]; }
   double& operator[](int i) { return data_[i]; }
+
+  const double& back() const { return data_.back(); }
+
+  void resize(int m) { data_.resize(m); }
 
 protected:
   std::vector<double> data_;

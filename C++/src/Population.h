@@ -111,6 +111,10 @@ public:
     I3[1] += delta;
   }
 
+  double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1] + D[1]; }
+  double getNumRecoveredReported() const { return R[1]; }
+  double getNumFatalReported() const { return D[1]; }
+
   double N = 0;
   double S = 0;
   double E0 = 0;
@@ -146,40 +150,24 @@ public:
   ObservedPopulation(const std::string& filepath)
   {
       std::ifstream in(filepath);
-
-      // Check if object is valid
       if (!in)
         throwError("Cannot open file");
 
-      in >> N;
-
-      while (true)
+      in >> N; //read in population
+      int c;
+      while (in >> c)
       {
-        if (in.eof())
-          break;
-        int c, r, d;
-        in >> c >> r >> d;
+        int r, d;
+        in >> r >> d;
         confirmed.push_back(c);
         recovered.push_back(r);
         deaths.push_back(d);
-        std::cout << c << ", " << r << ", " << d << std::endl;
-
-
+//        std::cout << c << ", " << r << ", " << d << std::endl;
       }
-
-//      std::string str;
-//      while (std::getline(in, str))
-//      {
-//        int c, r, d;
-//        in >> c
-//        std::cout << str << std::endl;
-//        // Line contains string of length > 0 then save it in vector
-////        if(str.size() > 0)
-////          vecOfStrs.push_back(str);
-//      }
-      //Close The File
       in.close();
   }
+
+  int getNumDays() const { return confirmed.size(); }
 
   int N = 0; //population
   std::vector<int> confirmed;

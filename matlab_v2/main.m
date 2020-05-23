@@ -7,7 +7,7 @@ close all
 clc
 
 %% read country data
-[country_names, country_data] = read_country_data('world_data.js');
+[country_names, country_data] = read_country_data('../world_data.js');
 now_countryName              = 'Sri Lanka';%    'US';%          'Italy';%    'India'; %
 population                   =  21323733;%          328.2E6;%       60.36E6;%     1.353E9;%
 

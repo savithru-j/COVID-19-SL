@@ -1,7 +1,7 @@
 #ifndef MODELPARAMS_H
 #define MODELPARAMS_H
 
-#include <vector>
+#include "LinearAlgebra.h"
 
 struct ModelParams
 {
@@ -10,7 +10,7 @@ struct ModelParams
               double c1_val = 0.1, double c2_val = 1.0, double c3_val = 1.0)
     : nt_hist(nt_hist_), nt_pred(nt_pred_)
   {
-    int nt = nt_hist + nt_pred;
+    const int nt = nt_hist + nt_pred;
     betaN.resize(nt);
     ce.resize(nt);
     c0.resize(nt);
@@ -22,7 +22,6 @@ struct ModelParams
     {
       betaN[i] = betaN_val;
       ce[i]    = ce_val;
-      ce[i]    = ce_val;
       c0[i]    = c0_val;
       c1[i]    = c1_val;
       c2[i]    = c2_val;
@@ -32,12 +31,12 @@ struct ModelParams
 
   int nt_hist, nt_pred;
   const double dt = 1.0/24.0;
-  std::vector<double> betaN;
-  std::vector<double> ce;
-  std::vector<double> c0;
-  std::vector<double> c1;
-  std::vector<double> c2;
-  std::vector<double> c3;
+  Vector betaN;
+  Vector ce;
+  Vector c0;
+  Vector c1;
+  Vector c2;
+  Vector c3;
   double T_incub0 = 3.0;
   double T_incub1 = 2.0;
   double T_asympt = 6.0;
