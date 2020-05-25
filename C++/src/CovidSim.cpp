@@ -23,9 +23,9 @@ main()
 
 	ObservedPopulation pop_SL("csv_data/srilanka.txt");
 
-	Vector x = std::vector<double>{0.4, 5, 2.7, -0.3, 3.6};
-	Matrix A = getHaarMatrix(x.size());
-	Vector y = A*x;
+//	Vector x = std::vector<double>{0.4, 5, 2.7, -0.3, 3.6};
+//	Matrix A = getHaarMatrix(x.size());
+//	Vector y = A*x;
 
 	getOptimalParameters(pop_SL);
 
@@ -62,6 +62,7 @@ predictModel(const ModelParams& params, const Population& pop_init)
 ModelParams
 getOptimalParameters(const ObservedPopulation& observed_pop)
 {
+  f_eval_count = 0;
   const int T_end_buffer = 5; //no. of non-optimized days at end
 
   const int nt = observed_pop.getNumDays();
@@ -76,14 +77,217 @@ getOptimalParameters(const ObservedPopulation& observed_pop)
   ModelParams params(nt_opt, T_end_buffer);
   copyVector2Param(param_vec, params);
 
+  Vector param_vec0 = param_vec;
+  Vector param_vec_opt = param_vec;
+
   Population pop_init(observed_pop.N, 5, 1); //TODO: set initial E0 and Rd
 
+  Matrix reg_matrix = getHaarMatrix(nt_opt);
 
+  double cost0 = getCost(params, pop_init, observed_pop);
+  double err_scaling = 1.0 / cost0;
 
-  double cost = getOptCost(params,param_vec, pop_init, observed_pop);
+  cost0 = getCost(params, pop_init, observed_pop, reg_matrix, err_scaling);
+//  double cost = cost0;
+//  Vector cost_grad = getCostGradient(params, pop_init, observed_pop, param_bounds, reg_matrix, err_scaling);
 
+  double cost_rel_min = 1.0; //cost / cost0;
+  const double cost_reduction_tol = 1e-4;
+  const double min_eta = 1e-6;
+  const int max_iter_per_pass = 10;
+  const int max_passes = 5;
+
+  std::cout << std::scientific << std::setprecision(4);
+
+  for (int pass = 0; pass < max_passes; ++pass)
+  {
+    std::cout << std::endl << "Pass " << pass << " ----------------" << std::endl;
+
+    double cost = getCost(params, pop_init, observed_pop, reg_matrix, err_scaling);
+
+    double cost_prev = cost;
+    int stalled_iter = 0;
+
+    int iter = 0;
+    for (iter = 0; iter < max_iter_per_pass; ++iter)
+    {
+      Vector cost_grad = getCostGradient(params, pop_init, observed_pop, param_bounds, reg_matrix, err_scaling);
+
+      double eta0 = limitUpdate(param_bounds, param_vec, cost_grad);
+      std::cout << "  Iter: " << iter << ", cost: " << (cost/cost0) << ", eta0: " << eta0 << std::endl;
+
+      if (eta0 < 1e-13)
+        break;
+
+      for (int i = 0; i < param_vec.m(); ++i)
+      {
+        param_vec0[i] = param_vec[i];
+        cost_grad[i] *= eta0;
+      }
+
+      double eta = 1.0;
+      while (eta >= min_eta)
+      {
+        //Update param_vec based on (scaled) update vector
+        for (int i = 0; i < param_vec.m(); ++i)
+          param_vec[i] = param_vec0[i] - eta*cost_grad[i];
+
+        copyVector2Param(param_vec, params);
+
+        //Evaluate new cost
+        double cost_new = getCost(params, pop_init, observed_pop, reg_matrix, err_scaling);
+//        std::cout << "    eta: " << eta << ", cost: " << (cost_new/cost0) << std::endl;
+
+        if (cost_new < cost)
+        {
+          cost = cost_new;
+          break;
+        }
+
+        eta /= 2.0;
+      } //linesearch
+
+      //Check if residual has stalled
+      if ((cost_prev - cost) < cost_prev*cost_reduction_tol)
+        stalled_iter++;
+      else {
+        cost_prev = cost;
+        stalled_iter = 0;
+      }
+
+      if (stalled_iter == 5) //Abort if residual has stalled for too many iterations.
+      {
+        std::cout << "Descent stalled." << std::endl;
+        break;
+      }
+
+    } //gradient descent
+
+    double cost_rel = cost/cost0;
+    std::cout << "Num_iter: " << iter << ", cost: " << (cost/cost0) << std::endl;
+
+    if (cost_rel < cost_rel_min)
+    {
+      cost_rel_min = cost_rel;
+      param_vec_opt = param_vec;
+    }
+
+    jump_energy = 1.0 - pass / (double) (max_passes - 1.0);
+    std::cout << "Jump energy: " << jump_energy << std::endl;
+
+    param_vec = param_vec_opt;
+    randomizeParameterVector(param_bounds, jump_energy, param_vec);
+    copyVector2Param(param_vec, params);
+
+  } //passes
+
+  std::cout << "Minimum cost: " << cost_rel_min << std::endl;
+  std::cout << "Evaluation count: " << f_eval_count << std::endl;
 
   return params;
+}
+
+double getCost(const ModelParams& params, const Population& pop_init,
+               const ObservedPopulation& observed_pop, const Matrix& reg_matrix,
+               const double& scaling)
+{
+  auto pop_hist = predictModel(params, pop_init);
+
+  const double wC = 1.0, wR = 1.0, wF = 1.0;
+  const int nt = params.nt_hist + params.nt_pred;
+
+  double cost = 0.0;
+  for (int i = 1; i < nt; ++i)
+  {
+    double err_total = (pop_hist[i].getNumReported() - observed_pop.confirmed[i]);
+    double err_recov = (pop_hist[i].getNumRecoveredReported() - observed_pop.recovered[i]);
+    double err_fatal = (pop_hist[i].getNumFatalReported() - observed_pop.deaths[i]);
+
+    cost += wC*err_total*err_total + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
+  }
+
+  cost *= scaling;
+
+  //Add regularization terms
+  if (reg_matrix.m() > 0 && reg_matrix.n() > 0)
+  {
+    double reg_betaN = 0.0;
+    double reg_ce = 0.0;
+    double reg_c1 = 0.0;
+
+    for (int i = 0; i < reg_matrix.m(); ++i)
+    {
+      double coeff_betaN = 0.0;
+      double coeff_ce = 0.0;
+      double coeff_c1 = 0.0;
+
+      for (int j = 0; j < reg_matrix.n(); ++j)
+      {
+        if (j < params.betaN.m())
+        {
+          coeff_betaN += reg_matrix(i,j) * params.betaN(j);
+          coeff_ce += reg_matrix(i,j) * params.ce(j);
+          coeff_c1 += reg_matrix(i,j) * params.c1(j);
+        }
+        else
+        {
+          coeff_betaN += reg_matrix(i,j) * params.betaN.back();
+          coeff_ce += reg_matrix(i,j) * params.ce.back();
+          coeff_c1 += reg_matrix(i,j) * params.c1.back();
+        }
+      }
+
+      //Take L1-norm of coefficient vector
+      reg_betaN += std::abs(coeff_betaN);
+      reg_ce += std::abs(coeff_ce);
+      reg_c1 += std::abs(coeff_c1);
+    }
+
+    const double wgt = 1e-1;
+    const double reg_cost = wgt*reg_betaN + wgt*reg_ce + wgt*reg_c1;
+    cost += reg_cost;
+
+//    if (std::isnan(cost))
+//      throwError("Found NaN!");
+  }
+
+//  if (isNaN(cost))
+//  {
+//    console.log("getOptimizationCost: found NaN");
+//    return {};
+//  }
+  f_eval_count++;
+  return cost;
+}
+
+Vector getCostGradient(const ModelParams& params_orig, const Population& pop_init,
+                       const ObservedPopulation& observed_pop, const std::vector<ParamBound>& bounds,
+                       const Matrix& reg_matrix, const double& scaling)
+{
+  Vector param_vec(bounds.size());
+  Vector grad(bounds.size());
+
+  ModelParams params = params_orig; //create a copy
+  copyParam2Vector(params, param_vec);
+
+  for (int j = 0; j < param_vec.m(); ++j)
+  {
+    double delta = bounds[j].step;
+
+    //Compute finite difference
+    param_vec[j] += delta;
+    copyVector2Param(param_vec, params);
+    double fp = getCost(params, pop_init, observed_pop, reg_matrix, scaling);
+
+    param_vec[j] -= 2*delta;
+    copyVector2Param(param_vec, params);
+    double fm = getCost(params, pop_init, observed_pop, reg_matrix, scaling);
+
+    param_vec[j] += delta;
+
+    grad[j] = (fp - fm)/(2*delta);
+  }
+  return grad;
 }
 
 void copyParam2Vector(const ModelParams& params, Vector& v)
@@ -118,6 +322,10 @@ void copyVector2Param(const Vector& v, ModelParams& params)
   const int m = 3*nt + 10;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
+
+//  for (int i = 0; i < v.m(); ++i)
+//    if (std::isnan(v[i]))
+//      throwError("Found NaN!");
 
   for (int i = 0; i < nt; ++i)
   {
@@ -192,72 +400,28 @@ randomizeParameterVector(const std::vector<ParamBound>& bounds, const double ene
   }
 }
 
-double getOptCost(const ModelParams& params, const Vector& param_vec, const Population& pop_init,
-                  const ObservedPopulation& observed_pop, const Matrix& reg_matrix,
-                  const double scaling)
+double
+limitUpdate(const std::vector<ParamBound>& bounds, const Vector& param_vec, Vector& dparam_vec)
 {
-  auto pop_hist = predictModel(params, pop_init);
+  double eta = 1.0;
 
-  const double wC = 1.0, wR = 1.0, wF = 1.0;
-  const int nt = params.nt_hist + params.nt_pred;
-
-  double cost = 0.0;
-  for (int i = 1; i < nt; ++i)
+  for (int i = 0; i < param_vec.m(); ++i)
   {
-    double err_total = (pop_hist[i].getNumReported() - observed_pop.confirmed[i]);
-    double err_recov = (pop_hist[i].getNumRecoveredReported() - observed_pop.recovered[i]);
-    double err_fatal = (pop_hist[i].getNumFatalReported() - observed_pop.deaths[i]);
-
-    cost += wC*err_total*err_total + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
-  }
-
-  cost *= scaling;
-
-  //Add regularization terms
-  if (reg_matrix.m() > 0 && reg_matrix.n() > 0)
-  {
-    double reg_betaN = 0.0;
-    double reg_ce = 0.0;
-    double reg_c1 = 0.0;
-
-    for (int i = 0; i < reg_matrix.m(); ++i)
+    if ( (param_vec[i] == bounds[i].min && -dparam_vec[i] < 0.0) ||
+         (param_vec[i] == bounds[i].max && -dparam_vec[i] > 0.0) )
     {
-      double coeff_betaN = 0.0;
-      double coeff_ce = 0.0;
-      double coeff_c1 = 0.0;
-
-      for (int j = 0; j < reg_matrix.n(); ++j)
-      {
-        if (j < params.betaN.m())
-        {
-          coeff_betaN += reg_matrix(i,j) * params.betaN(j);
-          coeff_ce += reg_matrix(i,j) * params.ce(j);
-          coeff_c1 += reg_matrix(i,j) * params.c1(j);
-        }
-        else
-        {
-          coeff_betaN += reg_matrix(i,j) * params.betaN.back();
-          coeff_ce += reg_matrix(i,j) * params.ce.back();
-          coeff_c1 += reg_matrix(i,j) * params.c1.back();
-        }
-      }
-
-      //Take L1-norm of coefficient vector
-      reg_betaN += std::abs(coeff_betaN);
-      reg_ce += std::abs(coeff_ce);
-      reg_c1 += std::abs(coeff_c1);
+       dparam_vec[i] = 0.0;
     }
-
-    const double wgt = 1e-1;
-    cost += wgt*reg_betaN + wgt*reg_ce + wgt*reg_c1;
+    else
+    {
+      double new_val = param_vec[i] - dparam_vec[i];
+      if (new_val < bounds[i].min)
+        eta = std::min(eta, (param_vec[i] - bounds[i].min)/dparam_vec[i]);
+      else if (new_val > bounds[i].max)
+        eta = std::min(eta, (param_vec[i] - bounds[i].max)/dparam_vec[i]);
+    }
   }
-
-//  if (isNaN(cost))
-//  {
-//    console.log("getOptimizationCost: found NaN");
-//    return {};
-//  }
-  return cost;
+  return eta;
 }
 
 Matrix getHaarMatrix(int m)
