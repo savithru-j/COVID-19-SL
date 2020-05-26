@@ -2,7 +2,7 @@ clear
 clc
 close all
 
-country = 'srilanka';
+country = 'us';
 
 observed_file = sprintf('csv_data/%s.txt', country);
 params_file = sprintf('../C++/build/release/results/%s_params.txt', country);

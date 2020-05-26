@@ -8,53 +8,48 @@
 int
 main()
 {
-//  ModelParams params(75, 14);
-//
-//  Population pop0(21323733, 5, 1);
-//
-//  std::vector<Population> pop_hist;
-//  pop_hist = predictModel(params, pop0);
+  std::string country = "srilanka";
 
-	ObservedPopulation pop_observed("csv_data/srilanka.txt");
+	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
 
 	Population pop_init(pop_observed.N, 5, 1);
 
 	std::string folder_path = "results";
 	mkdir(folder_path.c_str(), 0777);
 
-	std::string filepath_opt_params = folder_path + "/" + "srilanka_params.txt";
+	std::string filepath_opt_params = folder_path + "/" + country + "_params.txt";
   std::ofstream file_opt_params(filepath_opt_params);
   if (!file_opt_params.good())
     throwError("Cannot open file to write - " + filepath_opt_params);
 
-  std::string filepath_predictions = folder_path + "/" + "srilanka_prediction.txt";
+  std::string filepath_predictions = folder_path + "/" + country + "_prediction.txt";
   std::ofstream file_predictions(filepath_predictions);
   if (!file_predictions.good())
     throwError("Cannot open file to write - " + filepath_predictions);
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
-	auto param_vec_opt = getOptimalParameters(pop_observed, pop_init);
+  OptimizationInfo optinfo = optimizeParameters(pop_observed, pop_init);
 
   auto t1 = std::chrono::high_resolution_clock::now();
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
 
   file_opt_params << std::scientific << std::setprecision(6);
-  for (int i = 0; i < param_vec_opt[0].m(); ++i)
+  for (int i = 0; i < optinfo.param_vec_opt[0].m(); ++i)
   {
-    for (std::size_t j = 0; j < param_vec_opt.size()-1; ++j)
-      file_opt_params << param_vec_opt[j][i] << ", ";
-    file_opt_params << param_vec_opt.back()[i] << std::endl;
+    for (std::size_t j = 0; j < optinfo.param_vec_opt.size()-1; ++j)
+      file_opt_params << optinfo.param_vec_opt[j][i] << ", ";
+    file_opt_params << optinfo.param_vec_opt.back()[i] << std::endl;
   }
 
   const int nt_hist = pop_observed.getNumDays();
 
-  std::array<std::vector<Population>, NUM_RESULTS> predictions;
-  for (int i = 0; i < NUM_RESULTS; ++i)
+  std::array<std::vector<Population>, OptimizationInfo::NUM_RESULTS> predictions;
+  for (std::size_t i = 0; i < predictions.size(); ++i)
   {
     ModelParams params(nt_hist - 5, 5+14);
-    copyVector2Param(param_vec_opt[i], params);
+    copyVector2Param(optinfo.param_vec_opt[i], params);
     predictions[i] = predictModel(params, pop_init);
   }
 
@@ -70,6 +65,21 @@ main()
 
   file_opt_params.close();
   file_predictions.close();
+
+//  ModelParams params(nt_hist - 5, 0);
+//  copyVector2Param(optinfo.param_vec_opt[0], params);
+//  Vector x(128);
+//  for (int i = 0; i < 128; ++i)
+//  {
+//    if (i < params.betaN.m())
+//      x[i] = params.betaN[i];
+//    else
+//      x[i] = params.betaN.back();
+//  }
+//
+//  Vector coeff = optinfo.reg_matrix*x;
+//
+//  std::cout << "coeff: " << coeff << std::endl;
 
 	return 0;
 }
@@ -101,17 +111,20 @@ predictModel(const ModelParams& params, const Population& pop_init)
   return population_hist;
 }
 
-std::array<Vector,NUM_RESULTS>
-getOptimalParameters(const ObservedPopulation& pop_observed, const Population& pop_init)
+OptimizationInfo
+optimizeParameters(const ObservedPopulation& pop_observed, const Population& pop_init)
 {
   if (pop_observed.N != pop_init.N)
     throwError("Initial population mismatch!");
 
-  f_eval_count = 0;
-  const int T_end_buffer = 5; //no. of non-optimized days at end
+  OptimizationInfo optinfo;
 
   const int nt = pop_observed.getNumDays();
-  const int nt_opt = nt - T_end_buffer; //number of days to optimize parameters for
+  const int nt_opt = nt - OptimizationInfo::T_END_BUFFER; //number of days to optimize parameters for
+
+  std::cout << "Optimizing parameters for " << nt_opt << " days..." << std::endl;
+
+  optinfo.reg_matrix = getHaarMatrix(nt_opt);
 
   const auto param_bounds = getParameterBounds(nt_opt);
   Vector param_vec(param_bounds.size());
@@ -119,49 +132,40 @@ getOptimalParameters(const ObservedPopulation& pop_observed, const Population& p
   double jump_energy = 1.0;
   randomizeParameterVector(param_bounds, jump_energy, param_vec);
 
-  ModelParams params(nt_opt, T_end_buffer);
+  ModelParams params(nt_opt, OptimizationInfo::T_END_BUFFER);
   copyVector2Param(param_vec, params);
 
   Vector param_vec0 = param_vec;
-  std::array<Vector,NUM_RESULTS> param_vec_opt;
-  param_vec_opt.fill(param_vec);
+  optinfo.param_vec_opt.fill(param_vec);
 
-  Matrix reg_matrix = getHaarMatrix(nt_opt); //Matrix(0,0);
+  optinfo.regularize = false; //turn off regularization to get initial raw cost
+  double cost0 = getCost(params, pop_init, pop_observed, optinfo).first; //raw cost without regularization or scaling
 
-  double cost0 = getCost(params, pop_init, pop_observed);
-  double err_scaling = 1.0 / cost0;
+  optinfo.regularize = true;
+  optinfo.cost_error_scaling = 1.0 / cost0;
+  cost0 = getCost(params, pop_init, pop_observed, optinfo).first;
 
-  cost0 = getCost(params, pop_init, pop_observed, reg_matrix, err_scaling);
-//  double cost = cost0;
-//  Vector cost_grad = getCostGradient(params, pop_init, observed_pop, param_bounds, reg_matrix, err_scaling);
-
-  std::array<double,NUM_RESULTS> cost_rel_min; //cost / cost0;
-  std::array<double,NUM_RESULTS> cost_raw_min;
-  cost_rel_min.fill(1.0);
-
-  const double cost_reduction_tol = 1e-4;
-  const double min_eta = 1e-6;
-  const int max_iter_per_pass = 20;
-  const int max_passes = 100;
+  optinfo.cost_rel_min.fill(1.0);
+  optinfo.cost_raw_min.fill(1.0);
 
   std::cout << std::scientific << std::setprecision(4);
 
-  for (int pass = 0; pass < max_passes; ++pass)
+  for (int pass = 0; pass < OptimizationInfo::MAX_PASSES; ++pass)
   {
     std::cout << std::endl << "Pass " << pass << " ----------------" << std::endl;
 
-    double cost = getCost(params, pop_init, pop_observed, reg_matrix, err_scaling);
+    auto cost = getCost(params, pop_init, pop_observed, optinfo);
 
-    double cost_prev = cost;
+    double cost_prev = cost.first;
     int stalled_iter = 0;
 
     int iter = 0;
-    for (iter = 0; iter < max_iter_per_pass; ++iter)
+    for (iter = 0; iter < OptimizationInfo::MAX_ITER_PER_PASS; ++iter)
     {
-      Vector cost_grad = getCostGradient(params, pop_init, pop_observed, param_bounds, reg_matrix, err_scaling);
+      Vector cost_grad = getCostGradient(params, pop_init, pop_observed, param_bounds, optinfo);
 
       double eta0 = limitUpdate(param_bounds, param_vec, cost_grad);
-      std::cout << "  Iter: " << iter << ", cost: " << (cost/cost0) << ", eta0: " << eta0 << std::endl;
+      std::cout << "  Iter: " << iter << ", cost: " << (cost.first/cost0) << ", eta0: " << eta0 << std::endl;
 
       if (eta0 < 1e-13)
         break;
@@ -173,7 +177,7 @@ getOptimalParameters(const ObservedPopulation& pop_observed, const Population& p
       }
 
       double eta = 1.0;
-      while (eta >= min_eta)
+      while (eta >= OptimizationInfo::MIN_ETA)
       {
         //Update param_vec based on (scaled) update vector
         for (int i = 0; i < param_vec.m(); ++i)
@@ -182,10 +186,10 @@ getOptimalParameters(const ObservedPopulation& pop_observed, const Population& p
         copyVector2Param(param_vec, params);
 
         //Evaluate new cost
-        double cost_new = getCost(params, pop_init, pop_observed, reg_matrix, err_scaling);
+        auto cost_new = getCost(params, pop_init, pop_observed, optinfo);
 //        std::cout << "    eta: " << eta << ", cost: " << (cost_new/cost0) << std::endl;
 
-        if (cost_new < cost)
+        if (cost_new.first < cost.first)
         {
           cost = cost_new;
           break;
@@ -195,10 +199,10 @@ getOptimalParameters(const ObservedPopulation& pop_observed, const Population& p
       } //linesearch
 
       //Check if residual has stalled
-      if ((cost_prev - cost) < cost_prev*cost_reduction_tol)
+      if ((cost_prev - cost.first) < cost_prev*OptimizationInfo::COST_REDUCTION_TOL)
         stalled_iter++;
       else {
-        cost_prev = cost;
+        cost_prev = cost.first;
         stalled_iter = 0;
       }
 
@@ -210,125 +214,118 @@ getOptimalParameters(const ObservedPopulation& pop_observed, const Population& p
 
     } //gradient descent
 
-    double cost_rel = cost/cost0;
+    double cost_rel = cost.first/cost0;
     std::cout << "Num_iter: " << iter << ", cost: " << cost_rel << std::endl;
 
-    if (cost_rel < cost_rel_min[0])
+    if (cost_rel < optinfo.cost_rel_min.back())
     {
-      for (size_t i = cost_rel_min.size()-1; i > 0; i--)
-      {
-        cost_rel_min[i] = cost_rel_min[i-1];
-        cost_raw_min[i] = cost_raw_min[i-1];
-        param_vec_opt[i] = param_vec_opt[i-1];
-      }
-      cost_rel_min[0] = cost_rel;
-      cost_raw_min[0] = getCost(params, pop_init, pop_observed); //raw cost without regularization or scaling
-      param_vec_opt[0] = param_vec;
+      bool tmp_regularize = optinfo.regularize;
+      double tmp_scaling = optinfo.cost_error_scaling;
+
+      optinfo.regularize = false;
+      optinfo.cost_error_scaling = 1.0;
+      double cost_raw = getCost(params, pop_init, pop_observed, optinfo).first; //raw cost without regularization or scaling
+
+      //revert
+      optinfo.regularize = tmp_regularize;
+      optinfo.cost_error_scaling = tmp_scaling;
+
+      optinfo.updateOptimalSolution(cost_rel, cost_raw, cost.second, param_vec);
     }
 
-    jump_energy = 1.0 - pass / (double) (max_passes - 1.0);
+    jump_energy = 1.0 - pass / (double) (OptimizationInfo::MAX_PASSES - 1.0);
     std::cout << "Jump energy: " << jump_energy << std::endl;
 
-    param_vec = param_vec_opt[0];
+    param_vec = optinfo.param_vec_opt[0];
     randomizeParameterVector(param_bounds, jump_energy, param_vec);
     copyVector2Param(param_vec, params);
 
   } //passes
 
-  std::cout << "Minimum costs (relative): ";
-  for (std::size_t i = 0; i < NUM_RESULTS; i++)
-    std::cout << cost_rel_min[i] << ", ";
   std::cout << std::endl;
+  std::cout << "Error scaling: " << optinfo.cost_error_scaling << std::endl;
 
-  std::cout << "Minimum costs (raw): ";
-  for (std::size_t i = 0; i < NUM_RESULTS; i++)
-    std::cout << cost_raw_min[i] << ", ";
-  std::cout << std::endl;
+  std::cout << "Minimum costs (relative): " << optinfo.cost_rel_min << std::endl;
+  std::cout << "Minimum costs (raw): " << optinfo.cost_raw_min << std::endl;
+  std::cout << "Minimum sub-costs [sol-error, beta-reg, ce-reg, c1-reg]:" << std::endl;
+  for (std::size_t i = 0; i < OptimizationInfo::NUM_RESULTS; i++)
+      std::cout << "  " << optinfo.sub_costs_min[i] << std::endl;
 
-  std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
+  std::cout << "Cost function evaluation count: " << optinfo.f_eval_count << std::endl;
 
 //  for (std::size_t i = 0; i < NUM_RESULTS; i++)
 //    std::cout << "Optimal params[" << i << "]: " << param_vec_opt[i] << std::endl << std::endl;
 
-  return param_vec_opt;
+  return optinfo;
 }
 
-double getCost(const ModelParams& params, const Population& pop_init,
-               const ObservedPopulation& observed_pop, const Matrix& reg_matrix,
-               const double& scaling)
+std::pair<double, std::array<double, 4>>
+getCost(const ModelParams& params, const Population& pop_init,
+        const ObservedPopulation& observed_pop, OptimizationInfo& optinfo)
 {
   auto pop_hist = predictModel(params, pop_init);
 
   const double wC = 1.0, wR = 1.0, wF = 10.0;
   const int nt = params.nt_hist + params.nt_pred;
 
-  double cost = 0.0;
+  std::array<double,4> sub_costs = {0.0, 0.0, 0.0, 0.0};
+
   for (int i = 1; i < nt; ++i)
   {
     double err_total = (pop_hist[i].getNumReported() - observed_pop.confirmed[i]);
     double err_recov = (pop_hist[i].getNumRecoveredReported() - observed_pop.recovered[i]);
     double err_fatal = (pop_hist[i].getNumFatalReported() - observed_pop.deaths[i]);
 
-    cost += wC*err_total*err_total + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
+    sub_costs[0] += wC*err_total*err_total + wR*err_recov*err_recov + wF*err_fatal*err_fatal;
   }
 
-  cost *= scaling;
+  sub_costs[0] *= optinfo.cost_error_scaling;
 
   //Add regularization terms
-  if (reg_matrix.m() > 0 && reg_matrix.n() > 0)
+  if (optinfo.regularize)
   {
-    double reg_betaN = 0.0;
-    double reg_ce = 0.0;
-    double reg_c1 = 0.0;
-
-    for (int i = 0; i < reg_matrix.m(); ++i)
+    for (int i = 0; i < optinfo.reg_matrix.m(); ++i)
     {
       double coeff_betaN = 0.0;
       double coeff_ce = 0.0;
       double coeff_c1 = 0.0;
 
-      for (int j = 0; j < reg_matrix.n(); ++j)
+      for (int j = 0; j < optinfo.reg_matrix.n(); ++j)
       {
         if (j < params.betaN.m())
         {
-          coeff_betaN += reg_matrix(i,j) * params.betaN(j);
-          coeff_ce += reg_matrix(i,j) * params.ce(j);
-          coeff_c1 += reg_matrix(i,j) * params.c1(j);
+          coeff_betaN += optinfo.reg_matrix(i,j) * params.betaN(j);
+          coeff_ce += optinfo.reg_matrix(i,j) * params.ce(j);
+          coeff_c1 += optinfo.reg_matrix(i,j) * params.c1(j);
         }
         else
         {
-          coeff_betaN += reg_matrix(i,j) * params.betaN.back();
-          coeff_ce += reg_matrix(i,j) * params.ce.back();
-          coeff_c1 += reg_matrix(i,j) * params.c1.back();
+          coeff_betaN += optinfo.reg_matrix(i,j) * params.betaN.back();
+          coeff_ce += optinfo.reg_matrix(i,j) * params.ce.back();
+          coeff_c1 += optinfo.reg_matrix(i,j) * params.c1.back();
         }
       }
 
-      //Take L1-norm of coefficient vector
-      reg_betaN += std::abs(coeff_betaN);
-      reg_ce += std::abs(coeff_ce);
-      reg_c1 += std::abs(coeff_c1);
+      //Take L1-norms of coefficient vectors
+      sub_costs[1] += std::abs(coeff_betaN);
+      sub_costs[2] += std::abs(coeff_ce);
+      sub_costs[3] += std::abs(coeff_c1);
     }
+    const double wReg = 0.01;
+    sub_costs[1] *= wReg;
+    sub_costs[2] *= wReg;
+    sub_costs[3] *= wReg;
+  } //if-regularize
 
-    const double wgt = 0.05;
-    const double reg_cost = wgt*reg_betaN + wgt*reg_ce + wgt*reg_c1;
-    cost += reg_cost;
+  const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2] + sub_costs[3];
 
-//    if (std::isnan(cost))
-//      throwError("Found NaN!");
-  }
-
-//  if (isNaN(cost))
-//  {
-//    console.log("getOptimizationCost: found NaN");
-//    return {};
-//  }
-  f_eval_count++;
-  return cost;
+  optinfo.f_eval_count++;
+  return {cost, sub_costs};
 }
 
 Vector getCostGradient(const ModelParams& params_orig, const Population& pop_init,
-                       const ObservedPopulation& observed_pop, const std::vector<ParamBound>& bounds,
-                       const Matrix& reg_matrix, const double& scaling)
+                       const ObservedPopulation& pop_observed, const std::vector<ParamBound>& bounds,
+                       OptimizationInfo& optinfo)
 {
   Vector param_vec(bounds.size());
   Vector grad(bounds.size());
@@ -343,11 +340,11 @@ Vector getCostGradient(const ModelParams& params_orig, const Population& pop_ini
     //Compute finite difference
     param_vec[j] += delta;
     copyVector2Param(param_vec, params);
-    double fp = getCost(params, pop_init, observed_pop, reg_matrix, scaling);
+    double fp = getCost(params, pop_init, pop_observed, optinfo).first;
 
     param_vec[j] -= 2*delta;
     copyVector2Param(param_vec, params);
-    double fm = getCost(params, pop_init, observed_pop, reg_matrix, scaling);
+    double fm = getCost(params, pop_init, pop_observed, optinfo).first;
 
     param_vec[j] += delta;
 
