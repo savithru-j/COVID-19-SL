@@ -1,33 +1,75 @@
 #include <iostream>
+#include <fstream>
 #include <chrono>
+#include <sys/stat.h>
 
 #include "CovidSim.h"
 
 int
 main()
 {
-  ModelParams params(75, 14);
+//  ModelParams params(75, 14);
+//
+//  Population pop0(21323733, 5, 1);
+//
+//  std::vector<Population> pop_hist;
+//  pop_hist = predictModel(params, pop0);
 
-  Population pop0(21323733, 5, 1);
+	ObservedPopulation pop_observed("csv_data/srilanka.txt");
+
+	Population pop_init(pop_observed.N, 5, 1);
+
+	std::string folder_path = "results";
+	mkdir(folder_path.c_str(), 0777);
+
+	std::string filepath_opt_params = folder_path + "/" + "srilanka_params.txt";
+  std::ofstream file_opt_params(filepath_opt_params);
+  if (!file_opt_params.good())
+    throwError("Cannot open file to write - " + filepath_opt_params);
+
+  std::string filepath_predictions = folder_path + "/" + "srilanka_prediction.txt";
+  std::ofstream file_predictions(filepath_predictions);
+  if (!file_predictions.good())
+    throwError("Cannot open file to write - " + filepath_predictions);
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
-  std::vector<Population> pop_hist;
-  pop_hist = predictModel(params, pop0);
+	auto param_vec_opt = getOptimalParameters(pop_observed, pop_init);
 
   auto t1 = std::chrono::high_resolution_clock::now();
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
-  for (int i = 0; i < 10; i++)
-    std::cout << uniformRand() << std::endl;
 
-	ObservedPopulation pop_SL("csv_data/srilanka.txt");
+  file_opt_params << std::scientific << std::setprecision(6);
+  for (int i = 0; i < param_vec_opt[0].m(); ++i)
+  {
+    for (std::size_t j = 0; j < param_vec_opt.size()-1; ++j)
+      file_opt_params << param_vec_opt[j][i] << ", ";
+    file_opt_params << param_vec_opt.back()[i] << std::endl;
+  }
 
-//	Vector x = std::vector<double>{0.4, 5, 2.7, -0.3, 3.6};
-//	Matrix A = getHaarMatrix(x.size());
-//	Vector y = A*x;
+  const int nt_hist = pop_observed.getNumDays();
 
-	getOptimalParameters(pop_SL);
+  std::array<std::vector<Population>, NUM_RESULTS> predictions;
+  for (int i = 0; i < NUM_RESULTS; ++i)
+  {
+    ModelParams params(nt_hist - 5, 5+14);
+    copyVector2Param(param_vec_opt[i], params);
+    predictions[i] = predictModel(params, pop_init);
+  }
+
+  file_predictions << std::scientific << std::setprecision(6);
+  for (std::size_t i = 0; i < predictions[0].size(); ++i)
+  {
+    for (std::size_t j = 0; j < predictions.size(); ++j)
+    file_predictions << predictions[j][i].getNumReported() << ", "
+                     << predictions[j][i].getNumRecoveredReported() << ", "
+                     << predictions[j][i].getNumFatalReported() << ", ";
+    file_predictions << std::endl;
+  }
+
+  file_opt_params.close();
+  file_predictions.close();
 
 	return 0;
 }
@@ -59,13 +101,16 @@ predictModel(const ModelParams& params, const Population& pop_init)
   return population_hist;
 }
 
-ModelParams
-getOptimalParameters(const ObservedPopulation& observed_pop)
+std::array<Vector,NUM_RESULTS>
+getOptimalParameters(const ObservedPopulation& pop_observed, const Population& pop_init)
 {
+  if (pop_observed.N != pop_init.N)
+    throwError("Initial population mismatch!");
+
   f_eval_count = 0;
   const int T_end_buffer = 5; //no. of non-optimized days at end
 
-  const int nt = observed_pop.getNumDays();
+  const int nt = pop_observed.getNumDays();
   const int nt_opt = nt - T_end_buffer; //number of days to optimize parameters for
 
   const auto param_bounds = getParameterBounds(nt_opt);
@@ -78,24 +123,26 @@ getOptimalParameters(const ObservedPopulation& observed_pop)
   copyVector2Param(param_vec, params);
 
   Vector param_vec0 = param_vec;
-  Vector param_vec_opt = param_vec;
+  std::array<Vector,NUM_RESULTS> param_vec_opt;
+  param_vec_opt.fill(param_vec);
 
-  Population pop_init(observed_pop.N, 5, 1); //TODO: set initial E0 and Rd
+  Matrix reg_matrix = getHaarMatrix(nt_opt); //Matrix(0,0);
 
-  Matrix reg_matrix = getHaarMatrix(nt_opt);
-
-  double cost0 = getCost(params, pop_init, observed_pop);
+  double cost0 = getCost(params, pop_init, pop_observed);
   double err_scaling = 1.0 / cost0;
 
-  cost0 = getCost(params, pop_init, observed_pop, reg_matrix, err_scaling);
+  cost0 = getCost(params, pop_init, pop_observed, reg_matrix, err_scaling);
 //  double cost = cost0;
 //  Vector cost_grad = getCostGradient(params, pop_init, observed_pop, param_bounds, reg_matrix, err_scaling);
 
-  double cost_rel_min = 1.0; //cost / cost0;
+  std::array<double,NUM_RESULTS> cost_rel_min; //cost / cost0;
+  std::array<double,NUM_RESULTS> cost_raw_min;
+  cost_rel_min.fill(1.0);
+
   const double cost_reduction_tol = 1e-4;
   const double min_eta = 1e-6;
-  const int max_iter_per_pass = 10;
-  const int max_passes = 5;
+  const int max_iter_per_pass = 20;
+  const int max_passes = 100;
 
   std::cout << std::scientific << std::setprecision(4);
 
@@ -103,7 +150,7 @@ getOptimalParameters(const ObservedPopulation& observed_pop)
   {
     std::cout << std::endl << "Pass " << pass << " ----------------" << std::endl;
 
-    double cost = getCost(params, pop_init, observed_pop, reg_matrix, err_scaling);
+    double cost = getCost(params, pop_init, pop_observed, reg_matrix, err_scaling);
 
     double cost_prev = cost;
     int stalled_iter = 0;
@@ -111,7 +158,7 @@ getOptimalParameters(const ObservedPopulation& observed_pop)
     int iter = 0;
     for (iter = 0; iter < max_iter_per_pass; ++iter)
     {
-      Vector cost_grad = getCostGradient(params, pop_init, observed_pop, param_bounds, reg_matrix, err_scaling);
+      Vector cost_grad = getCostGradient(params, pop_init, pop_observed, param_bounds, reg_matrix, err_scaling);
 
       double eta0 = limitUpdate(param_bounds, param_vec, cost_grad);
       std::cout << "  Iter: " << iter << ", cost: " << (cost/cost0) << ", eta0: " << eta0 << std::endl;
@@ -135,7 +182,7 @@ getOptimalParameters(const ObservedPopulation& observed_pop)
         copyVector2Param(param_vec, params);
 
         //Evaluate new cost
-        double cost_new = getCost(params, pop_init, observed_pop, reg_matrix, err_scaling);
+        double cost_new = getCost(params, pop_init, pop_observed, reg_matrix, err_scaling);
 //        std::cout << "    eta: " << eta << ", cost: " << (cost_new/cost0) << std::endl;
 
         if (cost_new < cost)
@@ -164,27 +211,46 @@ getOptimalParameters(const ObservedPopulation& observed_pop)
     } //gradient descent
 
     double cost_rel = cost/cost0;
-    std::cout << "Num_iter: " << iter << ", cost: " << (cost/cost0) << std::endl;
+    std::cout << "Num_iter: " << iter << ", cost: " << cost_rel << std::endl;
 
-    if (cost_rel < cost_rel_min)
+    if (cost_rel < cost_rel_min[0])
     {
-      cost_rel_min = cost_rel;
-      param_vec_opt = param_vec;
+      for (size_t i = cost_rel_min.size()-1; i > 0; i--)
+      {
+        cost_rel_min[i] = cost_rel_min[i-1];
+        cost_raw_min[i] = cost_raw_min[i-1];
+        param_vec_opt[i] = param_vec_opt[i-1];
+      }
+      cost_rel_min[0] = cost_rel;
+      cost_raw_min[0] = getCost(params, pop_init, pop_observed); //raw cost without regularization or scaling
+      param_vec_opt[0] = param_vec;
     }
 
     jump_energy = 1.0 - pass / (double) (max_passes - 1.0);
     std::cout << "Jump energy: " << jump_energy << std::endl;
 
-    param_vec = param_vec_opt;
+    param_vec = param_vec_opt[0];
     randomizeParameterVector(param_bounds, jump_energy, param_vec);
     copyVector2Param(param_vec, params);
 
   } //passes
 
-  std::cout << "Minimum cost: " << cost_rel_min << std::endl;
-  std::cout << "Evaluation count: " << f_eval_count << std::endl;
+  std::cout << "Minimum costs (relative): ";
+  for (std::size_t i = 0; i < NUM_RESULTS; i++)
+    std::cout << cost_rel_min[i] << ", ";
+  std::cout << std::endl;
 
-  return params;
+  std::cout << "Minimum costs (raw): ";
+  for (std::size_t i = 0; i < NUM_RESULTS; i++)
+    std::cout << cost_raw_min[i] << ", ";
+  std::cout << std::endl;
+
+  std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
+
+//  for (std::size_t i = 0; i < NUM_RESULTS; i++)
+//    std::cout << "Optimal params[" << i << "]: " << param_vec_opt[i] << std::endl << std::endl;
+
+  return param_vec_opt;
 }
 
 double getCost(const ModelParams& params, const Population& pop_init,
@@ -193,7 +259,7 @@ double getCost(const ModelParams& params, const Population& pop_init,
 {
   auto pop_hist = predictModel(params, pop_init);
 
-  const double wC = 1.0, wR = 1.0, wF = 1.0;
+  const double wC = 1.0, wR = 1.0, wF = 10.0;
   const int nt = params.nt_hist + params.nt_pred;
 
   double cost = 0.0;
@@ -243,7 +309,7 @@ double getCost(const ModelParams& params, const Population& pop_init,
       reg_c1 += std::abs(coeff_c1);
     }
 
-    const double wgt = 1e-1;
+    const double wgt = 0.05;
     const double reg_cost = wgt*reg_betaN + wgt*reg_ce + wgt*reg_c1;
     cost += reg_cost;
 

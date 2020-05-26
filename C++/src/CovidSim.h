@@ -15,12 +15,13 @@ struct ParamBound {
 };
 
 static int f_eval_count = 0;
+static constexpr int NUM_RESULTS = 5;
 
 int main();
 
 std::vector<Population> predictModel(const ModelParams& params, const Population& pop_init);
 
-ModelParams getOptimalParameters(const ObservedPopulation& observed_pop);
+std::array<Vector,NUM_RESULTS> getOptimalParameters(const ObservedPopulation& pop_observed, const Population& pop_init);
 
 double getCost(const ModelParams& params, const Population& pop_init,
                const ObservedPopulation& observed_pop, const Matrix& regularization_matrix = Matrix(0,0),

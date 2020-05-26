@@ -152,7 +152,7 @@ public:
   {
       std::ifstream in(filepath);
       if (!in)
-        throwError("Cannot open file");
+        throwError("Cannot open file - " + filepath);
 
       in >> N; //read in population
       int c;

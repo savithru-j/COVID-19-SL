@@ -64,4 +64,14 @@ Vector operator*(const Matrix& A, const Vector& x)
   return y;
 }
 
+std::ostream& operator<<(std::ostream& os, const Vector& v)
+{
+  os << std::scientific << std::setprecision(3);
+  os << "[";
+  for (int i = 0; i < v.m()-1; ++i)
+    os << v[i] << ", ";
+  os << v.back() << "]";
+  return os;
+}
+
 #endif
