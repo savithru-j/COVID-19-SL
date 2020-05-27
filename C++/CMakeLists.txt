@@ -26,12 +26,15 @@ enable_testing()
 #Bring the headers into the project
 INCLUDE_DIRECTORIES(src)
 
+INCLUDE(FindPkgConfig)
+INCLUDE( CMakeInclude/FindNLOPT.cmake )
 INCLUDE( CMakeInclude/CompileFlags.cmake )
 
-#SET(LIBS 
+SET(LIBS 
 #    #GridLib
 #    #IOLib
-#   )
+    ${NLOPT_LIBRARIES}
+   )
    
 ADD_SUBDIRECTORY( src )
 #ADD_SUBDIRECTORY( test )

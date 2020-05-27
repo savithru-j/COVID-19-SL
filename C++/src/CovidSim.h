@@ -17,12 +17,12 @@ struct ParamBound {
 struct OptimizationInfo
 {
   static constexpr int NUM_RESULTS = 5;  //no. of optimal results to store (best to worst)
-  static constexpr int T_END_BUFFER = 5; //no. of non-optimized days at end
+  int t_buffer = 0*5; //no. of non-optimized days at end
 
-  static constexpr double COST_REDUCTION_TOL = 1e-4;
-  static constexpr double MIN_ETA = 1e-5;
-  static constexpr int MAX_ITER_PER_PASS = 50;
-  static constexpr int MAX_PASSES = 100;
+  double cost_reduction_tol = 1e-4;
+  double min_eta = 1e-5;
+  int max_iter_per_pass = 100;
+  int max_passes = 100;
 
   Matrix reg_matrix = Matrix(0,0);
   bool regularize = true;
@@ -59,13 +59,16 @@ struct OptimizationInfo
 
 int main();
 
-std::vector<Population> predictModel(const ModelParams& params, const Population& pop_init);
+static std::vector<Population> predictModel(const ModelParams& params, const Population& pop_init);
 
 OptimizationInfo optimizeParameters(const ObservedPopulation& pop_observed, const Population& pop_init);
+OptimizationInfo optimizeParametersNLOPT(const ObservedPopulation& pop_observed, const Population& pop_init);
 
 std::pair<double, std::array<double, 4>>
 getCost(const ModelParams& params, const Population& pop_init,
         const ObservedPopulation& pop_observed, OptimizationInfo& optinfo);
+
+static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
 Vector getCostGradient(const ModelParams& params, const Population& pop_init,
                        const ObservedPopulation& pop_observed, const std::vector<ParamBound>& bounds,

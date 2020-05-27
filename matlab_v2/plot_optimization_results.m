@@ -2,11 +2,12 @@ clear
 clc
 close all
 
-country = 'us';
+country = 'srilanka64';
+suffix = '';
 
 observed_file = sprintf('csv_data/%s.txt', country);
-params_file = sprintf('../C++/build/release/results/%s_params.txt', country);
-pred_file = sprintf('../C++/build/release/results/%s_prediction.txt', country);
+params_file = sprintf('../C++/build/release/results/%s_params%s.txt', country, suffix);
+pred_file = sprintf('../C++/build/release/results/%s_prediction%s.txt', country, suffix);
 
 data_obs = importdata(observed_file);
 data_obs = reshape(data_obs(2:end),3,[])';
