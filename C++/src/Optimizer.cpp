@@ -139,6 +139,80 @@ Optimizer::optimizeParameters()
 //    std::cout << "Optimal params[" << i << "]: " << param_vec_opt[i] << std::endl << std::endl;
 }
 
+void
+Optimizer::optimizeParametersNLOPT()
+{
+  std::cout << "Optimizing parameters for " << nt_opt << " days..." << std::endl;
+
+  f_eval_count = 0;
+
+//  const auto param_bounds = getParameterBounds(nt_opt);
+//  std::size_t ndim = param_bounds.size();
+//  Vector param_vec(ndim);
+
+  //nlopt optimizer object
+  nlopt::opt opt(nlopt::LD_LBFGS, nDim());
+
+  opt.set_min_objective( getCostNLOPT, reinterpret_cast<void*>(this) );
+
+  //stop when every parameter changes by less than the tolerance multiplied by the absolute value of the parameter.
+  opt.set_xtol_rel(1e-6);
+
+  //stop when the objective function value changes by less than the tolerance multiplied by the absolute value of the function value
+  opt.set_ftol_rel(1e-8);
+
+  //stop when the maximum number of function evaluations is reached
+  opt.set_maxeval(100);
+
+//  opt.set_lower_bounds({2, -1000});
+
+  std::vector<double> x = param_vec.getDataVector();
+  double f_opt;
+
+  try
+  {
+    opt.optimize(x, f_opt);
+  }
+  catch (std::exception &e)
+  {
+    std::cout << e.what() << std::endl;
+    throwError("NLopt failed!");
+  }
+
+  for (int i = 0; i < NUM_RESULTS; ++i)
+    optimal_param_vec[i] = x;
+
+  std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
+  std::cout << "Optimal cost: " << f_opt << std::endl;
+}
+
+double
+Optimizer::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
+{
+  Optimizer* opt = reinterpret_cast<Optimizer*>(data);
+
+  opt->param_vec = x;
+  copyVector2Param(opt->param_vec, opt->params);
+
+  double cost = opt->getCost().first;
+
+  if (!grad.empty())
+    opt->getCostGradient(grad);
+
+  std::cout << "cost: " << cost << std::endl;
+
+  return cost;
+//  if (!grad.empty())
+//  {
+//    grad[0] = 2*(x[0]);
+//    grad[1] = 2*(x[1]);
+//  }
+//  double f = x[0]*x[0] + x[1]*x[1];
+//  std::cout << x[0] << ", " << x[1] << ": " << f << std::endl;
+//  return f;
+}
+
+
 std::pair<double, std::array<double, 4>>
 Optimizer::getCost()
 {
@@ -166,7 +240,7 @@ Optimizer::getCost()
     sq_fatal += pop_observed.deaths[i]*pop_observed.deaths[i];
   }
 
-  const double wC = 1.0, wR = 0.0, wF = 0.0;
+  const double wC = 1.0, wR = 0.0, wF = 1.0;
   sub_costs[0] = wC*(err_sq_total/sq_total) + wR*(err_sq_recov/sq_recov) + wF*(err_sq_fatal/sq_fatal);
 
   //Add regularization terms
@@ -211,7 +285,7 @@ Optimizer::getCost()
 }
 
 void
-Optimizer::getCostGradient(Vector& grad)
+Optimizer::getCostGradient(std::vector<double>& grad)
 {
   ModelParams params_orig = params; //create a copy of the current parameters
 
@@ -351,7 +425,7 @@ getParameterBounds(int nt)
   const int m = 3*nt + 10;
   std::vector<ParamBound> bounds(m);
 
-  const double delta = 1e-5;
+  const double delta = 1e-4;
 
   for (int i = 0; i < nt; ++i)
   {
@@ -413,70 +487,3 @@ Matrix getHaarMatrix(int m)
 
   return A;
 }
-
-/*
-OptData
-optimizeParametersNLOPT(const ObservedPopulation& pop_observed, const Population& pop_init)
-{
-  if (pop_observed.N != pop_init.N)
-    throwError("Initial population mismatch!");
-
-  OptData optinfo(pop_observed, pop_init);
-
-  const int nt = pop_observed.getNumDays();
-  const int nt_opt = nt - optinfo.t_buffer; //number of days to optimize parameters for
-
-  std::cout << "Optimizing parameters for " << nt_opt << " days..." << std::endl;
-
-  optinfo.reg_matrix = getHaarMatrix(nt_opt);
-
-  const auto param_bounds = getParameterBounds(nt_opt);
-  std::size_t ndim = param_bounds.size();
-  Vector param_vec(ndim);
-
-  //nlopt optimizer object
-  nlopt::opt opt(nlopt::LD_LBFGS, 2);
-
-  opt.set_min_objective( getCostNLOPT, reinterpret_cast<void*>(&optinfo) );
-
-  //stop when every parameter changes by less than the tolerance multiplied by the absolute value of the parameter.
-  opt.set_xtol_rel(1e-6);
-
-  //stop when the objective function value changes by less than the tolerance multiplied by the absolute value of the function value
-  opt.set_ftol_rel(1e-8);
-
-  //stop when the maximum number of function evaluations is reached
-  opt.set_maxeval(1000);
-
-  opt.set_lower_bounds({2, -1000});
-
-  std::vector<double> x = {1,1};
-  double f_opt;
-
-  try
-  {
-    opt.optimize(x, f_opt);
-  }
-  catch (std::exception &e)
-  {
-    std::cout << e.what() << std::endl;
-    throwError("NLopt failed!");
-  }
-
-  std::cout << "xopt: " << x[0] << ", " << x[1] << std::endl;
-
-  return optinfo;
-}
-
-double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
-{
-  if (!grad.empty())
-  {
-    grad[0] = 2*(x[0]);
-    grad[1] = 2*(x[1]);
-  }
-  double f = x[0]*x[0] + x[1]*x[1];
-  std::cout << x[0] << ", " << x[1] << ": " << f << std::endl;
-  return f;
-}
-*/

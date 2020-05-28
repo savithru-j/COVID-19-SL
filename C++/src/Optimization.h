@@ -21,6 +21,8 @@ double uniformRand(double min = 0.0, double max = 1.0);
 
 Matrix getHaarMatrix(int m);
 
+
+
 struct Optimizer
 {
   static constexpr int NUM_RESULTS = 5;  //no. of optimal results to store (best to worst)
@@ -47,8 +49,8 @@ struct Optimizer
 
   double cost_reduction_tol = 1e-4;
   double min_eta = 1e-5;
-  int max_iter_per_pass = 100;
-  int max_passes = 100;
+  int max_iter_per_pass = 200;
+  int max_passes = 10;
 
   const ObservedPopulation& pop_observed;
   const Population& pop_init;
@@ -73,7 +75,9 @@ struct Optimizer
 protected:
 
   std::pair<double, std::array<double, 4>> getCost();
-  void getCostGradient(Vector& grad);
+
+  void getCostGradient(std::vector<double>& grad);
+  void getCostGradient(Vector& grad) { getCostGradient(grad.getDataVector()); }
 
   void updateOptimalSolution(const double& cost_rel, const std::array<double,4>& sub_costs,
                              const Vector& param_vec);

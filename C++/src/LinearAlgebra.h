@@ -26,6 +26,8 @@ public:
 
   void resize(int m) { data_.resize(m); }
 
+  std::vector<double>& getDataVector() { return data_; }
+
 protected:
   std::vector<double> data_;
 };

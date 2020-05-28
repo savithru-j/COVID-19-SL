@@ -36,9 +36,10 @@ main()
 //  auto optinfo2 = optimizeParametersNLOPT(pop_observed, pop_init);
 //  exit(EXIT_FAILURE);
 
-  double reg_weight = 0.1;
+  double reg_weight = 0.01;
   Optimizer opt(pop_observed, pop_init, reg_weight);
-  opt.optimizeParameters();
+//  opt.optimizeParameters();
+  opt.optimizeParametersNLOPT();
 
   auto t1 = std::chrono::high_resolution_clock::now();
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
