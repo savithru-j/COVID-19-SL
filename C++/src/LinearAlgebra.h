@@ -48,7 +48,7 @@ protected:
   std::vector<double> data_;
 };
 
-Vector operator*(const Matrix& A, const Vector& x)
+inline Vector operator*(const Matrix& A, const Vector& x)
 {
   if (A.n() != x.m())
     throwError("Dimension mismatch for matrix vector multiplication!");
@@ -64,7 +64,7 @@ Vector operator*(const Matrix& A, const Vector& x)
   return y;
 }
 
-std::ostream& operator<<(std::ostream& os, const Vector& v)
+inline std::ostream& operator<<(std::ostream& os, const Vector& v)
 {
   os << "[";
   for (int i = 0; i < v.m()-1; ++i)
@@ -74,7 +74,7 @@ std::ostream& operator<<(std::ostream& os, const Vector& v)
 }
 
 template<typename T, std::size_t N>
-std::ostream& operator<<(std::ostream& os, const std::array<T,N>& v)
+inline std::ostream& operator<<(std::ostream& os, const std::array<T,N>& v)
 {
   for (std::size_t i = 0; i < N-1; ++i)
     os << v[i] << ", ";

@@ -30,7 +30,7 @@ struct ModelParams
   }
 
   int nt_hist, nt_pred;
-  const double dt = 1.0/24.0;
+  static constexpr double dt = 1.0/24.0;
   Vector betaN;
   Vector ce;
   Vector c0;

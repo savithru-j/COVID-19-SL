@@ -30,9 +30,8 @@ INCLUDE(FindPkgConfig)
 INCLUDE( CMakeInclude/FindNLOPT.cmake )
 INCLUDE( CMakeInclude/CompileFlags.cmake )
 
-SET(LIBS 
-#    #GridLib
-#    #IOLib
+SET(LIBS
+    CovidLib
     ${NLOPT_LIBRARIES}
    )
    
