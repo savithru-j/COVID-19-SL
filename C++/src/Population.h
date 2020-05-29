@@ -20,7 +20,7 @@ public:
   void evolve(const ModelParams& params, int t);
   void report(const ModelParams& params, int t);
 
-  inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + Rd + D[1]; }
+  inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1] + Rd + D[1]; }
   inline double getNumRecoveredReported() const { return Rd; }
   inline double getNumFatalReported() const { return D[1]; }
 

@@ -27,7 +27,9 @@ struct Optimizer
 {
   static constexpr int NUM_RESULTS = 5;  //no. of optimal results to store (best to worst)
 
-  Optimizer(const ObservedPopulation& pop_observed_, const Population& pop_init_, double reg_weight_ = 0.1);
+  Optimizer(const ObservedPopulation& pop_observed_, const Population& pop_init_,
+            double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1, double wreg_ = 0.01,
+            int max_iter_per_pass_ = 1000, int max_passes_ = 1);
 
 //  inline int nOptDays() const { return nt_opt; }
   inline int nDim() const { return param_vec.size(); };
@@ -45,18 +47,17 @@ struct Optimizer
   void optimizeParameters();
   void optimizeParametersNLOPT();
 
+  const ObservedPopulation& pop_observed;
+  const Population& pop_init;
+  double weight_conf, weight_recov, weight_fatal, weight_reg;
+  int max_iter_per_pass = 1000;
+  int max_passes = 1;
+
+  int nt_opt; //number of days to optimize parameters for
   int t_buffer = 0; //no. of non-optimized days at end
 
   double cost_reduction_tol = 1e-4;
   double min_eta = 1e-5;
-  int max_iter_per_pass = 200;
-  int max_passes = 1;
-
-  const ObservedPopulation& pop_observed;
-  const Population& pop_init;
-
-  double reg_weight;
-  int nt_opt; //number of days to optimize parameters for
 
   std::vector<ParamBound> param_bounds;
   Vector param_vec; //current solution vector

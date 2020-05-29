@@ -7,16 +7,19 @@
 #include "Optimization.h"
 #include "Simulator.h"
 
-Optimizer::Optimizer(const ObservedPopulation& pop_observed_,
-                     const Population& pop_init_, double reg_weight_) :
-    pop_observed(pop_observed_), pop_init(pop_init_), reg_weight(reg_weight_),
+Optimizer::Optimizer(const ObservedPopulation& pop_observed_, const Population& pop_init_,
+                     double wconf, double wrecov, double wfatal, double wreg,
+                     int max_iter_per_pass_, int max_passes_) :
+    pop_observed(pop_observed_), pop_init(pop_init_),
+    weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal), weight_reg(wreg),
+    max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
     nt_opt(pop_observed.getNumDays() - t_buffer),
     params(nt_opt, t_buffer)
 {
   if (pop_observed.N != pop_init.N)
     throwError("Initial population mismatch!");
 
-  if (reg_weight != 0.0)
+  if (weight_reg != 0.0)
   {
 //    reg_matrix = getHaarMatrix(nt_opt);
     reg_matrix = getDCTMatrix(nt_opt);
@@ -146,6 +149,7 @@ void
 Optimizer::optimizeParametersNLOPT()
 {
   std::cout << "Optimizing parameters for " << nt_opt << " days..." << std::endl;
+  std::cout << "No. of parameters: " << nDim() << std::endl;
 
   f_eval_count = 0;
 
@@ -161,7 +165,7 @@ Optimizer::optimizeParametersNLOPT()
   opt.set_ftol_rel(1e-8);
 
   //stop when the maximum number of function evaluations is reached
-  opt.set_maxeval(1000);
+  opt.set_maxeval(max_iter_per_pass);
 
   std::vector<double> lower_bounds(nDim()), upper_bounds(nDim());
   for (std::size_t i = 0; i < param_bounds.size(); ++i)
@@ -179,7 +183,7 @@ Optimizer::optimizeParametersNLOPT()
 
   for (int pass = 0; pass < max_passes; ++pass)
   {
-    std::cout << std::endl << "Pass " << pass << " ----------------" << std::endl;
+    std::cout << std::endl << "Pass " << pass << "/" << max_passes << " ----------------" << std::endl;
 
     std::vector<double> x = param_vec.getDataVector();
     double cost_opt;
@@ -265,12 +269,10 @@ Optimizer::getCost()
     sq_recov += pop_observed.recovered[i]*pop_observed.recovered[i];
     sq_fatal += pop_observed.deaths[i]*pop_observed.deaths[i];
   }
-
-  const double wC = 1.0, wR = 1.0, wF = 1.0;
-  sub_costs[0] = wC*(err_sq_total/sq_total) + wR*(err_sq_recov/sq_recov) + wF*(err_sq_fatal/sq_fatal);
+  sub_costs[0] = weight_conf*(err_sq_total/sq_total) + weight_recov*(err_sq_recov/sq_recov) + weight_fatal*(err_sq_fatal/sq_fatal);
 
   //Add regularization terms
-  if (reg_weight != 0.0)
+  if (weight_reg != 0.0)
   {
     for (int i = 0; i < reg_matrix.m(); ++i)
     {
@@ -304,12 +306,12 @@ Optimizer::getCost()
       sub_costs[1] += std::abs(coeff_betaN);
       sub_costs[2] += std::abs(coeff_c0);
       sub_costs[3] += std::abs(coeff_c1);
-      sub_costs[4] += std::abs(coeff_c2);
-      sub_costs[5] += std::abs(coeff_c3);
+      sub_costs[4] += 0*std::abs(coeff_c2);
+      sub_costs[5] += 0*std::abs(coeff_c3);
     }
 
     for (int i = 1; i < 6; ++i)
-      sub_costs[i] *= reg_weight;
+      sub_costs[i] *= weight_reg;
   } //if-regularize
 
   const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2] + sub_costs[3] + sub_costs[4] + sub_costs[5];
@@ -490,7 +492,7 @@ void copyVector2Param(const Vector& v, ModelParams& params)
   for (int i = 0; i < nt; ++i)
   {
     params.betaN[i] = v[       i];
-    params.ce[i]    = v[  nt + i];
+//    params.ce[i]    = v[  nt + i];
     params.c0[i]    = v[  nt + i]; //ce = c0
     params.c1[i]    = v[2*nt + i];
     params.c2[i]    = v[3*nt + i];
@@ -501,7 +503,7 @@ void copyVector2Param(const Vector& v, ModelParams& params)
   for (int i = nt; i < N; ++i) //Copy last "history" value to prediction section
   {
     params.betaN[i] = params.betaN[nt-1];
-    params.ce[i]    = params.ce[nt-1];
+//    params.ce[i]    = params.ce[nt-1];
     params.c0[i]    = params.c0[nt-1];
     params.c1[i]    = params.c1[nt-1];
     params.c2[i]    = params.c2[nt-1];
@@ -535,8 +537,8 @@ getParameterBounds(int nt)
     bounds[       i] = ParamBound(0, 2, delta); //betaN
     bounds[  nt + i] = ParamBound(0, 1, delta); //c0 = ce
     bounds[2*nt + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*nt + i] = ParamBound(0, 1, delta); //c2
-    bounds[4*nt + i] = ParamBound(0, 1, delta); //c3
+    bounds[3*nt + i] = ParamBound(0.99, 1, delta); //c2
+    bounds[4*nt + i] = ParamBound(0.99, 1, delta); //c3
   }
   const int off = 5*nt;
   bounds[off  ] = ParamBound(2.9, 3.1, delta); //T_incub0
@@ -549,7 +551,7 @@ getParameterBounds(int nt)
   bounds[off+7] = ParamBound(0.5, 0.9, delta); //frac_recover_I1
   bounds[off+8] = ParamBound(0.5, 0.9, delta); //frac_recover_I2
   bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
-  bounds[off+10] = ParamBound(1, 30, delta); //T_discharge
+  bounds[off+10] = ParamBound(13.9, 14.1, delta); //T_discharge
 
 //  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
 //  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
