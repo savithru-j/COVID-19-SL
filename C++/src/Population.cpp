@@ -30,6 +30,7 @@ Population::evolve(const ModelParams& params, int t)
   const double p2  = (1/params.T_severe) * prob_I2_I3;
   const double g3  = (1/params.T_icu)    * prob_I3_R;
   const double mu  = (1/params.T_icu)    * prob_I3_D;
+  const double gd =  (1/params.T_discharge);
 
   double a1 = a10 + a11;
   double b = params.betaN[t] / N;
@@ -42,8 +43,9 @@ Population::evolve(const ModelParams& params, int t)
   Array2 dI1 = {0, 0}; //params.quarantine_input[t]];
   Array2 dI2 = {0, 0};
   Array2 dI3 = {0, 0};
-  Array2 dR = {0, 0};
-  Array2 dD = {0, 0};
+  Array2 dR  = {0, -gd*R[1]};
+  Array2 dD  = {0, 0};
+  double dRd = gd*R[1];
 
   for (int d = 0; d < 2; ++d) //loop over layers
   {
@@ -69,6 +71,7 @@ Population::evolve(const ModelParams& params, int t)
     R[d]  +=  dR[d] * params.dt;
     D[d]  +=  dD[d] * params.dt;
   }
+  Rd += dRd * params.dt;
 
   if (E0 < 0.5)
     E0 = 0.0;

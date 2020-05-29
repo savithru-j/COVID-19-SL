@@ -37,17 +37,17 @@ struct ModelParams
   Vector c1;
   Vector c2;
   Vector c3;
-  double T_incub0 = 3.0;
-  double T_incub1 = 2.0;
-  double T_asympt = 6.0;
-  double T_mild   = 6.0;
-  double T_severe = 4.0;
-  double T_icu    = 10.0;
-  double T_recov  = 14.0;
-  double f        = 0.3;          //exposed to asymptomatic probability
+  double T_incub0        = 3.0;
+  double T_incub1        = 2.0;
+  double T_asympt        = 6.0;
+  double T_mild          = 6.0;
+  double T_severe        = 4.0;
+  double T_icu           = 10.0;
+  double T_discharge     = 4.0;
+  double f               = 0.3;   //exposed to asymptomatic probability
   double frac_recover_I1 = 0.80;  //fraction of cases that recover from mild-infected stage I1
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
-  double CFR      = 0.02;         //case fatality rate
+  double CFR             = 0.02;  //case fatality rate
 
 };
 

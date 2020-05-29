@@ -2,7 +2,7 @@ clear
 clc
 close all
 
-country = 'srilanka';
+country = 'srilanka64';
 suffix = '';
 
 observed_file = sprintf('csv_data/%s.txt', country);
@@ -19,14 +19,14 @@ pred_conf = data_pred(:,1:3:end);
 pred_recov = data_pred(:,2:3:end);
 pred_fatal = data_pred(:,3:3:end);
 
-nt = (size(data_params,1) - 10) / 5
+nt = (size(data_params,1) - 11) / 5
 beta = data_params(1:nt, :);
 c0 = data_params((  nt+1):2*nt, :);
 c1 = data_params((2*nt+1):3*nt, :);
 c2 = data_params((3*nt+1):4*nt, :);
 c3 = data_params((4*nt+1):5*nt, :);
 
-data_params(end-9:end,:)
+data_params(end-10:end,:)
 
 figure(1)
 subplot(1,3,1)

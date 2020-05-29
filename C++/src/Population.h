@@ -20,8 +20,8 @@ public:
   void evolve(const ModelParams& params, int t);
   void report(const ModelParams& params, int t);
 
-  inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1] + D[1]; }
-  inline double getNumRecoveredReported() const { return R[1]; }
+  inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + Rd + D[1]; }
+  inline double getNumRecoveredReported() const { return Rd; }
   inline double getNumFatalReported() const { return D[1]; }
 
   double N = 0;
@@ -34,6 +34,7 @@ public:
   Array2 I3;
   Array2 R;
   Array2 D;
+  double Rd = 0; //discharged after recovery
 };
 
 std::ostream& operator<<(std::ostream& os, const Population& pop);

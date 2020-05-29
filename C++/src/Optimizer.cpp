@@ -207,8 +207,9 @@ Optimizer::optimizeParametersNLOPT()
     x = param_vec.getDataVector();
   }
 
-  for (int i = 1; i < NUM_RESULTS; ++i)
-    optimal_param_vec[i] = optimal_param_vec[0];
+
+  for (int i = max_passes; i < NUM_RESULTS; ++i)
+    optimal_param_vec[i] = optimal_param_vec[max_passes-1];
 
   std::cout << std::endl;
   std::cout << "Minimum costs (relative): " << cost_rel_min << std::endl;
@@ -230,7 +231,8 @@ Optimizer::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad,
   if (!grad.empty())
     grad_norm = opt->getCostGradient(grad);
 
-  std::cout << "  Iter: " << opt->nlopt_iter << ", Cost: " << cost.first << ", Grad-norm: " << grad_norm << std::endl;
+  std::cout << "  Iter: " << opt->nlopt_iter << ", Cost: " << cost.first
+            << " = [" << cost.second << "], Grad-norm: " << grad_norm << std::endl;
   opt->nlopt_iter++;
 
   return cost.first;
@@ -264,7 +266,7 @@ Optimizer::getCost()
     sq_fatal += pop_observed.deaths[i]*pop_observed.deaths[i];
   }
 
-  const double wC = 1.0, wR = 0.0, wF = 1.0;
+  const double wC = 1.0, wR = 1.0, wF = 1.0;
   sub_costs[0] = wC*(err_sq_total/sq_total) + wR*(err_sq_recov/sq_recov) + wF*(err_sq_fatal/sq_fatal);
 
   //Add regularization terms
@@ -450,7 +452,7 @@ Optimizer::getNLOPTResultDescription(nlopt::result resultcode)
 void copyParam2Vector(const ModelParams& params, Vector& v)
 {
   const int nt = params.nt_hist;
-  const int m = 5*nt + 10;
+  const int m = 5*nt + 11;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 //  if (v.m() != m)
@@ -475,12 +477,13 @@ void copyParam2Vector(const ModelParams& params, Vector& v)
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
   v[off+9] = params.CFR;
+  v[off+10] = params.T_discharge;
 }
 
 void copyVector2Param(const Vector& v, ModelParams& params)
 {
   const int nt = params.nt_hist;
-  const int m = 5*nt + 10;
+  const int m = 5*nt + 11;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
@@ -516,12 +519,13 @@ void copyVector2Param(const Vector& v, ModelParams& params)
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
   params.CFR             = v[off+9];
+  params.T_discharge     = v[off+10];
 }
 
 std::vector<ParamBound>
 getParameterBounds(int nt)
 {
-  const int m = 5*nt + 10;
+  const int m = 5*nt + 11;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
@@ -545,6 +549,7 @@ getParameterBounds(int nt)
   bounds[off+7] = ParamBound(0.5, 0.9, delta); //frac_recover_I1
   bounds[off+8] = ParamBound(0.5, 0.9, delta); //frac_recover_I2
   bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(1, 30, delta); //T_discharge
 
 //  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
 //  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1

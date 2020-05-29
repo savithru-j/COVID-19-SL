@@ -12,7 +12,7 @@
 int
 main()
 {
-  std::string country = "srilanka";
+  std::string country = "srilanka64";
 
 	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
 
@@ -36,7 +36,7 @@ main()
 //  auto optinfo2 = optimizeParametersNLOPT(pop_observed, pop_init);
 //  exit(EXIT_FAILURE);
 
-  double reg_weight = 0.001;
+  double reg_weight = 0.0001;
   Optimizer opt(pop_observed, pop_init, reg_weight);
 //  opt.optimizeParameters();
   opt.optimizeParametersNLOPT();
