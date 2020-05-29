@@ -20,7 +20,7 @@ std::vector<ParamBound> getParameterBounds(int nt);
 double uniformRand(double min = 0.0, double max = 1.0);
 
 Matrix getHaarMatrix(int m);
-
+Matrix getDCTMatrix(int N);
 
 
 struct Optimizer
@@ -45,12 +45,12 @@ struct Optimizer
   void optimizeParameters();
   void optimizeParametersNLOPT();
 
-  int t_buffer = 0*5; //no. of non-optimized days at end
+  int t_buffer = 0; //no. of non-optimized days at end
 
   double cost_reduction_tol = 1e-4;
   double min_eta = 1e-5;
   int max_iter_per_pass = 200;
-  int max_passes = 10;
+  int max_passes = 1;
 
   const ObservedPopulation& pop_observed;
   const Population& pop_init;
@@ -65,24 +65,27 @@ struct Optimizer
   Matrix reg_matrix = Matrix(0,0);
 
   int f_eval_count = 0;
+  int nlopt_iter = 0;
 
   std::array<Vector,NUM_RESULTS> optimal_param_vec;
   std::array<double,NUM_RESULTS> cost_rel_min;
-  std::array<std::array<double,4>,NUM_RESULTS> sub_costs_min;
+  std::array<std::array<double,6>,NUM_RESULTS> sub_costs_min;
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
 protected:
 
-  std::pair<double, std::array<double, 4>> getCost();
+  std::pair<double, std::array<double, 6>> getCost();
 
-  void getCostGradient(std::vector<double>& grad);
-  void getCostGradient(Vector& grad) { getCostGradient(grad.getDataVector()); }
+  double getCostGradient(std::vector<double>& grad);
+  double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
 
-  void updateOptimalSolution(const double& cost_rel, const std::array<double,4>& sub_costs,
+  void updateOptimalSolution(const double& cost_rel, const std::array<double,6>& sub_costs,
                              const Vector& param_vec);
 
   double limitUpdate(Vector& dparam_vec);
+
+  std::string getNLOPTResultDescription(nlopt::result resultcode);
 };
 
 #endif

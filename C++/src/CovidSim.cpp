@@ -12,7 +12,7 @@
 int
 main()
 {
-  std::string country = "srilanka64";
+  std::string country = "srilanka";
 
 	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
 
@@ -36,7 +36,7 @@ main()
 //  auto optinfo2 = optimizeParametersNLOPT(pop_observed, pop_init);
 //  exit(EXIT_FAILURE);
 
-  double reg_weight = 0.01;
+  double reg_weight = 0.001;
   Optimizer opt(pop_observed, pop_init, reg_weight);
 //  opt.optimizeParameters();
   opt.optimizeParametersNLOPT();
@@ -58,7 +58,7 @@ main()
   std::array<std::vector<Population>, Optimizer::NUM_RESULTS> predictions;
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams params(nt_hist - opt.t_buffer, opt.t_buffer);
+    ModelParams params(nt_hist - opt.t_buffer, opt.t_buffer + 7);
     copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
   }

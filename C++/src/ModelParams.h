@@ -43,6 +43,7 @@ struct ModelParams
   double T_mild   = 6.0;
   double T_severe = 4.0;
   double T_icu    = 10.0;
+  double T_recov  = 14.0;
   double f        = 0.3;          //exposed to asymptomatic probability
   double frac_recover_I1 = 0.80;  //fraction of cases that recover from mild-infected stage I1
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
