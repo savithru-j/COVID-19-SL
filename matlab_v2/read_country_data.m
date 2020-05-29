@@ -1,15 +1,15 @@
 
 
-function [country_names country_data] = read_country_data(fName)
+function [country_names, country_data] = read_country_data(fName)
 
     Data_string     = fileread(fName);
     ind_openSqBrace     = find(Data_string=='[');
     ind_closeSqBrace    = find(Data_string==']');
 
     % first country name
-    next_country_name   = strtrim(Data_string(1:ind_openSqBrace(1)-1))
-    ind_quotes          = find(next_country_name=='"')    
-    next_country_name   = next_country_name(ind_quotes(1)+1:ind_quotes(2)-1)
+    next_country_name   = strtrim(Data_string(1:ind_openSqBrace(1)-1));
+    ind_quotes          = find(next_country_name=='"');
+    next_country_name   = next_country_name(ind_quotes(1)+1:ind_quotes(2)-1);
 
     for i=1:length(ind_openSqBrace)
         country_ind = i;
@@ -21,7 +21,7 @@ function [country_names country_data] = read_country_data(fName)
         if ~(i==length(ind_openSqBrace))
             next_country_name   = strtrim(Data_string(ind_closeSqBrace(country_ind)+1:ind_openSqBrace(country_ind+1)-1));
             ind_quotes          = find(next_country_name=='"');
-            next_country_name   = next_country_name(ind_quotes(1)+1:ind_quotes(2)-1)
+            next_country_name   = next_country_name(ind_quotes(1)+1:ind_quotes(2)-1);
         end
     end
     
