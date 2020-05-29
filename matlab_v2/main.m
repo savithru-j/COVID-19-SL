@@ -73,9 +73,9 @@ model_population.R.N(2) = 1;
 model_population.S.N = model_population.S_0 - model_population.E0.N - model_population.R.N(2);
 
 options     = optimoptions('fmincon',...
-                            'MaxIterations',1000,...
-                            'MaxFunctionEvaluations',1e4,...
-                            'FiniteDifferenceStepSize',0.005,...
+                            'MaxIterations',10000,...
+                            'MaxFunctionEvaluations',1e6,...
+                            'FiniteDifferenceStepSize',0.001,...
                             'UseParallel',false);
 x0          = rand(length(gt.confirmed),6);
 x_lb        = zeros(size(x0));
@@ -110,8 +110,19 @@ x_ub(1:10,6)= [3    2    30   30   4    10   0.3   0.9     0.9      0.02];
 err_type    = 'L2_type1';   % {'log_type1','log_type2','L2_type1','L2_type2'}
 
 % wl regularizer
+
+
 optF        = @(x) SEIR_objective_wlReg(x,model_population,gt,err_type)  % optimization functon
-[x,fval]    = fmincon(optF,x0(:),[],[],[],[],x_lb(:),x_ub(:),[],options);
+parfor i=1:40
+    i
+    tic
+    x0          = x_lb + (x_ub-x_lb).*rand(length(gt.confirmed),6);
+    [xx{i},fval]    = fmincon(optF,x0(:),[],[],[],[],x_lb(:),x_ub(:),[],options);
+    toc
+end
+x = xx{29};
+
+
 [fval, evolutions]  = optF(x);
 
 %% Figures
