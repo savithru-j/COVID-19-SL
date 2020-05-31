@@ -49,7 +49,7 @@ main(int argc, char *argv[])
     throwError("nt_hist <= 0!");
 
   ModelParams params(nt_hist, 0);
-  copyVector2Param(param_vec, params);
+  Optimizer::copyVector2Param(param_vec, params);
 
   auto t0 = std::chrono::high_resolution_clock::now();
 

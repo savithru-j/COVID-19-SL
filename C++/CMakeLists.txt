@@ -46,6 +46,9 @@ ADD_SUBDIRECTORY( src )
  
 add_executable(CovidOpt src/CovidOpt.cpp)
 target_link_libraries(CovidOpt ${LIBS})
+
+add_executable(CovidOptLowDim src/CovidOptLowDim.cpp)
+target_link_libraries(CovidOptLowDim ${LIBS})
  
 add_executable(CovidSim src/CovidSim.cpp)
 target_link_libraries(CovidSim ${LIBS})
