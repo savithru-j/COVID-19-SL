@@ -2,9 +2,7 @@
 #include <iomanip>
 #include <random>
 
-#include <nlopt.hpp>
-
-#include "Optimization.h"
+#include "Optimizer.h"
 #include "Simulator.h"
 
 Optimizer::Optimizer(const ObservedPopulation& pop_observed_, const Population& pop_init_,
@@ -255,6 +253,7 @@ Optimizer::getCost()
   double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
 
+#if 1
   for (int i = 1; i < nt; ++i)
   {
     double err_total = (pop_hist[i].getNumReported() - pop_observed.confirmed[i]);
@@ -265,11 +264,33 @@ Optimizer::getCost()
     err_sq_recov += err_recov*err_recov;
     err_sq_fatal += err_fatal*err_fatal;
 
-    sq_total += pop_observed.confirmed[i]*pop_observed.confirmed[i];
-    sq_recov += pop_observed.recovered[i]*pop_observed.recovered[i];
-    sq_fatal += pop_observed.deaths[i]*pop_observed.deaths[i];
+    sq_total += (double)pop_observed.confirmed[i]*(double)pop_observed.confirmed[i];
+    sq_recov += (double)pop_observed.recovered[i]*(double)pop_observed.recovered[i];
+    sq_fatal += (double)pop_observed.deaths[i]   *(double)pop_observed.deaths[i];
   }
   sub_costs[0] = weight_conf*(err_sq_total/sq_total) + weight_recov*(err_sq_recov/sq_recov) + weight_fatal*(err_sq_fatal/sq_fatal);
+#else
+  const double eps = 1e-10;
+  for (int i = 1; i < nt; ++i)
+  {
+    double logC = std::log(pop_observed.confirmed[i] + eps);
+    double logR = std::log(pop_observed.recovered[i] + eps);
+    double logF = std::log(pop_observed.deaths[i] + eps);
+
+    double err_total = (std::log(pop_hist[i].getNumReported() + eps) - logC);
+    double err_recov = (std::log(pop_hist[i].getNumRecoveredReported() + eps) - logR);
+    double err_fatal = (std::log(pop_hist[i].getNumFatalReported() + eps) - logF);
+
+    err_sq_total += err_total*err_total;
+    err_sq_recov += err_recov*err_recov;
+    err_sq_fatal += err_fatal*err_fatal;
+
+    sq_total += logC*logC;
+    sq_recov += logR*logR;
+    sq_fatal += logF*logF;
+  }
+  sub_costs[0] = weight_conf*(err_sq_total/sq_total) + weight_recov*(err_sq_recov/sq_recov) + weight_fatal*(err_sq_fatal/sq_fatal);
+#endif
 
   //Add regularization terms
   if (weight_reg != 0.0)
@@ -306,8 +327,8 @@ Optimizer::getCost()
       sub_costs[1] += std::abs(coeff_betaN);
       sub_costs[2] += std::abs(coeff_c0);
       sub_costs[3] += std::abs(coeff_c1);
-      sub_costs[4] += 0*std::abs(coeff_c2);
-      sub_costs[5] += 0*std::abs(coeff_c3);
+      sub_costs[4] += std::abs(coeff_c2);
+      sub_costs[5] += std::abs(coeff_c3);
     }
 
     for (int i = 1; i < 6; ++i)
@@ -492,7 +513,7 @@ void copyVector2Param(const Vector& v, ModelParams& params)
   for (int i = 0; i < nt; ++i)
   {
     params.betaN[i] = v[       i];
-//    params.ce[i]    = v[  nt + i];
+    params.ce[i]    = v[  nt + i];
     params.c0[i]    = v[  nt + i]; //ce = c0
     params.c1[i]    = v[2*nt + i];
     params.c2[i]    = v[3*nt + i];
@@ -503,7 +524,7 @@ void copyVector2Param(const Vector& v, ModelParams& params)
   for (int i = nt; i < N; ++i) //Copy last "history" value to prediction section
   {
     params.betaN[i] = params.betaN[nt-1];
-//    params.ce[i]    = params.ce[nt-1];
+    params.ce[i]    = params.ce[nt-1];
     params.c0[i]    = params.c0[nt-1];
     params.c1[i]    = params.c1[nt-1];
     params.c2[i]    = params.c2[nt-1];
@@ -537,21 +558,33 @@ getParameterBounds(int nt)
     bounds[       i] = ParamBound(0, 2, delta); //betaN
     bounds[  nt + i] = ParamBound(0, 1, delta); //c0 = ce
     bounds[2*nt + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*nt + i] = ParamBound(0.99, 1, delta); //c2
-    bounds[4*nt + i] = ParamBound(0.99, 1, delta); //c3
+    bounds[3*nt + i] = ParamBound(0, 1, delta); //c2
+    bounds[4*nt + i] = ParamBound(0, 1, delta); //c3
   }
   const int off = 5*nt;
-  bounds[off  ] = ParamBound(2.9, 3.1, delta); //T_incub0
-  bounds[off+1] = ParamBound(1.9, 2.1, delta); //T_incub1
-  bounds[off+2] = ParamBound(5.9, 6.1, delta); //T_asympt
-  bounds[off+3] = ParamBound(5.9, 6.1, delta); //T_mild
-  bounds[off+4] = ParamBound(3.9, 4.1, delta); //T_severe
-  bounds[off+5] = ParamBound(9.9, 10.1, delta); //T_icu
-  bounds[off+6] = ParamBound(0.29, 0.31, delta); //f
-  bounds[off+7] = ParamBound(0.5, 0.9, delta); //frac_recover_I1
-  bounds[off+8] = ParamBound(0.5, 0.9, delta); //frac_recover_I2
-  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
-  bounds[off+10] = ParamBound(13.9, 14.1, delta); //T_discharge
+  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
+  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
+  bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
+  bounds[off+3] = ParamBound(6.0, 6.0, delta); //T_mild
+  bounds[off+4] = ParamBound(4.0, 4.0, delta); //T_severe
+  bounds[off+5] = ParamBound(10.0, 10.0, delta); //T_icu
+  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
+  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
+  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
+  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+
+//  bounds[off  ] = ParamBound(2.9, 3.1, delta); //T_incub0
+//  bounds[off+1] = ParamBound(1.9, 2.1, delta); //T_incub1
+//  bounds[off+2] = ParamBound(5.9, 6.1, delta); //T_asympt
+//  bounds[off+3] = ParamBound(5.9, 6.1, delta); //T_mild
+//  bounds[off+4] = ParamBound(3.9, 4.1, delta); //T_severe
+//  bounds[off+5] = ParamBound(9.9, 10.1, delta); //T_icu
+//  bounds[off+6] = ParamBound(0.29, 0.31, delta); //f
+//  bounds[off+7] = ParamBound(0.5, 0.9, delta); //frac_recover_I1
+//  bounds[off+8] = ParamBound(0.5, 0.9, delta); //frac_recover_I2
+//  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+//  bounds[off+10] = ParamBound(13.9, 14.1, delta); //T_discharge
 
 //  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
 //  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
@@ -563,6 +596,7 @@ getParameterBounds(int nt)
 //  bounds[off+7] = ParamBound(0.1, 0.9, delta); //frac_recover_I1
 //  bounds[off+8] = ParamBound(0.1, 0.9, delta); //frac_recover_I2
 //  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+//  bounds[off+10] = ParamBound(1.0, 28.0, delta); //T_discharge
 
   return bounds;
 }

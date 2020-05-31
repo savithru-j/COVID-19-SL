@@ -1,6 +1,8 @@
 #ifndef OPTIMIZATION_H
 #define OPTIMIZATION_H
 
+#include <nlopt.hpp>
+
 #include "Population.h"
 #include "LinearAlgebra.h"
 
@@ -31,7 +33,6 @@ struct Optimizer
             double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1, double wreg_ = 0.01,
             int max_iter_per_pass_ = 1000, int max_passes_ = 1);
 
-//  inline int nOptDays() const { return nt_opt; }
   inline int nDim() const { return param_vec.size(); };
 
   inline void randomizeParameters(const double energy = 1.0)
@@ -53,8 +54,8 @@ struct Optimizer
   int max_iter_per_pass = 1000;
   int max_passes = 1;
 
-  int nt_opt; //number of days to optimize parameters for
   int t_buffer = 0; //no. of non-optimized days at end
+  int nt_opt; //number of days to optimize parameters for
 
   double cost_reduction_tol = 1e-4;
   double min_eta = 1e-5;

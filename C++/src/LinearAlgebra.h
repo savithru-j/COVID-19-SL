@@ -24,7 +24,7 @@ public:
 
   const double& back() const { return data_.back(); }
 
-  void resize(int m) { data_.resize(m); }
+  void resize(int m, const double& val = 0.0) { data_.resize(m, val); }
 
   std::vector<double>& getDataVector() { return data_; }
 
