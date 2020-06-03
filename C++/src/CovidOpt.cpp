@@ -74,7 +74,7 @@ main(int argc, char *argv[])
     param_vec.push_back(val);
   in.close();
   opt.param_vec = param_vec;
-  copyVector2Param(opt.param_vec, opt.params);
+  Optimizer::copyVector2Param(opt.param_vec, opt.params);
 #endif
 
 //  opt.optimizeParameters();

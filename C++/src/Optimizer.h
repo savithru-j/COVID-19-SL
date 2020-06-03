@@ -120,7 +120,7 @@ struct OptimizerLowDim
 
   const ObservedPopulation& pop_observed;
   const Population& pop_init;
-  const int num_basis;
+  const int nt_opt, num_basis;
   double weight_conf, weight_recov, weight_fatal;
   int max_iter_per_pass = 1000;
   int max_passes = 1;
@@ -148,7 +148,7 @@ protected:
   double getCostGradient(std::vector<double>& grad);
   double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
 
-  static std::vector<ParamBound> getParameterBounds(int nt);
+  static std::vector<ParamBound> getParameterBounds(int nt, int num_basis);
 
   static void evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params);
 

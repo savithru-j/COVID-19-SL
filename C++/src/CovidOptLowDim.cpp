@@ -65,7 +65,7 @@ main(int argc, char *argv[])
   OptimizerLowDim opt(pop_observed, pop_init, num_basis, weight_conf, weight_recov, weight_fatal,
                       max_iter_per_pass, max_passes);
 
-#if 0
+#if 1
   std::string filepath = "csv_data/" + country + "_params.txt";
   std::ifstream in(filepath);
   std::vector<double> param_vec;
@@ -73,8 +73,9 @@ main(int argc, char *argv[])
   while (in >> val)
     param_vec.push_back(val);
   in.close();
-  opt.param_vec = param_vec;
-  copyVector2Param(opt.param_vec, opt.params);
+  Optimizer::copyVector2Param(param_vec, opt.params);
+//  auto orig_params = opt.params;
+  opt.copyParam2Vector(opt.params, opt.param_vec);
 #endif
 
   opt.optimizeParametersNLOPT();
@@ -88,7 +89,7 @@ main(int argc, char *argv[])
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams params(nt_hist, 7);
+    ModelParams params(nt_hist, 0);
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
@@ -104,9 +105,6 @@ main(int argc, char *argv[])
     file_opt_params << param_vecs_full.back()[i] << std::endl;
   }
   std::cout << "Wrote optimal parameters to " << filepath_opt_params << std::endl;
-
-
-
 
 
   file_predictions << std::scientific << std::setprecision(6);
