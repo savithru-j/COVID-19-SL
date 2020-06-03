@@ -65,7 +65,7 @@ main(int argc, char *argv[])
   OptimizerLowDim opt(pop_observed, pop_init, num_basis, weight_conf, weight_recov, weight_fatal,
                       max_iter_per_pass, max_passes);
 
-#if 1
+#if 0 //Initialize to true params
   std::string filepath = "csv_data/" + country + "_params.txt";
   std::ifstream in(filepath);
   std::vector<double> param_vec;
@@ -74,7 +74,6 @@ main(int argc, char *argv[])
     param_vec.push_back(val);
   in.close();
   Optimizer::copyVector2Param(param_vec, opt.params);
-//  auto orig_params = opt.params;
   opt.copyParam2Vector(opt.params, opt.param_vec);
 #endif
 

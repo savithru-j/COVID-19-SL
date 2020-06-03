@@ -100,6 +100,7 @@ struct OptimizerLowDim
 
   inline int nDim() const { return param_vec.size(); };
 
+#if 0
   inline void randomizeParameters()
   {
     for (int i = 0; i < 5; ++i)
@@ -115,6 +116,24 @@ struct OptimizerLowDim
 
     copyVector2Param(param_vec, params);
   }
+#else
+  inline void randomizeParameters()
+  {
+    const int num_nodes = (int)(nt_opt/num_basis) + 1;
+    for (int i = 0; i < 5; ++i)
+    {
+      param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
+      for (int j = 1; j < num_nodes; ++j)
+        param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
+    }
+
+    const int off = 5*num_nodes;
+    for (int i = off; i < param_vec.m(); ++i)
+      param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
+
+    copyVector2Param(param_vec, params);
+  }
+#endif
 
   void optimizeParametersNLOPT();
 

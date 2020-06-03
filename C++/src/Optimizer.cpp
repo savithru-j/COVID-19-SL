@@ -1003,6 +1003,7 @@ OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
       const int ind = ind0 + j;
       params.betaN[ind] = (1-s)*v[              i] + s*v[              i+1];
       params.c0[ind]    = (1-s)*v[  num_nodes + i] + s*v[  num_nodes + i+1];
+      params.ce[ind]    = params.c0[ind];
       params.c1[ind]    = (1-s)*v[2*num_nodes + i] + s*v[2*num_nodes + i+1];
       params.c2[ind]    = (1-s)*v[3*num_nodes + i] + s*v[3*num_nodes + i+1];
       params.c3[ind]    = (1-s)*v[4*num_nodes + i] + s*v[4*num_nodes + i+1];
