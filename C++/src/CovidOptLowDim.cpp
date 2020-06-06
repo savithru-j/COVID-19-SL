@@ -112,7 +112,10 @@ main(int argc, char *argv[])
     for (std::size_t j = 0; j < predictions.size(); ++j)
     file_predictions << predictions[j][i].getNumReported() << ", "
                      << predictions[j][i].getNumRecoveredReported() << ", "
-                     << predictions[j][i].getNumFatalReported() << ", ";
+                     << predictions[j][i].getNumFatalReported() << ", "
+                     << predictions[j][i].getNumInfectedUnreported() << ", "
+                     << predictions[j][i].getNumRecoveredUnreported() << ", "
+                     << predictions[j][i].getNumFatalUnreported() << ", ";
     file_predictions << std::endl;
   }
   std::cout << "Wrote predictions to " << filepath_predictions << std::endl;

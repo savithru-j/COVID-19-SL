@@ -19,7 +19,7 @@ data = readOptData('synthetic1','');
 % data.c2(:,1) = data0.c2(:,1);
 % data.c3(:,1) = data0.c3(:,1);
 
-col_ind = [1];
+col_ind = [1:5];
 
 figure(1)
 subplot(1,3,1)
@@ -111,9 +111,9 @@ data_true_params = importdata(true_params_file);
 data_params = importdata(params_file);
 data_pred = importdata(pred_file);
 
-data.pred_conf = data_pred(:,1:3:end);
-data.pred_recov = data_pred(:,2:3:end);
-data.pred_fatal = data_pred(:,3:3:end);
+data.pred_conf = data_pred(:,1:6:end);
+data.pred_recov = data_pred(:,2:6:end);
+data.pred_fatal = data_pred(:,3:6:end);
 
 nt = (size(data_params,1) - 11) / 5;
 data.beta = data_params(1:nt, :);

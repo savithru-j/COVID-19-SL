@@ -919,8 +919,7 @@ OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
   params.CFR             = v[off+9];
   params.T_discharge     = v[off+10];
 }
-#endif
-
+#elif 1
 std::vector<ParamBound>
 OptimizerLowDim::getParameterBounds(int nt, int interval_size)
 {
@@ -1056,6 +1055,136 @@ OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
   params.T_discharge     = v[off+10];
 }
 
+#else
+std::vector<ParamBound>
+OptimizerLowDim::getParameterBounds(int nt, int interval_size)
+{
+  int num_nodes = (int)(nt/interval_size) + 1;
+  const int m = num_nodes + 3 + 11;
+  std::vector<ParamBound> bounds(m);
+
+  const double delta = 1e-4;
+  for (int i = 0; i < num_nodes; ++i)
+    bounds[i] = ParamBound(0, 1, delta); //betaN
+  bounds[num_nodes  ] = ParamBound(0, 1, delta); //c0 = ce
+  bounds[num_nodes+1] = ParamBound(0, 1, delta); //c1
+  bounds[num_nodes+2] = ParamBound(1, 1, delta); //c2 = c3
+
+  const int off = num_nodes + 3;
+#if 1
+  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
+  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
+  bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
+  bounds[off+3] = ParamBound(6.0, 6.0, delta); //T_mild
+  bounds[off+4] = ParamBound(4.0, 4.0, delta); //T_severe
+  bounds[off+5] = ParamBound(10.0, 10.0, delta); //T_icu
+  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
+  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
+  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
+  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+#else
+  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
+  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
+  bounds[off+2] = ParamBound(1.0, 10.0, delta); //T_asympt
+  bounds[off+3] = ParamBound(1.0, 10.0, delta); //T_mild
+  bounds[off+4] = ParamBound(1.0, 10.0, delta); //T_severe
+  bounds[off+5] = ParamBound(1.0, 10.0, delta); //T_icu
+  bounds[off+6] = ParamBound(0.1, 0.9, delta); //f
+  bounds[off+7] = ParamBound(0.1, 0.9, delta); //frac_recover_I1
+  bounds[off+8] = ParamBound(0.1, 0.9, delta); //frac_recover_I2
+  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(1.0, 28.0, delta); //T_discharge
+#endif
+
+  return bounds;
+}
+
+void
+OptimizerLowDim::copyParam2Vector(const ModelParams& params, Vector& v)
+{
+  int num_nodes = (int)(nt_opt/num_basis) + 1;
+  const int m = num_nodes + 3 + 11;
+  if (v.m() != m)
+    throwError("copyParam2Vector - inconsistent dimensions!");
+
+  for (int i = 0; i < num_nodes-1; ++i)
+    v[i] = params.betaN[i*num_basis];
+  v[num_nodes-1] = params.betaN[nt_opt-1];
+
+  v[num_nodes  ] = params.c0[0]; //c0 = ce
+  v[num_nodes+1] = params.c1[0]; //c1
+  v[num_nodes+2] = params.c2[0]; //c2 = c3
+
+  const int off = num_nodes + 3;
+  v[off  ] = params.T_incub0;
+  v[off+1] = params.T_incub1;
+  v[off+2] = params.T_asympt;
+  v[off+3] = params.T_mild;
+  v[off+4] = params.T_severe;
+  v[off+5] = params.T_icu;
+  v[off+6] = params.f;
+  v[off+7] = params.frac_recover_I1;
+  v[off+8] = params.frac_recover_I2;
+  v[off+9] = params.CFR;
+  v[off+10] = params.T_discharge;
+}
+
+void
+OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
+{
+  int num_nodes = (int)(nt_opt/num_basis) + 1;
+  const int m = num_nodes + 3 + 11;
+  if (v.m() != m)
+    throwError("copyVector2Param - inconsistent dimensions!");
+
+  for (int i = 0; i < num_nodes-1; ++i)
+  {
+    const int ind0 = i*num_basis;
+    const int ind1 = (i < num_nodes-2) ? (i+1)*num_basis : (nt_opt-1);
+    const double L = ind1 - ind0;
+
+    for (int j = 0; j <= L; ++j)
+    {
+      const double s = j / L;
+      params.betaN[ind0 + j] = (1-s)*v[i] + s*v[i+1];
+    }
+  }
+
+  for (int i = 0; i < params.nt_hist; ++i)
+  {
+    params.ce[i] = v[num_nodes];
+    params.c0[i] = params.ce[i];
+    params.c1[i] = v[num_nodes+1];
+    params.c2[i] = v[num_nodes+2];
+    params.c3[i] = params.c2[i];
+  }
+
+  const int N = params.nt_hist + params.nt_pred;
+  for (int i = params.nt_hist; i < N; ++i) //Copy last "history" value to prediction section
+  {
+    params.betaN[i] = params.betaN[params.nt_hist-1];
+    params.ce[i]    = params.ce[params.nt_hist-1];
+    params.c0[i]    = params.c0[params.nt_hist-1];
+    params.c1[i]    = params.c1[params.nt_hist-1];
+    params.c2[i]    = params.c2[params.nt_hist-1];
+    params.c3[i]    = params.c3[params.nt_hist-1];
+  }
+
+  const int off = num_nodes + 3;
+  params.T_incub0        = v[off  ];
+  params.T_incub1        = v[off+1];
+  params.T_asympt        = v[off+2];
+  params.T_mild          = v[off+3];
+  params.T_severe        = v[off+4];
+  params.T_icu           = v[off+5];
+  params.f               = v[off+6];
+  params.frac_recover_I1 = v[off+7];
+  params.frac_recover_I2 = v[off+8];
+  params.CFR             = v[off+9];
+  params.T_discharge     = v[off+10];
+}
+#endif
 
 void
 OptimizerLowDim::evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params)

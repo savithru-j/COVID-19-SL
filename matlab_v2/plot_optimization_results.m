@@ -2,7 +2,7 @@ clear
 clc
 close all
 
-data = readOptData('srilanka','');
+data = readOptData('srilanka64','');
 
 % data0 = readOptData('srilanka64_T1','');
 % data = readOptData('srilanka64_T14','');
@@ -20,15 +20,16 @@ data = readOptData('srilanka','');
 % data.c3(:,1) = data0.c3(:,1);
 
 figure(1)
-subplot(1,3,1)
+subplot(2,3,1)
 hold on
 plot(data.obs_conf, 'k--')
 plot(data.pred_conf, '-')
+plot(data.pred_inf_unreported + data.pred_recov_unreported + data.pred_fatal_unreported, '-.')
 hold off
 xlabel('Day')
 ylabel('No. of confirmed cases')
 
-subplot(1,3,2)
+subplot(2,3,2)
 hold on
 plot(data.obs_recov, 'k--')
 plot([zeros(0,5); data.pred_recov], '-')
@@ -37,11 +38,29 @@ xlabel('Day')
 ylabel('No. of recovered cases')
 % xlim([0,65])
 
-subplot(1,3,3)
+subplot(2,3,3)
 hold on
 plot(data.obs_fatal, 'k--')
 plot(data.pred_fatal, '-')
 hold off
+xlabel('Day')
+ylabel('No. of fatalities')
+
+subplot(2,3,4)
+plot(data.pred_inf_unreported, '-')
+hold off
+xlabel('Day')
+ylabel('No. of confirmed cases')
+
+subplot(2,3,5)
+plot(data.pred_recov_unreported, '-')
+xlabel('Day')
+ylabel('No. of recovered cases')
+% xlim([0,65])
+
+subplot(2,3,6)
+plot(data.pred_fatal_unreported, '-')
+
 xlabel('Day')
 ylabel('No. of fatalities')
 
@@ -93,9 +112,12 @@ data.obs_fatal = data_obs(:,3);
 data_params = importdata(params_file);
 data_pred = importdata(pred_file);
 
-data.pred_conf = data_pred(:,1:3:end);
-data.pred_recov = data_pred(:,2:3:end);
-data.pred_fatal = data_pred(:,3:3:end);
+data.pred_conf = data_pred(:,1:6:end);
+data.pred_recov = data_pred(:,2:6:end);
+data.pred_fatal = data_pred(:,3:6:end);
+data.pred_inf_unreported = data_pred(:,4:6:end);
+data.pred_recov_unreported = data_pred(:,5:6:end);
+data.pred_fatal_unreported = data_pred(:,6:6:end);
 
 nt = (size(data_params,1) - 11) / 5
 data.beta = data_params(1:nt, :);
