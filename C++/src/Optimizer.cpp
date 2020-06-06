@@ -672,8 +672,9 @@ OptimizerLowDim::getCost()
   std::array<double,3> sub_costs = {0.0, 0.0, 0.0};
 
   double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
-  double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
 
+#if 1
+  double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
   for (int i = 1; i < nt; ++i)
   {
     double err_total = (pop_hist[i].getNumReported() - pop_observed.confirmed[i]);
@@ -691,6 +692,26 @@ OptimizerLowDim::getCost()
   sub_costs[0] = weight_conf*(err_sq_total/sq_total);
   sub_costs[1] = weight_recov*(err_sq_recov/sq_recov);
   sub_costs[2] = weight_fatal*(err_sq_fatal/sq_fatal);
+#else
+  const double eps = 1e-10;
+  for (int i = 1; i < nt; ++i)
+  {
+    double trueC = std::max(pop_observed.confirmed[i], 1);
+    double trueR = std::max(pop_observed.recovered[i], 1);
+    double trueF = std::max(pop_observed.deaths[i], 1);
+
+    double err_total = std::abs(pop_hist[i].getNumReported() - trueC) / trueC;
+    double err_recov = std::abs(pop_hist[i].getNumRecoveredReported() - trueR) / trueR;
+    double err_fatal = std::abs(pop_hist[i].getNumFatalReported() - trueF) / trueF;
+
+    err_sq_total += err_total*err_total;
+    err_sq_recov += err_recov*err_recov;
+    err_sq_fatal += err_fatal*err_fatal;
+  }
+  sub_costs[0] = weight_conf*(err_sq_total);
+  sub_costs[1] = weight_recov*(err_sq_recov);
+  sub_costs[2] = weight_fatal*(err_sq_fatal);
+#endif
 
   const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2];
 
