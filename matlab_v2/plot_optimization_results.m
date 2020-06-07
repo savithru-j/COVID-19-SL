@@ -2,7 +2,7 @@ clear
 clc
 close all
 
-data = readOptData('srilanka64','');
+data = readOptData('srilanka64',[1:8]);
 
 % data0 = readOptData('srilanka64_T1','');
 % data = readOptData('srilanka64_T14','');
@@ -97,20 +97,28 @@ ylabel('c_3')
 set(gcf, 'Units', 'Inches', 'Position', [1,3,14,8])
 
 
-function data = readOptData(country, suffix)
+function data = readOptData(country, seed_range)
 
 observed_file = sprintf('csv_data/%s.txt', country);
-params_file = sprintf('../C++/build/release/results/%s_params%s.txt', country, suffix);
-pred_file = sprintf('../C++/build/release/results/%s_prediction%s.txt', country, suffix);
-
 data_obs = importdata(observed_file);
 data_obs = reshape(data_obs(2:end),3,[])';
 data.obs_conf = data_obs(:,1);
 data.obs_recov = data_obs(:,2);
 data.obs_fatal = data_obs(:,3);
 
-data_params = importdata(params_file);
-data_pred = importdata(pred_file);
+
+data_params = [];
+data_pred = [];
+
+for seed = seed_range
+
+    params_file = sprintf('../C++/build/release/results/%s_params_seed%d.txt', country, seed);
+    pred_file = sprintf('../C++/build/release/results/%s_prediction_seed%d.txt', country, seed);
+
+    data_params = [data_params, importdata(params_file)];
+    data_pred = [data_pred, importdata(pred_file)];
+    
+end
 
 data.pred_conf = data_pred(:,1:6:end);
 data.pred_recov = data_pred(:,2:6:end);

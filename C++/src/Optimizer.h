@@ -2,6 +2,7 @@
 #define OPTIMIZER_H
 
 #include <nlopt.hpp>
+#include <random>
 
 #include "Population.h"
 #include "LinearAlgebra.h"
@@ -96,7 +97,7 @@ struct OptimizerLowDim
 
   OptimizerLowDim(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                   int num_basis_, double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
-                  int max_iter_per_pass_ = 1000, int max_passes_ = 1);
+                  int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
   inline int nDim() const { return param_vec.size(); };
 
@@ -120,14 +121,14 @@ struct OptimizerLowDim
   inline void randomizeParameters()
   {
     const int num_nodes = (int)(nt_opt/num_basis) + 1;
-    for (int i = 0; i < 5; ++i)
+    for (int i = 0; i < 4; ++i)
     {
       param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
       for (int j = 1; j < num_nodes; ++j)
         param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
     }
 
-    const int off = 5*num_nodes;
+    const int off = 4*num_nodes;
     for (int i = off; i < param_vec.m(); ++i)
       param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
 
@@ -169,6 +170,9 @@ struct OptimizerLowDim
   std::array<double,NUM_RESULTS> cost_min;
   std::array<std::array<double,3>,NUM_RESULTS> sub_costs_min;
 
+  std::mt19937 rand_engine; //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<double> uniform_rand;
+
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
   void copyParam2Vector(const ModelParams& params, Vector& v);
@@ -187,6 +191,11 @@ protected:
 
   void updateOptimalSolution(const double& cost_rel, const std::array<double,3>& sub_costs,
                              const Vector& param_vec);
+
+  inline double uniformRand(double min = 0.0, double max = 1.0)
+  {
+    return min + (max - min)*uniform_rand(rand_engine);
+  }
 };
 
 #endif

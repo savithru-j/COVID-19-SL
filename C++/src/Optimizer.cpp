@@ -1,6 +1,5 @@
 #include <iostream>
 #include <iomanip>
-#include <random>
 
 #include "Optimizer.h"
 #include "Simulator.h"
@@ -549,12 +548,13 @@ Optimizer::getParameterBounds(int nt)
 
 OptimizerLowDim::OptimizerLowDim(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                                  int num_basis_, double wconf, double wrecov, double wfatal,
-                                 int max_iter_per_pass_, int max_passes_) :
+                                 int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
     nt_opt(pop_observed.getNumDays()), num_basis(num_basis_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal),
     max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
-    params(pop_observed.getNumDays(), 0)
+    params(pop_observed.getNumDays(), 0),
+    rand_engine(seed), uniform_rand(0,1)
 {
   if (pop_observed.N != pop_init.N)
     throwError("Initial population mismatch!");
@@ -924,7 +924,7 @@ std::vector<ParamBound>
 OptimizerLowDim::getParameterBounds(int nt, int interval_size)
 {
   int num_nodes = (int)(nt/interval_size) + 1;
-  const int m = 5*num_nodes + 11;
+  const int m = 4*num_nodes + 11;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
@@ -933,10 +933,9 @@ OptimizerLowDim::getParameterBounds(int nt, int interval_size)
     bounds[              i] = ParamBound(0, 2, delta); //betaN
     bounds[  num_nodes + i] = ParamBound(0, 1, delta); //c0 = ce
     bounds[2*num_nodes + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*num_nodes + i] = ParamBound(0, 1, delta); //c2
-    bounds[4*num_nodes + i] = ParamBound(0, 1, delta); //c3
+    bounds[3*num_nodes + i] = ParamBound(0, 1, delta); //c2 = c3
   }
-  const int off = 5*num_nodes;
+  const int off = 4*num_nodes;
 #if 1
   bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
   bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
@@ -970,7 +969,7 @@ void
 OptimizerLowDim::copyParam2Vector(const ModelParams& params, Vector& v)
 {
   int num_nodes = (int)(nt_opt/num_basis) + 1;
-  const int m = 5*num_nodes + 11;
+  const int m = 4*num_nodes + 11;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
@@ -978,18 +977,16 @@ OptimizerLowDim::copyParam2Vector(const ModelParams& params, Vector& v)
   {
     int ind = i*num_basis;
     v[              i] = params.betaN[ind];
-    v[  num_nodes + i] = params.c0[ind];
+    v[  num_nodes + i] = params.c0[ind]; //c0 = ce
     v[2*num_nodes + i] = params.c1[ind];
-    v[3*num_nodes + i] = params.c2[ind];
-    v[4*num_nodes + i] = params.c3[ind];
+    v[3*num_nodes + i] = params.c2[ind]; //c2 = c3
   }
   v[  num_nodes-1] = params.betaN[nt_opt-1];
   v[2*num_nodes-1] = params.c0[nt_opt-1];
   v[3*num_nodes-1] = params.c1[nt_opt-1];
   v[4*num_nodes-1] = params.c2[nt_opt-1];
-  v[5*num_nodes-1] = params.c3[nt_opt-1];
 
-  const int off = 5*num_nodes;
+  const int off = 4*num_nodes;
   v[off  ] = params.T_incub0;
   v[off+1] = params.T_incub1;
   v[off+2] = params.T_asympt;
@@ -1007,7 +1004,7 @@ void
 OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
 {
   int num_nodes = (int)(nt_opt/num_basis) + 1;
-  const int m = 5*num_nodes + 11;
+  const int m = 4*num_nodes + 11;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
@@ -1026,7 +1023,7 @@ OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
       params.ce[ind]    = params.c0[ind];
       params.c1[ind]    = (1-s)*v[2*num_nodes + i] + s*v[2*num_nodes + i+1];
       params.c2[ind]    = (1-s)*v[3*num_nodes + i] + s*v[3*num_nodes + i+1];
-      params.c3[ind]    = (1-s)*v[4*num_nodes + i] + s*v[4*num_nodes + i+1];
+      params.c3[ind]    = params.c2[ind];
     }
   }
 
@@ -1041,7 +1038,7 @@ OptimizerLowDim::copyVector2Param(const Vector& v, ModelParams& params)
     params.c3[i]    = params.c3[params.nt_hist-1];
   }
 
-  const int off = 5*num_nodes;
+  const int off = 4*num_nodes;
   params.T_incub0        = v[off  ];
   params.T_incub1        = v[off+1];
   params.T_asympt        = v[off+2];
