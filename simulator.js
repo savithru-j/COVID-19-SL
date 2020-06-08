@@ -17,7 +17,14 @@ var quarantine_data = {
                  {t: "2020-03-18", y: 1},
                  {t: "2020-03-19", y: 2},
                  {t: "2020-03-20", y: 3},
-                 {t: "2020-03-21", y: 6}]
+                 {t: "2020-03-21", y: 6},
+                 {t: "2020-05-25", y: 41},
+                 {t: "2020-05-26", y: 127},
+                 {t: "2020-05-27", y: 97},
+                 {t: "2020-05-28", y: 35},
+                 {t: "2020-05-29", y: 11},
+                 {t: "2020-05-30", y: 38},
+                 {t: "2020-05-31", y: 9},]
 }
 
 var data_start_dates = {
@@ -40,17 +47,34 @@ var data_start_dates = {
 //   }
 // }
 
+// var custom_country_data = {
+//   "Sri Lanka" : {
+//       t_start: [0, 13, 17, 25, 37, 39, 41, 45, 47, 53, 55], //indices to start dates of any interventions
+//       b1N: [0.787, 0.379, 0.093, 0.045, 0.045, 0.045, 0.470, 0.730, 0.730, 0.472, 0.472], //values of b1N for each intervention segment defined in t_start
+//       b2N: new Array(11).fill(0), //values of b2N
+//       b3N: new Array(11).fill(0),
+//       ce: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.114, 0.508],
+//       c0: [0, 0, 0, 0, 0, 0, 0, 0.658, 0.801, 0.801, 0.801],
+//       c1: [0.029, 0.029, 0.029, 0.029, 0.465, 0.884, 0.884, 0.973, 0.973, 0.973, 0.973],
+//       c2: new Array(11).fill(1.0),
+//       c3: new Array(11).fill(1.0),
+//       E0_0: 5, //no. of individuals exposed at start
+//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
+//   }
+// }
+
 var custom_country_data = {
   "Sri Lanka" : {
-      t_start: [0, 13, 17, 25, 37, 39, 41, 45, 47, 53, 55], //indices to start dates of any interventions
-      b1N: [0.787, 0.379, 0.093, 0.045, 0.045, 0.045, 0.470, 0.730, 0.730, 0.472, 0.472], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(11).fill(0), //values of b2N
-      b3N: new Array(11).fill(0),
-      ce: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.114, 0.508],
-      c0: [0, 0, 0, 0, 0, 0, 0, 0.658, 0.801, 0.801, 0.801],
-      c1: [0.029, 0.029, 0.029, 0.029, 0.465, 0.884, 0.884, 0.973, 0.973, 0.973, 0.973],
-      c2: new Array(11).fill(1.0),
-      c3: new Array(11).fill(1.0),
+              //Mar 1, Mar 15, Mar 25, Apr 10, Apr 15, Apr 25, Apr 30
+      t_start: [0, 14, 24, 40, 45, 55, 60], //indices to start dates of any interventions
+      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(7).fill(0), //values of b2N
+      b3N: new Array(7).fill(0),
+      ce: [0, 0, 0, 0, 0, 0.5, 0.5],
+      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7],
+      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1],
+      c2: new Array(7).fill(1.0),
+      c3: new Array(7).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }

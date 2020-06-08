@@ -2,7 +2,7 @@ clear
 clc
 close all
 
-data = readOptData('srilanka64',[1:8]);
+data = readOptData('synthetic1','');
 
 % data0 = readOptData('srilanka64_T1','');
 % data = readOptData('srilanka64_T14','');
@@ -19,120 +19,116 @@ data = readOptData('srilanka64',[1:8]);
 % data.c2(:,1) = data0.c2(:,1);
 % data.c3(:,1) = data0.c3(:,1);
 
+col_ind = [1:5];
+
 figure(1)
-subplot(2,3,1)
+subplot(1,3,1)
+hold off
+plot(data.pred_conf(:,col_ind), '-')
 hold on
 plot(data.obs_conf, 'k--')
-plot(data.pred_conf, '-')
-plot(data.pred_inf_unreported + data.pred_recov_unreported + data.pred_fatal_unreported, '-.')
-hold off
 xlabel('Day')
 ylabel('No. of confirmed cases')
 
-subplot(2,3,2)
+subplot(1,3,2)
+hold off
+plot(data.pred_recov(:,col_ind), '-')
 hold on
 plot(data.obs_recov, 'k--')
-plot([zeros(0,5); data.pred_recov], '-')
-hold off
 xlabel('Day')
 ylabel('No. of recovered cases')
 % xlim([0,65])
 
-subplot(2,3,3)
+subplot(1,3,3)
+hold off
+plot(data.pred_fatal(:,col_ind), '-')
 hold on
 plot(data.obs_fatal, 'k--')
-plot(data.pred_fatal, '-')
-hold off
-xlabel('Day')
-ylabel('No. of fatalities')
-
-subplot(2,3,4)
-plot(data.pred_inf_unreported, '-')
-hold off
-xlabel('Day')
-ylabel('No. of confirmed cases')
-
-subplot(2,3,5)
-plot(data.pred_recov_unreported, '-')
-xlabel('Day')
-ylabel('No. of recovered cases')
-% xlim([0,65])
-
-subplot(2,3,6)
-plot(data.pred_fatal_unreported, '-')
-
 xlabel('Day')
 ylabel('No. of fatalities')
 
 set(gcf, 'Units', 'Inches', 'Position', [1,3,16,5])
 
 %%
+
 figure(2)
 subplot(3,2,1)
-plot(data.beta, '-')
+hold off
+plot(data.beta(:,col_ind), '-')
+hold on
+plot(data.beta_true,'k--')
 xlabel('Day')
 ylabel('Beta')
-legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5')
+% legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5','True')
+legend('Optimal1','True')
 
 subplot(3,2,2)
-plot(data.c0, '-')
+hold off
+plot(data.c0(:,col_ind), '-')
+hold on
+plot(data.c0_true,'k--')
 xlabel('Day')
 ylabel('c_0 = c_e')
 
 subplot(3,2,3)
-plot(data.c1, '-')
+plot(data.c1(:,col_ind), '-')
+hold on
+plot(data.c1_true,'k--')
 xlabel('Day')
 ylabel('c_1')
 
 subplot(3,2,4)
-plot(data.c2, '-')
+plot(data.c2(:,col_ind), '-')
+hold on
+plot(data.c2_true,'k--')
 xlabel('Day')
 ylabel('c_2')
 
 subplot(3,2,5)
-plot(data.c3, '-')
+plot(data.c3(:,col_ind), '-')
+hold on
+plot(data.c3_true,'k--')
 xlabel('Day')
 ylabel('c_3')
 
 set(gcf, 'Units', 'Inches', 'Position', [1,3,14,8])
 
 
-function data = readOptData(country, seed_range)
+function data = readOptData(country, suffix)
 
 observed_file = sprintf('csv_data/%s.txt', country);
+true_params_file = sprintf('csv_data/%s_params%s.txt', country, suffix);
+params_file = sprintf('../C++/build/release/results/%s_params%s.txt', country, suffix);
+pred_file = sprintf('../C++/build/release/results/%s_prediction%s.txt', country, suffix);
+
 data_obs = importdata(observed_file);
 data_obs = reshape(data_obs(2:end),3,[])';
 data.obs_conf = data_obs(:,1);
 data.obs_recov = data_obs(:,2);
 data.obs_fatal = data_obs(:,3);
 
-
-data_params = [];
-data_pred = [];
-
-for seed = seed_range
-
-    params_file = sprintf('../C++/build/release/results/%s_params_seed%d.txt', country, seed);
-    pred_file = sprintf('../C++/build/release/results/%s_prediction_seed%d.txt', country, seed);
-
-    data_params = [data_params, importdata(params_file)];
-    data_pred = [data_pred, importdata(pred_file)];
-    
-end
+data_true_params = importdata(true_params_file);
+data_params = importdata(params_file);
+data_pred = importdata(pred_file);
 
 data.pred_conf = data_pred(:,1:6:end);
 data.pred_recov = data_pred(:,2:6:end);
 data.pred_fatal = data_pred(:,3:6:end);
-data.pred_inf_unreported = data_pred(:,4:6:end);
-data.pred_recov_unreported = data_pred(:,5:6:end);
-data.pred_fatal_unreported = data_pred(:,6:6:end);
 
-nt = (size(data_params,1) - 11) / 5
+nt = (size(data_params,1) - 11) / 5;
 data.beta = data_params(1:nt, :);
 data.c0 = data_params((  nt+1):2*nt, :);
 data.c1 = data_params((2*nt+1):3*nt, :);
 data.c2 = data_params((3*nt+1):4*nt, :);
 data.c3 = data_params((4*nt+1):5*nt, :);
 data.last = data_params(end-10:end,:);
+
+nt = (size(data_true_params,1) - 11) / 5;
+data.beta_true = data_true_params(1:nt, :);
+data.c0_true = data_true_params((  nt+1):2*nt, :);
+data.c1_true = data_true_params((2*nt+1):3*nt, :);
+data.c2_true = data_true_params((3*nt+1):4*nt, :);
+data.c3_true = data_true_params((4*nt+1):5*nt, :);
+data.last_true = data_true_params(end-10:end,:);
 
 end
