@@ -933,7 +933,7 @@ OptimizerLowDim::getParameterBounds(int nt, int interval_size)
     bounds[              i] = ParamBound(0, 2, delta); //betaN
     bounds[  num_nodes + i] = ParamBound(0, 1, delta); //c0 = ce
     bounds[2*num_nodes + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*num_nodes + i] = ParamBound(0, 1, delta); //c2 = c3
+    bounds[3*num_nodes + i] = ParamBound(.6, 1, delta); //c2 = c3
   }
   const int off = 4*num_nodes;
 #if 1

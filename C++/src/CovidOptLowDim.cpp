@@ -109,6 +109,7 @@ main(int argc, char *argv[])
       file_opt_params << param_vecs_full[j][i] << ", ";
     file_opt_params << param_vecs_full.back()[i] << std::endl;
   }
+  file_opt_params << opt.cost_min << std::endl;
   std::cout << "Wrote optimal parameters to " << filepath_opt_params << std::endl;
 
 

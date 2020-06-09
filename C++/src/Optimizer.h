@@ -93,7 +93,7 @@ protected:
 
 struct OptimizerLowDim
 {
-  static constexpr int NUM_RESULTS = 5;  //no. of optimal results to store (best to worst)
+  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
 
   OptimizerLowDim(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                   int num_basis_, double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,

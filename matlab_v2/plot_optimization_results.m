@@ -2,7 +2,28 @@ clear
 clc
 close all
 
-data = readOptData('srilanka64',[1:8]);
+data = readOptData('srilanka64',[1:40]);
+
+% load tempcosts
+[sortedCost inds_selected] = sort(data.cost);
+inds_selected = inds_selected(1:1000);
+sortedCost    = sortedCost(1:1000);  
+%inds_selected = (sum(data.pred_inf_unreported,1)<20e3 & sum(data.pred_inf_unreported,1)>3e3);
+% inds_selected = find(sum(data.pred_inf_unreported,1)>6e3);
+% inds_selected = find(sum(data.pred_inf_unreported,1)<inf);
+
+data.pred_conf = data.pred_conf(:,inds_selected);
+data.pred_recov = data.pred_recov(:,inds_selected);
+data.pred_fatal = data.pred_fatal(:,inds_selected);
+data.pred_inf_unreported = data.pred_inf_unreported(:,inds_selected);
+data.pred_recov_unreported = data.pred_recov_unreported(:,inds_selected);
+data.pred_fatal_unreported = data.pred_fatal_unreported(:,inds_selected);
+data.beta = data.beta(:,inds_selected);
+data.c0 = data.c0(:,inds_selected);
+data.c1 = data.c1(:,inds_selected);
+data.c2 = data.c2(:,inds_selected);
+data.c3 = data.c3(:,inds_selected);
+data.last = data.last(:,inds_selected);
 
 % data0 = readOptData('srilanka64_T1','');
 % data = readOptData('srilanka64_T14','');
@@ -24,7 +45,7 @@ subplot(2,3,1)
 hold on
 plot(data.obs_conf, 'k--')
 plot(data.pred_conf, '-')
-plot(data.pred_inf_unreported + data.pred_recov_unreported + data.pred_fatal_unreported, '-.')
+% plot(data.pred_inf_unreported + data.pred_recov_unreported + data.pred_fatal_unreported, '-.')
 hold off
 xlabel('Day')
 ylabel('No. of confirmed cases')
@@ -32,7 +53,7 @@ ylabel('No. of confirmed cases')
 subplot(2,3,2)
 hold on
 plot(data.obs_recov, 'k--')
-plot([zeros(0,5); data.pred_recov], '-')
+plot(data.pred_recov, '-')
 hold off
 xlabel('Day')
 ylabel('No. of recovered cases')
@@ -50,49 +71,50 @@ subplot(2,3,4)
 plot(data.pred_inf_unreported, '-')
 hold off
 xlabel('Day')
-ylabel('No. of confirmed cases')
+ylabel('No. of infected-unreported cases')
 
 subplot(2,3,5)
 plot(data.pred_recov_unreported, '-')
 xlabel('Day')
-ylabel('No. of recovered cases')
+ylabel('No. of recovered-unreported cases')
 % xlim([0,65])
 
 subplot(2,3,6)
 plot(data.pred_fatal_unreported, '-')
 
 xlabel('Day')
-ylabel('No. of fatalities')
+ylabel('No. of unreported-fatalities')
 
 set(gcf, 'Units', 'Inches', 'Position', [1,3,16,5])
 
 %%
 figure(2)
-subplot(3,2,1)
-plot(data.beta, '-')
+subplot(2,2,1)
+cost_color = (sortedCost - min(sortedCost)) ./ (max(sortedCost) - min(sortedCost))
+plotSorted(data.beta,cost_color);
 xlabel('Day')
 ylabel('Beta')
 legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5')
 
-subplot(3,2,2)
-plot(data.c0, '-')
+subplot(2,2,2)
+plotSorted(data.c0,cost_color);
 xlabel('Day')
 ylabel('c_0 = c_e')
 
-subplot(3,2,3)
-plot(data.c1, '-')
+subplot(2,2,3)
+plotSorted(data.c1,cost_color);
 xlabel('Day')
 ylabel('c_1')
 
-subplot(3,2,4)
-plot(data.c2, '-')
+subplot(2,2,4)
+plotSorted(data.c2,cost_color);
 xlabel('Day')
 ylabel('c_2')
 
-subplot(3,2,5)
-plot(data.c3, '-')
-xlabel('Day')
-ylabel('c_3')
+% subplot(3,2,5)
+% plotSorted(data.c3,cost_color);
+% xlabel('Day')
+% ylabel('c_3')
 
 set(gcf, 'Units', 'Inches', 'Position', [1,3,14,8])
 
@@ -127,12 +149,24 @@ data.pred_inf_unreported = data_pred(:,4:6:end);
 data.pred_recov_unreported = data_pred(:,5:6:end);
 data.pred_fatal_unreported = data_pred(:,6:6:end);
 
-nt = (size(data_params,1) - 11) / 5
+nt = (size(data_params,1) - 11 -1) / 5
 data.beta = data_params(1:nt, :);
 data.c0 = data_params((  nt+1):2*nt, :);
 data.c1 = data_params((2*nt+1):3*nt, :);
 data.c2 = data_params((3*nt+1):4*nt, :);
 data.c3 = data_params((4*nt+1):5*nt, :);
-data.last = data_params(end-10:end,:);
+data.last = data_params(end-10-1:end-1,:);
+data.cost = data_params(end,:);
 
 end
+
+
+function plotSorted(pltData,cost_color)
+    hold on
+    for i=length(cost_color):-1:1
+        plot(pltData(:,i), '-', 'Color', [cost_color(i) cost_color(i) 1])
+    end
+    hold off
+end
+
+
