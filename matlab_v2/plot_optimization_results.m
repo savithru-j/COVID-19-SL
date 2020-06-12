@@ -2,12 +2,16 @@ clear
 clc
 close all
 
-data = readOptData('srilanka64',[1:40]);
+num_threads = 6;
+data = readOptData('srilanka',1:num_threads);
 
 % load tempcosts
 [sortedCost inds_selected] = sort(data.cost);
-inds_selected = inds_selected(1:1000);
-sortedCost    = sortedCost(1:1000);  
+
+max_sel = min(30, length(sortedCost));
+inds_selected = inds_selected(1:max_sel);
+sortedCost    = sortedCost(1:max_sel);
+
 %inds_selected = (sum(data.pred_inf_unreported,1)<20e3 & sum(data.pred_inf_unreported,1)>3e3);
 % inds_selected = find(sum(data.pred_inf_unreported,1)>6e3);
 % inds_selected = find(sum(data.pred_inf_unreported,1)<inf);
@@ -90,11 +94,13 @@ set(gcf, 'Units', 'Inches', 'Position', [1,3,16,5])
 %%
 figure(2)
 subplot(2,2,1)
-cost_color = (sortedCost - min(sortedCost)) ./ (max(sortedCost) - min(sortedCost))
+denom = max(sortedCost) - min(sortedCost);
+denom(denom == 0) = 1;
+cost_color = (sortedCost - min(sortedCost)) ./ denom;
 plotSorted(data.beta,cost_color);
 xlabel('Day')
 ylabel('Beta')
-legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5')
+% legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5')
 
 subplot(2,2,2)
 plotSorted(data.c0,cost_color);
@@ -164,7 +170,7 @@ end
 function plotSorted(pltData,cost_color)
     hold on
     for i=length(cost_color):-1:1
-        plot(pltData(:,i), '-', 'Color', [cost_color(i) cost_color(i) 1])
+        plot(pltData(:,i), '-', 'Color', [cost_color(i) cost_color(i) cost_color(i)])
     end
     hold off
 end
