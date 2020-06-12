@@ -547,13 +547,14 @@ Optimizer::getParameterBounds(int nt)
 }
 
 OptimizerLowDim::OptimizerLowDim(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                                 int num_basis_, double wconf, double wrecov, double wfatal,
+                                 const Vector& quarantine_input, int num_basis_,
+                                 double wconf, double wrecov, double wfatal,
                                  int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
     nt_opt(pop_observed.getNumDays()), num_basis(num_basis_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal),
     max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
-    params(pop_observed.getNumDays(), 0),
+    params(pop_observed.getNumDays(), 0, quarantine_input),
     rand_engine(seed), uniform_rand(0,1)
 {
   if (pop_observed.N != pop_init.N)
@@ -633,7 +634,10 @@ OptimizerLowDim::optimizeParametersNLOPT()
 
 
   for (int i = max_passes; i < NUM_RESULTS; ++i)
+  {
     optimal_param_vec[i] = optimal_param_vec[max_passes-1];
+    cost_min[i] = cost_min[max_passes-1];
+  }
 
   std::cout << std::endl;
   std::cout << "Minimum costs (relative): " << cost_min << std::endl;
@@ -933,7 +937,7 @@ OptimizerLowDim::getParameterBounds(int nt, int interval_size)
     bounds[              i] = ParamBound(0, 2, delta); //betaN
     bounds[  num_nodes + i] = ParamBound(0, 1, delta); //c0 = ce
     bounds[2*num_nodes + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*num_nodes + i] = ParamBound(.6, 1, delta); //c2 = c3
+    bounds[3*num_nodes + i] = ParamBound(0.6, 1, delta); //c2 = c3
   }
   const int off = 4*num_nodes;
 #if 1

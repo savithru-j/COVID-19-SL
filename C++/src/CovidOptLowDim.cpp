@@ -68,7 +68,13 @@ main(int argc, char *argv[])
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
-  OptimizerLowDim opt(pop_observed, pop_init, num_basis, weight_conf, weight_recov, weight_fatal,
+  std::string filepath_quarantine_input = "csv_data/" + country + "_external.txt";
+  std::cout << "Checking for external quarantine input data at " << filepath_quarantine_input << std::endl;
+  auto pop_quarantine_input = getQuarantineInputVector(filepath_quarantine_input);
+  std::cout << "External quarantine input vector length: " << pop_quarantine_input.size() << std::endl << std::endl;
+
+  OptimizerLowDim opt(pop_observed, pop_init, pop_quarantine_input, num_basis,
+                      weight_conf, weight_recov, weight_fatal,
                       max_iter_per_pass, max_passes, seed);
 
 #if 0 //Initialize to true params

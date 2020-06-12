@@ -5,12 +5,13 @@
 
 struct ModelParams
 {
-  ModelParams(int nt_hist_, int nt_pred_, double betaN_val = 0.3,
-              double ce_val = 0.0, double c0_val = 0.0,
+  ModelParams(int nt_hist_, int nt_pred_, const Vector& external_quarantine_input = {},
+              double betaN_val = 0.3, double ce_val = 0.0, double c0_val = 0.0,
               double c1_val = 0.1, double c2_val = 1.0, double c3_val = 1.0)
     : nt_hist(nt_hist_), nt_pred(nt_pred_)
   {
     const int nt = nt_hist + nt_pred;
+    quarantine_input.resize(nt);
     betaN.resize(nt);
     ce.resize(nt);
     c0.resize(nt);
@@ -26,11 +27,15 @@ struct ModelParams
       c1[i]    = c1_val;
       c2[i]    = c2_val;
       c3[i]    = c3_val;
+
+      if (i < (int) external_quarantine_input.size())
+        quarantine_input[i] = external_quarantine_input[i];
     }
   }
 
   int nt_hist, nt_pred;
   static constexpr double dt = 1.0/24.0;
+  Vector quarantine_input;
   Vector betaN;
   Vector ce;
   Vector c0;
@@ -48,7 +53,6 @@ struct ModelParams
   double frac_recover_I1 = 0.80;  //fraction of cases that recover from mild-infected stage I1
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
   double CFR             = 0.02;  //case fatality rate
-
 };
 
 #endif

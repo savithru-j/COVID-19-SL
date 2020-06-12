@@ -96,7 +96,8 @@ struct OptimizerLowDim
   static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
 
   OptimizerLowDim(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                  int num_basis_, double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
+                  const Vector& quarantine_input, int num_basis_,
+                  double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
                   int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
   inline int nDim() const { return param_vec.size(); };

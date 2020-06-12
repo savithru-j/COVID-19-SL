@@ -75,4 +75,6 @@ public:
   std::vector<int> deaths;
 };
 
+Vector getQuarantineInputVector(const std::string& filepath);
+
 #endif
