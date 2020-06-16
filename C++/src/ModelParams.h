@@ -7,7 +7,7 @@ struct ModelParams
 {
   ModelParams(int nt_hist_, int nt_pred_, const Vector& external_quarantine_input = {},
               double betaN_val = 0.3, double ce_val = 0.0, double c0_val = 0.0,
-              double c1_val = 0.1, double c2_val = 1.0, double c3_val = 1.0)
+              double c1_val = 0.0, double c2_val = 1.0, double c3_val = 1.0)
     : nt_hist(nt_hist_), nt_pred(nt_pred_)
   {
     const int nt = nt_hist + nt_pred;

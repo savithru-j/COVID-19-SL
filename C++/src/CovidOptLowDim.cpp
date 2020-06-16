@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 
 	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
 
-	Population pop_init(pop_observed.N, 5, 1);
+	Population pop_init(pop_observed.N, 5, 0);
 
 	std::string folder_path = "results";
 	mkdir(folder_path.c_str(), 0777);

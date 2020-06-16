@@ -1,8 +1,9 @@
-clear
-clc
-close all
+% clear
+% clc
+% close all
 
-data = readOptData('synthetic1','');
+num_threads = 40;
+data = readOptData('synthetic_new1',1:num_threads);
 
 % data0 = readOptData('srilanka64_T1','');
 % data = readOptData('srilanka64_T14','');
@@ -21,29 +22,29 @@ data = readOptData('synthetic1','');
 
 col_ind = [1:5];
 
-figure(1)
+figure(11)
 subplot(1,3,1)
 hold off
-plot(data.pred_conf(:,col_ind), '-')
+semilogy(data.pred_conf(:,col_ind), '-')
 hold on
-plot(data.obs_conf, 'k--')
+semilogy(data.obs_conf, 'k--')
 xlabel('Day')
 ylabel('No. of confirmed cases')
 
 subplot(1,3,2)
 hold off
-plot(data.pred_recov(:,col_ind), '-')
+semilogy(data.pred_recov(:,col_ind), '-')
 hold on
-plot(data.obs_recov, 'k--')
+semilogy(data.obs_recov, 'k--')
 xlabel('Day')
 ylabel('No. of recovered cases')
 % xlim([0,65])
 
 subplot(1,3,3)
 hold off
-plot(data.pred_fatal(:,col_ind), '-')
+semilogy(data.pred_fatal(:,col_ind), '-')
 hold on
-plot(data.obs_fatal, 'k--')
+semilogy(data.obs_fatal, 'k--')
 xlabel('Day')
 ylabel('No. of fatalities')
 
@@ -51,7 +52,7 @@ set(gcf, 'Units', 'Inches', 'Position', [1,3,16,5])
 
 %%
 
-figure(2)
+figure(12)
 subplot(3,2,1)
 hold off
 plot(data.beta(:,col_ind), '-')
@@ -94,12 +95,14 @@ ylabel('c_3')
 set(gcf, 'Units', 'Inches', 'Position', [1,3,14,8])
 
 
-function data = readOptData(country, suffix)
+
+
+function data = readOptData(country, seed_range)
 
 observed_file = sprintf('csv_data/%s.txt', country);
-true_params_file = sprintf('csv_data/%s_params%s.txt', country, suffix);
-params_file = sprintf('../C++/build/release/results/%s_params%s.txt', country, suffix);
-pred_file = sprintf('../C++/build/release/results/%s_prediction%s.txt', country, suffix);
+true_params_file = sprintf('csv_data/%s_params.txt', country);
+params_file = sprintf('../C++/build/release/results/%s_params_seed%s.txt', country, suffix);
+pred_file = sprintf('../C++/build/release/results/%s_prediction_seed%s.txt', country, suffix);
 
 data_obs = importdata(observed_file);
 data_obs = reshape(data_obs(2:end),3,[])';
@@ -115,7 +118,7 @@ data.pred_conf = data_pred(:,1:6:end);
 data.pred_recov = data_pred(:,2:6:end);
 data.pred_fatal = data_pred(:,3:6:end);
 
-nt = (size(data_params,1) - 11) / 5;
+nt = (size(data_params,1) - 11 -1) / 5;
 data.beta = data_params(1:nt, :);
 data.c0 = data_params((  nt+1):2*nt, :);
 data.c1 = data_params((2*nt+1):3*nt, :);

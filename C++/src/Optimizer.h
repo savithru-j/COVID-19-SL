@@ -124,9 +124,13 @@ struct OptimizerLowDim
     const int num_nodes = (int)(nt_opt/num_basis) + 1;
     for (int i = 0; i < 4; ++i)
     {
-      param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
-      for (int j = 1; j < num_nodes; ++j)
-        param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
+//       param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
+//       for (int j = 1; j < num_nodes; ++j)
+//         param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
+
+      for (int j = 0; j < num_nodes; ++j)
+        param_vec[i*num_nodes + j] = uniformRand(param_bounds[i*num_nodes+j].min, param_bounds[i*num_nodes+j].max);
+
     }
 
     const int off = 4*num_nodes;

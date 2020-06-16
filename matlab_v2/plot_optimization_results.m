@@ -2,13 +2,16 @@ clear
 clc
 close all
 
-num_threads = 6;
-data = readOptData('srilanka',1:num_threads);
+
+num_threads = 40;
+trueCan = 1;
+data = readOptData('synthetic_SIR1',1:num_threads,trueCan);
 
 % load tempcosts
 [sortedCost inds_selected] = sort(data.cost);
+figure(1);plot(sortedCost)
 
-max_sel = min(30, length(sortedCost));
+max_sel = min(100, length(sortedCost));
 inds_selected = inds_selected(1:max_sel);
 sortedCost    = sortedCost(1:max_sel);
 
@@ -44,29 +47,29 @@ data.last = data.last(:,inds_selected);
 % data.c2(:,1) = data0.c2(:,1);
 % data.c3(:,1) = data0.c3(:,1);
 
-figure(1)
+figure(2)
 subplot(2,3,1)
-hold on
-plot(data.obs_conf, 'k--')
-plot(data.pred_conf, '-')
+hold off
+semilogy(data.obs_conf, 'k--');hold on
+semilogy(data.pred_conf, '-')
 % plot(data.pred_inf_unreported + data.pred_recov_unreported + data.pred_fatal_unreported, '-.')
 hold off
 xlabel('Day')
 ylabel('No. of confirmed cases')
 
 subplot(2,3,2)
-hold on
-plot(data.obs_recov, 'k--')
-plot(data.pred_recov, '-')
+hold off
+semilogy(data.obs_recov, 'k--');hold on
+semilogy(data.pred_recov, '-')
 hold off
 xlabel('Day')
 ylabel('No. of recovered cases')
 % xlim([0,65])
 
 subplot(2,3,3)
-hold on
-plot(data.obs_fatal, 'k--')
-plot(data.pred_fatal, '-')
+hold off
+semilogy(data.obs_fatal, 'k--');hold on
+semilogy(data.pred_fatal, '-')
 hold off
 xlabel('Day')
 ylabel('No. of fatalities')
@@ -92,28 +95,41 @@ ylabel('No. of unreported-fatalities')
 set(gcf, 'Units', 'Inches', 'Position', [1,3,16,5])
 
 %%
-figure(2)
+figure(3)
 subplot(2,2,1)
 denom = max(sortedCost) - min(sortedCost);
 denom(denom == 0) = 1;
 cost_color = (sortedCost - min(sortedCost)) ./ denom;
-plotSorted(data.beta,cost_color);
+%plotSorted(data.beta,cost_color);
+if trueCan
+  hold on;plot(data.beta_true,'r--','linewidth',2);
+end
+plot(mean(data.beta,2),'b--','linewidth',2);hold off
 xlabel('Day')
 ylabel('Beta')
 % legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5')
 
 subplot(2,2,2)
 plotSorted(data.c0,cost_color);
+if trueCan
+  hold on;plot(data.c0_true,'r--','linewidth',2);hold off
+end
 xlabel('Day')
 ylabel('c_0 = c_e')
 
 subplot(2,2,3)
 plotSorted(data.c1,cost_color);
+if trueCan
+   hold on;plot(data.c1_true,'r--','linewidth',2);hold off
+end
 xlabel('Day')
 ylabel('c_1')
 
 subplot(2,2,4)
 plotSorted(data.c2,cost_color);
+if trueCan
+  hold on;plot(data.c2_true,'r--','linewidth',2);hold off
+end
 xlabel('Day')
 ylabel('c_2')
 
@@ -125,7 +141,19 @@ ylabel('c_2')
 set(gcf, 'Units', 'Inches', 'Position', [1,3,14,8])
 
 
-function data = readOptData(country, seed_range)
+function data = readOptData(country, seed_range, trueCan)
+
+if trueCan
+  true_params_file = sprintf('csv_data/%s_params.txt', country);
+  data_true_params = importdata(true_params_file);
+  nt = (size(data_true_params,1) - 11) / 5;
+  data.beta_true = data_true_params(1:nt, :);
+  data.c0_true = data_true_params((  nt+1):2*nt, :);
+  data.c1_true = data_true_params((2*nt+1):3*nt, :);
+  data.c2_true = data_true_params((3*nt+1):4*nt, :);
+  data.c3_true = data_true_params((4*nt+1):5*nt, :);
+  data.last_true = data_true_params(end-10:end,:);
+end
 
 observed_file = sprintf('csv_data/%s.txt', country);
 data_obs = importdata(observed_file);

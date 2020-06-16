@@ -696,7 +696,7 @@ OptimizerLowDim::getCost()
   sub_costs[0] = weight_conf*(err_sq_total/sq_total);
   sub_costs[1] = weight_recov*(err_sq_recov/sq_recov);
   sub_costs[2] = weight_fatal*(err_sq_fatal/sq_fatal);
-#else
+#elif 0
   const double eps = 1e-10;
   for (int i = 1; i < nt; ++i)
   {
@@ -712,9 +712,25 @@ OptimizerLowDim::getCost()
     err_sq_recov += err_recov*err_recov;
     err_sq_fatal += err_fatal*err_fatal;
   }
-  sub_costs[0] = weight_conf*(err_sq_total);
-  sub_costs[1] = weight_recov*(err_sq_recov);
-  sub_costs[2] = weight_fatal*(err_sq_fatal);
+  sub_costs[0] = weight_conf*(err_sq_total)/(3.0*nt);
+  sub_costs[1] = weight_recov*(err_sq_recov)/(3.0*nt);
+  sub_costs[2] = weight_fatal*(err_sq_fatal)/(3.0*nt);
+#else
+  const double eps = 1e-10;
+  double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
+  for (int i = 1; i < nt; ++i)
+  {
+    double err_total = (pop_hist[i].getNumReported() - pop_observed.confirmed[i]);
+    double err_recov = (pop_hist[i].getNumRecoveredReported() - pop_observed.recovered[i]);
+    double err_fatal = (pop_hist[i].getNumFatalReported() - pop_observed.deaths[i]);
+
+    err_sq_total += std::log(std::abs(err_total) + eps);
+    err_sq_recov += std::log(std::abs(err_recov) + eps);
+    err_sq_fatal += std::log(std::abs(err_fatal) + eps);
+  }
+  sub_costs[0] = weight_conf*(err_sq_total)/nt;
+  sub_costs[1] = weight_recov*(err_sq_recov)/nt;
+  sub_costs[2] = weight_fatal*(err_sq_fatal)/nt;
 #endif
 
   const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2];
@@ -934,10 +950,10 @@ OptimizerLowDim::getParameterBounds(int nt, int interval_size)
   const double delta = 1e-4;
   for (int i = 0; i < num_nodes; ++i)
   {
-    bounds[              i] = ParamBound(0, 2, delta); //betaN
-    bounds[  num_nodes + i] = ParamBound(0, 1, delta); //c0 = ce
-    bounds[2*num_nodes + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*num_nodes + i] = ParamBound(0.6, 1, delta); //c2 = c3
+    bounds[              i] = ParamBound(0, 1, delta); //betaN
+    bounds[  num_nodes + i] = ParamBound(0, 0, delta); //c0 = ce
+    bounds[2*num_nodes + i] = ParamBound(0, 0, delta); //c1
+    bounds[3*num_nodes + i] = ParamBound(1, 1, delta); //c2 = c3
   }
   const int off = 4*num_nodes;
 #if 1

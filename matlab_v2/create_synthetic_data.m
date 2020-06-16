@@ -12,16 +12,19 @@ param_vecs = [];
 
 Npop = 1e7; %population
 
-for i = 1:20
-   betaN = getrandomcurve(nt, 0, 2);
-   c0 = getrandomcurve(nt, 0, 1);
-   c1 = getrandomcurve(nt, 0, 1);
-   c2 = getrandomcurve(nt, 0, 1);
-   c3 = getrandomcurve(nt, 0, 1);
+for i = 1:1
+   betaN = getrandomcurve(nt, 0, 1);
+   c0 = zeros(size(betaN));
+   c1 = zeros(size(betaN));
+   c2 = ones(size(betaN));
+%    c0 = getrandomcurve(nt, 1, 1);
+%    c1 = getrandomcurve(nt, 1, 1);
+%    c2 = getrandomcurve(nt, 1, 1);
+   c3 = c2;%getrandomcurve(nt, 0, 1);
    vec = [betaN; c0; c1; c2; c3; last_params];
    param_vecs = [param_vecs, vec];
    
-   writematrix(vec, sprintf('csv_data/synthetic%d_params.txt',i),'Delimiter',' ')
+   writematrix(vec, sprintf('csv_data/synthetic_SIR%d_params.txt',i),'Delimiter',' ')
 end
 
 plot(param_vecs)
