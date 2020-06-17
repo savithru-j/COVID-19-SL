@@ -55,4 +55,7 @@ struct ModelParams
   double CFR             = 0.02;  //case fatality rate
 };
 
+void copyParam2FullVector(const ModelParams& params, Vector& v);
+void copyFullVector2Param(const Vector& v, ModelParams& params);
+
 #endif

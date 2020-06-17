@@ -2,6 +2,7 @@
 #define LINEARALGEBRA_H
 
 #include <vector>
+#include <array>
 #include "ErrorHandler.h"
 
 class Vector

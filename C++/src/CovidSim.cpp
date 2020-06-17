@@ -2,9 +2,11 @@
 #include <fstream>
 #include <chrono>
 #include <sys/stat.h>
+#include <cmath>
 
 #include "Simulator.h"
-#include "Optimizer.h"
+#include "Population.h"
+#include "ModelParams.h"
 
 int
 main(int argc, char *argv[])
@@ -49,7 +51,7 @@ main(int argc, char *argv[])
     throwError("nt_hist <= 0!");
 
   ModelParams params(nt_hist, 0);
-  Optimizer::copyVector2Param(param_vec, params);
+  copyFullVector2Param(param_vec, params);
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
