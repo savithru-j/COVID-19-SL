@@ -3,13 +3,13 @@
 
 #include "OptimizerPiecewiseLinear.h"
 #include "Simulator.h"
-
+#if 0
 OptimizerPiecewiseLinear::OptimizerPiecewiseLinear(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                                 const Vector& quarantine_input, int interval_size_, bool linear_basis_,
+                                 const Vector& quarantine_input, int interval_size_,
                                  double wconf, double wrecov, double wfatal,
                                  int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
-    nt_opt(pop_observed.getNumDays()), interval_size(interval_size_), linear_basis(linear_basis_),
+    nt_opt(pop_observed.getNumDays()), interval_size(interval_size_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal),
     max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
     params(pop_observed.getNumDays(), 0, quarantine_input),
@@ -18,7 +18,7 @@ OptimizerPiecewiseLinear::OptimizerPiecewiseLinear(const ObservedPopulation& pop
   if (pop_observed.N != pop_init.N)
     throwError("Initial population mismatch!");
 
-  param_bounds = getParameterBounds(nt_opt, interval_size, linear_basis);
+  param_bounds = getParameterBounds(nt_opt, interval_size);
   param_vec.resize(param_bounds.size());
   copyParam2Vector(params, param_vec);
 }
@@ -247,17 +247,167 @@ OptimizerPiecewiseLinear::updateOptimalSolution(
   optimal_param_vec[min_ind] = param_vec_cur;
 }
 
+#if 0
 std::vector<ParamBound>
-OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size, bool linear_basis)
+OptimizerPiecewiseLinear::getParameterBounds(int nbasis)
 {
-  int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
+  const int m = 5*nbasis + 11;
+  std::vector<ParamBound> bounds(m);
+
+  const double delta = 1e-4;
+  const double a = 0.1;
+
+  //Bounds for "average" basis coefficients
+  bounds[       0] = ParamBound(0, 2, delta); //betaN
+  bounds[  nbasis] = ParamBound(0, 1, delta); //c0 = ce
+  bounds[2*nbasis] = ParamBound(0, 1, delta); //c1
+  bounds[3*nbasis] = ParamBound(0, 1, delta); //c2
+  bounds[4*nbasis] = ParamBound(0, 1, delta); //c3
+
+  for (int i = 1; i < nbasis; ++i)
+  {
+    bounds[           i] = ParamBound(-a, a, delta); //betaN
+    bounds[  nbasis + i] = ParamBound(-a, a, delta); //c0 = ce
+    bounds[2*nbasis + i] = ParamBound(-a, a, delta); //c1
+    bounds[3*nbasis + i] = ParamBound(-a, a, delta); //c2
+    bounds[4*nbasis + i] = ParamBound(-a, a, delta); //c3
+  }
+  const int off = 5*nbasis;
+//  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
+//  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
+//  bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
+//  bounds[off+3] = ParamBound(6.0, 6.0, delta); //T_mild
+//  bounds[off+4] = ParamBound(4.0, 4.0, delta); //T_severe
+//  bounds[off+5] = ParamBound(10.0, 10.0, delta); //T_icu
+//  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
+//  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
+//  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
+//  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
+//  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+
+//  bounds[off  ] = ParamBound(2.9, 3.1, delta); //T_incub0
+//  bounds[off+1] = ParamBound(1.9, 2.1, delta); //T_incub1
+//  bounds[off+2] = ParamBound(5.9, 6.1, delta); //T_asympt
+//  bounds[off+3] = ParamBound(5.9, 6.1, delta); //T_mild
+//  bounds[off+4] = ParamBound(3.9, 4.1, delta); //T_severe
+//  bounds[off+5] = ParamBound(9.9, 10.1, delta); //T_icu
+//  bounds[off+6] = ParamBound(0.29, 0.31, delta); //f
+//  bounds[off+7] = ParamBound(0.5, 0.9, delta); //frac_recover_I1
+//  bounds[off+8] = ParamBound(0.5, 0.9, delta); //frac_recover_I2
+//  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+//  bounds[off+10] = ParamBound(13.9, 14.1, delta); //T_discharge
+
+  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
+  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
+  bounds[off+2] = ParamBound(1.0, 10.0, delta); //T_asympt
+  bounds[off+3] = ParamBound(1.0, 10.0, delta); //T_mild
+  bounds[off+4] = ParamBound(1.0, 10.0, delta); //T_severe
+  bounds[off+5] = ParamBound(1.0, 10.0, delta); //T_icu
+  bounds[off+6] = ParamBound(0.1, 0.9, delta); //f
+  bounds[off+7] = ParamBound(0.1, 0.9, delta); //frac_recover_I1
+  bounds[off+8] = ParamBound(0.1, 0.9, delta); //frac_recover_I2
+  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(1.0, 28.0, delta); //T_discharge
+
+  return bounds;
+}
+
+void
+OptimizerPiecewiseLinear::copyParam2Vector(const ModelParams& params, Vector& v)
+{
+  const int m = 5*num_basis + 11;
+  if (v.m() != m)
+    throwError("copyParam2Vector - inconsistent dimensions!");
+
+  double avg_beta = 0.0;
+  std::array<double, 4> avg_c = {0.0, 0.0, 0.0, 0.0};
+
+  for (int i = 0; i < params.nt_hist; ++i)
+  {
+    avg_beta += params.betaN[i];
+    avg_c[0] += params.c0[i];
+    avg_c[1] += params.c1[i];
+    avg_c[2] += params.c2[i];
+    avg_c[3] += params.c3[i];
+  }
+  avg_beta /= (double) params.nt_hist;
+  v[0] = avg_beta;
+
+  for (std::size_t i = 0; i < avg_c.size(); ++i)
+  {
+    avg_c[i] /= (double) params.nt_hist;
+    v[(i+1)*num_basis] = avg_c[i];
+  }
+
+  for (int i = 0; i < 5; ++i)
+    for (int j = 1; j < num_basis; ++j)
+      v[i*num_basis + j] = 0.0;
+
+  const int off = 5*num_basis;
+  v[off  ] = params.T_incub0;
+  v[off+1] = params.T_incub1;
+  v[off+2] = params.T_asympt;
+  v[off+3] = params.T_mild;
+  v[off+4] = params.T_severe;
+  v[off+5] = params.T_icu;
+  v[off+6] = params.f;
+  v[off+7] = params.frac_recover_I1;
+  v[off+8] = params.frac_recover_I2;
+  v[off+9] = params.CFR;
+  v[off+10] = params.T_discharge;
+}
+
+void
+OptimizerPiecewiseLinear::copyVector2Param(const Vector& v, ModelParams& params)
+{
+  const int nt = params.nt_hist;
+  const int m = 5*num_basis + 11;
+  if (v.m() != m)
+    throwError("copyVector2Param - inconsistent dimensions!");
+
+  evaluateLegendrePolynomial(num_basis, nt, &v[0], params.betaN);
+  evaluateLegendrePolynomial(num_basis, nt, &v[num_basis], params.c0);
+  params.ce = params.c0;
+  evaluateLegendrePolynomial(num_basis, nt, &v[2*num_basis], params.c1);
+  evaluateLegendrePolynomial(num_basis, nt, &v[3*num_basis], params.c2);
+  evaluateLegendrePolynomial(num_basis, nt, &v[4*num_basis], params.c3);
+
+  const int N = params.nt_hist + params.nt_pred;
+  for (int i = nt; i < N; ++i) //Copy last "history" value to prediction section
+  {
+    params.betaN[i] = params.betaN[nt-1];
+    params.ce[i]    = params.ce[nt-1];
+    params.c0[i]    = params.c0[nt-1];
+    params.c1[i]    = params.c1[nt-1];
+    params.c2[i]    = params.c2[nt-1];
+    params.c3[i]    = params.c3[nt-1];
+  }
+
+  const int off = 5*num_basis;
+  params.T_incub0        = v[off  ];
+  params.T_incub1        = v[off+1];
+  params.T_asympt        = v[off+2];
+  params.T_mild          = v[off+3];
+  params.T_severe        = v[off+4];
+  params.T_icu           = v[off+5];
+  params.f               = v[off+6];
+  params.frac_recover_I1 = v[off+7];
+  params.frac_recover_I2 = v[off+8];
+  params.CFR             = v[off+9];
+  params.T_discharge     = v[off+10];
+}
+#elif 1
+std::vector<ParamBound>
+OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size)
+{
+  int num_nodes = (int)(nt/interval_size) + 1;
   const int m = 4*num_nodes + 11;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
   for (int i = 0; i < num_nodes; ++i)
   {
-    bounds[              i] = ParamBound(0, 2, delta); //betaN
+    bounds[              i] = ParamBound(0, 1, delta); //betaN
     bounds[  num_nodes + i] = ParamBound(0, 1, delta); //c0 = ce
     bounds[2*num_nodes + i] = ParamBound(0, 1, delta); //c1
     bounds[3*num_nodes + i] = ParamBound(1, 1, delta); //c2 = c3
@@ -295,7 +445,7 @@ OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size, bool lin
 void
 OptimizerPiecewiseLinear::copyParam2Vector(const ModelParams& params, Vector& v)
 {
-  int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
+  int num_nodes = (int)(nt_opt/interval_size) + 1;
   const int m = 4*num_nodes + 11;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
@@ -330,7 +480,7 @@ OptimizerPiecewiseLinear::copyParam2Vector(const ModelParams& params, Vector& v)
 void
 OptimizerPiecewiseLinear::copyVector2Param(const Vector& v, ModelParams& params)
 {
-  int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
+  int num_nodes = (int)(nt_opt/interval_size) + 1;
   const int m = 4*num_nodes + 11;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
@@ -343,7 +493,7 @@ OptimizerPiecewiseLinear::copyVector2Param(const Vector& v, ModelParams& params)
 
     for (int j = 0; j <= L; ++j)
     {
-      const double s = linear_basis*(j / L);
+      const double s = j / L;
       const int ind = ind0 + j;
       params.betaN[ind] = (1-s)*v[              i] + s*v[              i+1];
       params.c0[ind]    = (1-s)*v[  num_nodes + i] + s*v[  num_nodes + i+1];
@@ -379,3 +529,167 @@ OptimizerPiecewiseLinear::copyVector2Param(const Vector& v, ModelParams& params)
   params.T_discharge     = v[off+10];
 }
 
+#else
+std::vector<ParamBound>
+OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size)
+{
+  int num_nodes = (int)(nt/interval_size) + 1;
+  const int m = num_nodes + 3 + 11;
+  std::vector<ParamBound> bounds(m);
+
+  const double delta = 1e-4;
+  for (int i = 0; i < num_nodes; ++i)
+    bounds[i] = ParamBound(0, 1, delta); //betaN
+  bounds[num_nodes  ] = ParamBound(0, 1, delta); //c0 = ce
+  bounds[num_nodes+1] = ParamBound(0, 1, delta); //c1
+  bounds[num_nodes+2] = ParamBound(1, 1, delta); //c2 = c3
+
+  const int off = num_nodes + 3;
+#if 1
+  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
+  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
+  bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
+  bounds[off+3] = ParamBound(6.0, 6.0, delta); //T_mild
+  bounds[off+4] = ParamBound(4.0, 4.0, delta); //T_severe
+  bounds[off+5] = ParamBound(10.0, 10.0, delta); //T_icu
+  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
+  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
+  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
+  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+#else
+  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
+  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
+  bounds[off+2] = ParamBound(1.0, 10.0, delta); //T_asympt
+  bounds[off+3] = ParamBound(1.0, 10.0, delta); //T_mild
+  bounds[off+4] = ParamBound(1.0, 10.0, delta); //T_severe
+  bounds[off+5] = ParamBound(1.0, 10.0, delta); //T_icu
+  bounds[off+6] = ParamBound(0.1, 0.9, delta); //f
+  bounds[off+7] = ParamBound(0.1, 0.9, delta); //frac_recover_I1
+  bounds[off+8] = ParamBound(0.1, 0.9, delta); //frac_recover_I2
+  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
+  bounds[off+10] = ParamBound(1.0, 28.0, delta); //T_discharge
+#endif
+
+  return bounds;
+}
+
+void
+OptimizerPiecewiseLinear::copyParam2Vector(const ModelParams& params, Vector& v)
+{
+  int num_nodes = (int)(nt_opt/num_basis) + 1;
+  const int m = num_nodes + 3 + 11;
+  if (v.m() != m)
+    throwError("copyParam2Vector - inconsistent dimensions!");
+
+  for (int i = 0; i < num_nodes-1; ++i)
+    v[i] = params.betaN[i*num_basis];
+  v[num_nodes-1] = params.betaN[nt_opt-1];
+
+  v[num_nodes  ] = params.c0[0]; //c0 = ce
+  v[num_nodes+1] = params.c1[0]; //c1
+  v[num_nodes+2] = params.c2[0]; //c2 = c3
+
+  const int off = num_nodes + 3;
+  v[off  ] = params.T_incub0;
+  v[off+1] = params.T_incub1;
+  v[off+2] = params.T_asympt;
+  v[off+3] = params.T_mild;
+  v[off+4] = params.T_severe;
+  v[off+5] = params.T_icu;
+  v[off+6] = params.f;
+  v[off+7] = params.frac_recover_I1;
+  v[off+8] = params.frac_recover_I2;
+  v[off+9] = params.CFR;
+  v[off+10] = params.T_discharge;
+}
+
+void
+OptimizerPiecewiseLinear::copyVector2Param(const Vector& v, ModelParams& params)
+{
+  int num_nodes = (int)(nt_opt/num_basis) + 1;
+  const int m = num_nodes + 3 + 11;
+  if (v.m() != m)
+    throwError("copyVector2Param - inconsistent dimensions!");
+
+  for (int i = 0; i < num_nodes-1; ++i)
+  {
+    const int ind0 = i*num_basis;
+    const int ind1 = (i < num_nodes-2) ? (i+1)*num_basis : (nt_opt-1);
+    const double L = ind1 - ind0;
+
+    for (int j = 0; j <= L; ++j)
+    {
+      const double s = j / L;
+      params.betaN[ind0 + j] = (1-s)*v[i] + s*v[i+1];
+    }
+  }
+
+  for (int i = 0; i < params.nt_hist; ++i)
+  {
+    params.ce[i] = v[num_nodes];
+    params.c0[i] = params.ce[i];
+    params.c1[i] = v[num_nodes+1];
+    params.c2[i] = v[num_nodes+2];
+    params.c3[i] = params.c2[i];
+  }
+
+  const int N = params.nt_hist + params.nt_pred;
+  for (int i = params.nt_hist; i < N; ++i) //Copy last "history" value to prediction section
+  {
+    params.betaN[i] = params.betaN[params.nt_hist-1];
+    params.ce[i]    = params.ce[params.nt_hist-1];
+    params.c0[i]    = params.c0[params.nt_hist-1];
+    params.c1[i]    = params.c1[params.nt_hist-1];
+    params.c2[i]    = params.c2[params.nt_hist-1];
+    params.c3[i]    = params.c3[params.nt_hist-1];
+  }
+
+  const int off = num_nodes + 3;
+  params.T_incub0        = v[off  ];
+  params.T_incub1        = v[off+1];
+  params.T_asympt        = v[off+2];
+  params.T_mild          = v[off+3];
+  params.T_severe        = v[off+4];
+  params.T_icu           = v[off+5];
+  params.f               = v[off+6];
+  params.frac_recover_I1 = v[off+7];
+  params.frac_recover_I2 = v[off+8];
+  params.CFR             = v[off+9];
+  params.T_discharge     = v[off+10];
+}
+#endif
+
+void
+OptimizerPiecewiseLinear::evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params)
+{
+  if (nbasis == 1)
+  {
+    for (int i = 0; i < nt; ++i)
+      params[i] = coeff[0];
+  }
+  else if (nbasis == 2)
+  {
+    for (int i = 0; i < nt; ++i)
+    {
+      double x = 2.0*(i / (double)(nt - 1)) - 1.0; //in range [-1, 1]
+      double phi0 = 1.0;
+      double phi1 = x;
+      params[i] = coeff[0]*phi0 + coeff[1]*phi1;
+    }
+  }
+  else if (nbasis == 3)
+  {
+    for (int i = 0; i < nt; ++i)
+    {
+      double x = 2.0*(i / (double)(nt - 1)) - 1.0; //in range [-1, 1]
+      double phi0 = 1.0;
+      double phi1 = x;
+      double phi2 = 1.5*x*x - 0.5;
+      params[i] = coeff[0]*phi0 + coeff[1]*phi1 + coeff[2]*phi2;
+    }
+  }
+  else
+    throwError("evaluateLegendrePolynomial - Unsupported basis number!");
+}
+#endif

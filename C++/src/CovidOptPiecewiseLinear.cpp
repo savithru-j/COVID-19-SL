@@ -10,14 +10,14 @@
 int
 main(int argc, char *argv[])
 {
-  if (argc == 1 || argc > 9)
+  if (argc == 1 || argc > 10)
     throwError("Invalid arguments! Argument format: country_name "
-               "[w_conf = 1.0] [w_recov = 1.0] [w_fatal = 1.0] [num_basis = 1] "
+               "[w_conf = 1.0] [w_recov = 1.0] [w_fatal = 1.0] [interval_size = 5] [linear_basis = 0] "
                "[max_iter_per_pass = 1000] [max_passes = 1] [seed = 1]");
 
   std::string country;
   double weight_conf = 1.0, weight_recov = 1.0, weight_fatal = 1.0;
-  int num_basis = 1, max_iter_per_pass = 1000, max_passes = 1;
+  int interval_size = 5, linear_basis = 0, max_iter_per_pass = 1000, max_passes = 1;
   int seed = 1;
 
   if (argc >= 2)
@@ -29,20 +29,23 @@ main(int argc, char *argv[])
   if (argc >= 5)
     weight_fatal = std::stod(argv[4]);
   if (argc >= 6)
-    num_basis = std::stoi(argv[5]);
+    interval_size = std::stoi(argv[5]);
   if (argc >= 7)
-    max_iter_per_pass = std::stoi(argv[6]);
+    linear_basis = std::stoi(argv[6]);
   if (argc >= 8)
-    max_passes = std::stoi(argv[7]);
+    max_iter_per_pass = std::stoi(argv[7]);
   if (argc >= 9)
-    seed = std::stoi(argv[8]);
+    max_passes = std::stoi(argv[8]);
+  if (argc >= 10)
+    seed = std::stoi(argv[9]);
 
   std::cout << "Country name: " << country << std::endl;
   std::cout << "Optimization weights: " << std::endl;
   std::cout << " w_confirmed: " << weight_conf << std::endl;
   std::cout << " w_recovered: " << weight_recov << std::endl;
   std::cout << " w_fatal: " << weight_fatal << std::endl;
-  std::cout << "No. of basis functions: " << num_basis << std::endl;
+  std::cout << "Interval size: " << interval_size << " days" << std::endl;
+  std::cout << "Linear basis? " << linear_basis << std::endl;
   std::cout << "Max iterations per pass: " << max_iter_per_pass << std::endl;
   std::cout << "Max passes: " << max_passes << std::endl;
   std::cout << "Random seed: " << seed << std::endl;
@@ -73,7 +76,7 @@ main(int argc, char *argv[])
   auto pop_quarantine_input = getQuarantineInputVector(filepath_quarantine_input);
   std::cout << "External quarantine input vector length: " << pop_quarantine_input.size() << std::endl << std::endl;
 
-  OptimizerPiecewiseLinear opt(pop_observed, pop_init, pop_quarantine_input, num_basis,
+  OptimizerPiecewiseLinear opt(pop_observed, pop_init, pop_quarantine_input, interval_size, linear_basis,
                                weight_conf, weight_recov, weight_fatal,
                                max_iter_per_pass, max_passes, seed);
 

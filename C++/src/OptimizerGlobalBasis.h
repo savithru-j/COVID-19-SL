@@ -12,26 +12,41 @@ struct OptimizerPiecewiseLinear
   static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
 
   OptimizerPiecewiseLinear(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                           const Vector& quarantine_input, int interval_size_, bool linear_basis_ = false,
+                           const Vector& quarantine_input, int interval_size_,
                            double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
                            int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
   inline int nDim() const { return param_vec.size(); };
 
+#if 0
   inline void randomizeParameters()
   {
-    const int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
+    for (int i = 0; i < 5; ++i)
+    {
+      param_vec[i*num_basis] = uniformRand(param_bounds[i*num_basis].min, param_bounds[i*num_basis].max);
+      for (int j = 1; j < num_basis; ++j)
+        param_vec[i*num_basis + j] = 0.0;
+    }
+
+    const int off = 5*num_basis;
+    for (int i = off; i < param_vec.m(); ++i)
+      param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
+
+    copyVector2Param(param_vec, params);
+  }
+#elif 1
+  inline void randomizeParameters()
+  {
+    const int num_nodes = (int)(nt_opt/interval_size) + 1;
     for (int i = 0; i < 4; ++i)
     {
-#if 0 //Constant random solutions
-      param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
-      for (int j = 1; j < num_nodes; ++j)
-        param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
-#else
-      //Piecewise constant/linear random solutions
+//       param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
+//       for (int j = 1; j < num_nodes; ++j)
+//         param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
+
       for (int j = 0; j < num_nodes; ++j)
         param_vec[i*num_nodes + j] = uniformRand(param_bounds[i*num_nodes+j].min, param_bounds[i*num_nodes+j].max);
-#endif
+
     }
 
     const int off = 4*num_nodes;
@@ -40,13 +55,27 @@ struct OptimizerPiecewiseLinear
 
     copyVector2Param(param_vec, params);
   }
+#else
+  inline void randomizeParameters()
+  {
+    const int num_nodes = (int)(nt_opt/num_basis) + 1;
+    param_vec[0] = uniformRand(param_bounds[0].min, param_bounds[0].max);
+    for (int j = 1; j < num_nodes; ++j)
+      param_vec[j] = param_vec[0];
+
+    const int off = num_nodes;
+    for (int i = off; i < param_vec.m(); ++i)
+      param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
+
+    copyVector2Param(param_vec, params);
+  }
+#endif
 
   void optimizeParametersNLOPT();
 
   const ObservedPopulation& pop_observed;
   const Population& pop_init;
   const int nt_opt, interval_size;
-  const bool linear_basis = false;
   double weight_conf, weight_recov, weight_fatal;
   int max_iter_per_pass = 1000;
   int max_passes = 1;
@@ -77,7 +106,9 @@ protected:
   double getCostGradient(std::vector<double>& grad);
   double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
 
-  static std::vector<ParamBound> getParameterBounds(int nt, int num_basis, bool linear_basis);
+  static std::vector<ParamBound> getParameterBounds(int nt, int num_basis);
+
+  static void evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params);
 
   void updateOptimalSolution(const double& cost_rel, const std::array<double,3>& sub_costs,
                              const Vector& param_vec);
