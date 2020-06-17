@@ -3,15 +3,15 @@ clc
 close all
 
 
-num_threads = 40;
-trueCan = 1;
+num_threads = 1;
+trueCan = true;
 data = readOptData('synthetic_SIR1',1:num_threads,trueCan);
 
 % load tempcosts
 [sortedCost inds_selected] = sort(data.cost);
 figure(1);plot(sortedCost)
 
-max_sel = min(100, length(sortedCost));
+max_sel = min(3, length(sortedCost));
 inds_selected = inds_selected(1:max_sel);
 sortedCost    = sortedCost(1:max_sel);
 
@@ -32,62 +32,74 @@ data.c2 = data.c2(:,inds_selected);
 data.c3 = data.c3(:,inds_selected);
 data.last = data.last(:,inds_selected);
 
-% data0 = readOptData('srilanka64_T1','');
-% data = readOptData('srilanka64_T14','');
-% 
-% data0.last
-% data.last
-% 
-% data.pred_conf(:,1) = data0.pred_conf(:,1);
-% data.pred_recov(:,1) = data0.pred_recov(:,1);
-% data.pred_fatal(:,1) = data0.pred_fatal(:,1);
-% data.beta(:,1) = data0.beta(:,1);
-% data.c0(:,1) = data0.c0(:,1);
-% data.c1(:,1) = data0.c1(:,1);
-% data.c2(:,1) = data0.c2(:,1);
-% data.c3(:,1) = data0.c3(:,1);
+plot_log = false;
 
 figure(2)
 subplot(2,3,1)
 hold off
-semilogy(data.obs_conf, 'k--');hold on
-semilogy(data.pred_conf, '-')
-% plot(data.pred_inf_unreported + data.pred_recov_unreported + data.pred_fatal_unreported, '-.')
-hold off
+if (plot_log)
+    semilogy(data.obs_conf, 'k--'); hold on
+    semilogy(data.pred_conf, '-');
+else
+    plot(data.obs_conf, 'k--'); hold on
+    plot(data.pred_conf, '-');
+end
 xlabel('Day')
 ylabel('No. of confirmed cases')
 
 subplot(2,3,2)
 hold off
-semilogy(data.obs_recov, 'k--');hold on
-semilogy(data.pred_recov, '-')
-hold off
+if (plot_log)
+    semilogy(data.obs_recov, 'k--'); hold on
+    semilogy(data.pred_recov, '-')
+else
+    plot(data.obs_recov, 'k--'); hold on
+    plot(data.pred_recov, '-')
+end
 xlabel('Day')
 ylabel('No. of recovered cases')
 % xlim([0,65])
 
 subplot(2,3,3)
 hold off
-semilogy(data.obs_fatal, 'k--');hold on
-semilogy(data.pred_fatal, '-')
-hold off
+if (plot_log)
+    semilogy(data.obs_fatal, 'k--'); hold on
+    semilogy(data.pred_fatal, '-')
+else
+    plot(data.obs_fatal, 'k--'); hold on
+    plot(data.pred_fatal, '-')
+end
 xlabel('Day')
 ylabel('No. of fatalities')
 
 subplot(2,3,4)
-plot(data.pred_inf_unreported, '-')
 hold off
+if (plot_log)
+    semilogy(data.pred_inf_unreported, '-')
+else
+    plot(data.pred_inf_unreported, '-')
+end
 xlabel('Day')
 ylabel('No. of infected-unreported cases')
 
 subplot(2,3,5)
-plot(data.pred_recov_unreported, '-')
+hold off
+if (plot_log)
+    semilogy(data.pred_recov_unreported, '-')
+else
+    plot(data.pred_recov_unreported, '-')
+end
 xlabel('Day')
 ylabel('No. of recovered-unreported cases')
 % xlim([0,65])
 
 subplot(2,3,6)
-plot(data.pred_fatal_unreported, '-')
+hold off
+if (plot_log)
+    semilogy(data.pred_fatal_unreported, '-')
+else
+    plot(data.pred_fatal_unreported, '-')
+end
 
 xlabel('Day')
 ylabel('No. of unreported-fatalities')
@@ -100,11 +112,11 @@ subplot(2,2,1)
 denom = max(sortedCost) - min(sortedCost);
 denom(denom == 0) = 1;
 cost_color = (sortedCost - min(sortedCost)) ./ denom;
-%plotSorted(data.beta,cost_color);
+plotSorted(data.beta,cost_color);
 if trueCan
-  hold on;plot(data.beta_true,'r--','linewidth',2);
+  hold on; plot(data.beta_true,'r--','linewidth',2);
 end
-plot(mean(data.beta,2),'b--','linewidth',2);hold off
+% plot(mean(data.beta,2),'b--','linewidth',2);hold off
 xlabel('Day')
 ylabel('Beta')
 % legend('Optimal1','Optimal2','Optimal3','Optimal4','Optimal5')
@@ -112,7 +124,7 @@ ylabel('Beta')
 subplot(2,2,2)
 plotSorted(data.c0,cost_color);
 if trueCan
-  hold on;plot(data.c0_true,'r--','linewidth',2);hold off
+  hold on; plot(data.c0_true,'r--','linewidth',2); hold off
 end
 xlabel('Day')
 ylabel('c_0 = c_e')
@@ -120,7 +132,7 @@ ylabel('c_0 = c_e')
 subplot(2,2,3)
 plotSorted(data.c1,cost_color);
 if trueCan
-   hold on;plot(data.c1_true,'r--','linewidth',2);hold off
+   hold on; plot(data.c1_true,'r--','linewidth',2); hold off
 end
 xlabel('Day')
 ylabel('c_1')
@@ -128,7 +140,7 @@ ylabel('c_1')
 subplot(2,2,4)
 plotSorted(data.c2,cost_color);
 if trueCan
-  hold on;plot(data.c2_true,'r--','linewidth',2);hold off
+  hold on; plot(data.c2_true,'r--','linewidth',2); hold off
 end
 xlabel('Day')
 ylabel('c_2')
