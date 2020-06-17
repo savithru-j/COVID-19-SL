@@ -1,10 +1,10 @@
 #include <iostream>
 #include <iomanip>
 
-#include "OptimizerPiecewiseLinear.h"
+#include "OptimizerPiecewise.h"
 #include "Simulator.h"
 
-OptimizerPiecewiseLinear::OptimizerPiecewiseLinear(const ObservedPopulation& pop_observed_, const Population& pop_init_,
+OptimizerPiecewise::OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                                  const Vector& quarantine_input, int interval_size_, bool linear_basis_,
                                  double wconf, double wrecov, double wfatal,
                                  int max_iter_per_pass_, int max_passes_, int seed) :
@@ -25,7 +25,7 @@ OptimizerPiecewiseLinear::OptimizerPiecewiseLinear(const ObservedPopulation& pop
 
 
 void
-OptimizerPiecewiseLinear::optimizeParametersNLOPT()
+OptimizerPiecewise::optimizeParametersNLOPT()
 {
   std::cout << "Optimizing parameters for " << params.nt_hist << " days..." << std::endl;
   std::cout << "No. of parameters: " << nDim() << std::endl;
@@ -103,9 +103,9 @@ OptimizerPiecewiseLinear::optimizeParametersNLOPT()
 }
 
 double
-OptimizerPiecewiseLinear::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
+OptimizerPiecewise::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
-  OptimizerPiecewiseLinear* opt = reinterpret_cast<OptimizerPiecewiseLinear*>(data);
+  OptimizerPiecewise* opt = reinterpret_cast<OptimizerPiecewise*>(data);
 
   opt->param_vec = x;
   opt->copyVector2Param(opt->param_vec, opt->params);
@@ -125,7 +125,7 @@ OptimizerPiecewiseLinear::getCostNLOPT(const std::vector<double>& x, std::vector
 
 
 std::pair<double, std::array<double, 3>>
-OptimizerPiecewiseLinear::getCost()
+OptimizerPiecewise::getCost()
 {
   auto pop_hist = predictModel(params, pop_init);
 
@@ -197,7 +197,7 @@ OptimizerPiecewiseLinear::getCost()
 }
 
 double
-OptimizerPiecewiseLinear::getCostGradient(std::vector<double>& grad)
+OptimizerPiecewise::getCostGradient(std::vector<double>& grad)
 {
   ModelParams params_orig = params; //create a copy of the current parameters
 
@@ -228,7 +228,7 @@ OptimizerPiecewiseLinear::getCostGradient(std::vector<double>& grad)
 }
 
 void
-OptimizerPiecewiseLinear::updateOptimalSolution(
+OptimizerPiecewise::updateOptimalSolution(
     const double& cost, const std::array<double,3>& sub_costs, const Vector& param_vec_cur)
 {
   int min_ind = 0;
@@ -248,7 +248,7 @@ OptimizerPiecewiseLinear::updateOptimalSolution(
 }
 
 std::vector<ParamBound>
-OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size, bool linear_basis)
+OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_basis)
 {
   int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
   const int m = 4*num_nodes + 11;
@@ -258,8 +258,8 @@ OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size, bool lin
   for (int i = 0; i < num_nodes; ++i)
   {
     bounds[              i] = ParamBound(0, 2, delta); //betaN
-    bounds[  num_nodes + i] = ParamBound(0, 1, delta); //c0 = ce
-    bounds[2*num_nodes + i] = ParamBound(0, 1, delta); //c1
+    bounds[  num_nodes + i] = ParamBound(0, 0, delta); //c0 = ce
+    bounds[2*num_nodes + i] = ParamBound(0, 0, delta); //c1
     bounds[3*num_nodes + i] = ParamBound(1, 1, delta); //c2 = c3
   }
   const int off = 4*num_nodes;
@@ -293,7 +293,7 @@ OptimizerPiecewiseLinear::getParameterBounds(int nt, int interval_size, bool lin
 }
 
 void
-OptimizerPiecewiseLinear::copyParam2Vector(const ModelParams& params, Vector& v)
+OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   const int m = 4*num_nodes + 11;
@@ -328,7 +328,7 @@ OptimizerPiecewiseLinear::copyParam2Vector(const ModelParams& params, Vector& v)
 }
 
 void
-OptimizerPiecewiseLinear::copyVector2Param(const Vector& v, ModelParams& params)
+OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   const int m = 4*num_nodes + 11;

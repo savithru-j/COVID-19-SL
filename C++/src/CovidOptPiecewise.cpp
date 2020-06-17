@@ -5,7 +5,7 @@
 #include <iomanip>
 
 #include "Simulator.h"
-#include "OptimizerPiecewiseLinear.h"
+#include "OptimizerPiecewise.h"
 
 int
 main(int argc, char *argv[])
@@ -76,9 +76,9 @@ main(int argc, char *argv[])
   auto pop_quarantine_input = getQuarantineInputVector(filepath_quarantine_input);
   std::cout << "External quarantine input vector length: " << pop_quarantine_input.size() << std::endl << std::endl;
 
-  OptimizerPiecewiseLinear opt(pop_observed, pop_init, pop_quarantine_input, interval_size, linear_basis,
-                               weight_conf, weight_recov, weight_fatal,
-                               max_iter_per_pass, max_passes, seed);
+  OptimizerPiecewise opt(pop_observed, pop_init, pop_quarantine_input, interval_size, linear_basis,
+                         weight_conf, weight_recov, weight_fatal,
+                         max_iter_per_pass, max_passes, seed);
 
 #if 0 //Initialize to true params
   std::string filepath = "csv_data/" + country + "_params.txt";
@@ -98,8 +98,8 @@ main(int argc, char *argv[])
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
   const int nt_hist = pop_observed.getNumDays();
-  std::array<std::vector<Population>, OptimizerPiecewiseLinear::NUM_RESULTS> predictions;
-  std::array<Vector, OptimizerPiecewiseLinear::NUM_RESULTS> param_vecs_full;
+  std::array<std::vector<Population>, OptimizerPiecewise::NUM_RESULTS> predictions;
+  std::array<Vector, OptimizerPiecewise::NUM_RESULTS> param_vecs_full;
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {

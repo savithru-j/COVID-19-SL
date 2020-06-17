@@ -1,5 +1,5 @@
-#ifndef OPTIMIZERPIECEWISELINEAR_H
-#define OPTIMIZERPIECEWISELINEAR_H
+#ifndef OPTIMIZERPIECEWISE_H
+#define OPTIMIZERPIECEWISE_H
 
 #include <random>
 
@@ -7,11 +7,11 @@
 #include "Population.h"
 #include "LinearAlgebra.h"
 
-struct OptimizerPiecewiseLinear
+struct OptimizerPiecewise
 {
   static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
 
-  OptimizerPiecewiseLinear(const ObservedPopulation& pop_observed_, const Population& pop_init_,
+  OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                            const Vector& quarantine_input, int interval_size_, bool linear_basis_ = false,
                            double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
                            int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);

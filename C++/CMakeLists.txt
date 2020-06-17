@@ -47,8 +47,8 @@ ADD_SUBDIRECTORY( src )
 add_executable(CovidOptFull src/CovidOptFull.cpp)
 target_link_libraries(CovidOptFull ${LIBS})
 
-add_executable(CovidOptPiecewiseLinear src/CovidOptPiecewiseLinear.cpp)
-target_link_libraries(CovidOptPiecewiseLinear ${LIBS})
+add_executable(CovidOptPiecewise src/CovidOptPiecewise.cpp)
+target_link_libraries(CovidOptPiecewise ${LIBS})
  
 add_executable(CovidSim src/CovidSim.cpp)
 target_link_libraries(CovidSim ${LIBS})

@@ -29,7 +29,7 @@ echo "No. of threads: $num_threads"
 for seed in $(seq 1 $num_threads)
 do
   echo "Launching thread $seed"
-  ./CovidOptLowDim $country $wt_conf $wt_recov $wt_fatal $node_interval $num_iter $num_passes $seed > results/output$seed.txt &
+  ./CovidOptPiecewise $country $wt_conf $wt_recov $wt_fatal $node_interval $num_iter $num_passes $seed > results/output$seed.txt &
 done
 
 
