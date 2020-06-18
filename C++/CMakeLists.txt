@@ -49,6 +49,9 @@ target_link_libraries(CovidOptFull ${LIBS})
 
 add_executable(CovidOptPiecewise src/CovidOptPiecewise.cpp)
 target_link_libraries(CovidOptPiecewise ${LIBS})
+
+add_executable(CovidOptGlobalBasis src/CovidOptGlobalBasis.cpp)
+target_link_libraries(CovidOptGlobalBasis ${LIBS})
  
 add_executable(CovidSim src/CovidSim.cpp)
 target_link_libraries(CovidSim ${LIBS})
