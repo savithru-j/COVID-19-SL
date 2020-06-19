@@ -59,7 +59,7 @@ struct OptimizerGlobalBasis
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
-  static void getConstraintsNLOPT(unsigned m, double *result, unsigned n, const double* x, double* grad, void* f_data);
+  static void getConstraintsNLOPT(unsigned m, double* result, unsigned n, const double* x, double* grad, void* f_data);
 
   void copyParam2Vector(const ModelParams& params, Vector& v);
   void copyVector2Param(const Vector& v, ModelParams& params);
@@ -71,9 +71,13 @@ protected:
   double getCostGradient(std::vector<double>& grad);
   double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
 
+  void getConstraints(double* constraints, double* grad);
+
   static std::vector<ParamBound> getParameterBounds(int num_basis);
 
-  static void evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params);
+//  static void evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params);
+
+  static void getBasisLegendre(const double& x, Vector& phi);
 
   void updateOptimalSolution(const double& cost_rel, const std::array<double,3>& sub_costs,
                              const Vector& param_vec);
