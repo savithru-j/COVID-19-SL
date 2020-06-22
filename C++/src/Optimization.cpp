@@ -43,8 +43,11 @@ Matrix getHaarMatrix(int m)
   return A;
 }
 
-Matrix getDCTMatrix(int N)
+Matrix getDCTMatrix(int N, int num_coeff)
 {
+  if (num_coeff == 0)
+    throw("getDCTMatrix: the number of coefficients cannot be zero!");
+
   const double scale_row0 = 1.0 / std::sqrt(N);
   const double scale_rowk = std::sqrt(2.0) / std::sqrt(N);
 
@@ -55,10 +58,30 @@ Matrix getDCTMatrix(int N)
     A(0,n) = scale_row0; //row k = 0
 
   //A(1:N,:)
-  for (int k = 1; k < N; ++k)
+  for (int k = 1; k < num_coeff; ++k)
     for (int n = 0; n < N; ++n)
       A(k,n) = std::cos(M_PI*(n + 0.5)*k / N) * scale_rowk;
 
+  return A;
+}
+
+Matrix getInverseDCTMatrix(int N, int num_coeff)
+{
+  if (num_coeff == 0)
+    throw("getInverseDCTMatrix: the number of coefficients cannot be zero!");
+
+  const double scale_col0 = 1.0 / std::sqrt(N);
+  const double scale_colk = std::sqrt(2.0) / std::sqrt(N);
+
+  Matrix A(N, num_coeff, 0.0);
+
+  for (int n = 0; n < N; ++n)
+  {
+    A(n,0) = scale_col0;
+
+    for (int k = 1; k < num_coeff; ++k)
+      A(n,k) = std::cos(M_PI*(n + 0.5)*k / N) * scale_colk;
+  }
   return A;
 }
 

@@ -20,7 +20,7 @@ OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Popu
   if (weight_reg != 0.0)
   {
 //    reg_matrix = getHaarMatrix(nt_opt);
-    reg_matrix = getDCTMatrix(nt_opt);
+    reg_matrix = getDCTMatrix(nt_opt, nt_opt);
   }
 
   param_bounds = getParameterBounds(nt_opt);

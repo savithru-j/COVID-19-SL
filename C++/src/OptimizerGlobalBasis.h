@@ -57,6 +57,9 @@ struct OptimizerGlobalBasis
   std::mt19937 rand_engine; //Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<double> uniform_rand;
 
+  Matrix transform_matrix; //coeff_vec = A * raw_vec
+  Matrix inv_transform_matrix; //raw_vec = A * coeff_vec
+
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
   static void getConstraintsNLOPT(unsigned m, double* result, unsigned n, const double* x, double* grad, void* f_data);
@@ -72,8 +75,11 @@ protected:
   double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
 
   void getConstraints(double* constraints, double* grad);
+  void getConstraintsDCT(double* constraints, double* grad);
 
-  static std::vector<ParamBound> getParameterBounds(int num_basis);
+  double getPenalty();
+
+  static std::vector<ParamBound> getParameterBounds(int nt, int num_basis);
 
 //  static void evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params);
 

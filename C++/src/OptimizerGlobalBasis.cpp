@@ -19,7 +19,10 @@ OptimizerGlobalBasis::OptimizerGlobalBasis(const ObservedPopulation& pop_observe
   if (pop_observed.N != pop_init.N)
     throwError("Initial population mismatch!");
 
-  param_bounds = getParameterBounds(num_basis);
+  transform_matrix = getDCTMatrix(params.nt_hist, num_basis);
+  inv_transform_matrix = getInverseDCTMatrix(params.nt_hist, num_basis);
+
+  param_bounds = getParameterBounds(nt_opt, num_basis);
   param_vec.resize(param_bounds.size());
   copyParam2Vector(params, param_vec);
 }
@@ -34,11 +37,11 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
   f_eval_count = 0;
 
   //nlopt optimizer object
-  nlopt::opt opt(nlopt::LD_LBFGS, nDim());
+  nlopt::opt opt(nlopt::LN_COBYLA, nDim());
 
   opt.set_min_objective( getCostNLOPT, reinterpret_cast<void*>(this) );
 
-  const int num_constraints = 2*4*(num_basis+1); //(min and max)*(4 params)*(at (num_basis+1) locations)
+  const int num_constraints = 2*4; //2*4*(num_basis+1); //(min and max)*(4 params)*(at (num_basis+1) locations)
   std::cout << "No. of constraints: " << num_constraints << std::endl;
 
 #if 0 //Numerically check constraint gradient
@@ -49,12 +52,12 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
   std::vector<double> grad0(num_constraints*nDim(), 0.0);
   std::vector<double> gradFD(num_constraints*nDim(), 0.0);
   std::vector<double> grad_dummy(num_constraints*nDim(), 0.0);
-  getConstraints(con0.data(), grad0.data());
+  getConstraintsDCT(con0.data(), grad0.data());
 
   for (int j = 0; j < nDim(); ++j)
   {
     param_vec[j] += 1.0;
-    getConstraints(con1.data(), grad_dummy.data());
+    getConstraintsDCT(con1.data(), grad_dummy.data());
 
     for (int i = 0; i < num_constraints; ++i)
       gradFD[i*nDim() + j] = con1[i] - con0[i];
@@ -65,16 +68,20 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
   for (int i = 0; i < con0.size(); ++i)
     std::cout << i << ": " << con0[i] << std::endl;
 
-  for (int i = 0; i < grad0.size(); ++i)
+  for (int i = 0; i < num_constraints; ++i)
   {
-    if (std::abs(grad0[i] - gradFD[i]) > 1e-13)
-      std::cout << i << ": " << grad0[i] << ", " << gradFD[i] << ", " << grad0[i] - gradFD[i] << std::endl;
+    for (int j = 0; j < nDim(); ++j)
+    {
+      int ind = i*nDim() + j;
+//      if (std::abs(grad0[ind] - gradFD[ind]) > 1e-13)
+        std::cout << i << ", " << j << ": " << grad0[ind] << ", " << gradFD[ind] << ", " << grad0[ind] - gradFD[ind] << std::endl;
+    }
   }
   throw;
 #endif
 
-//  std::vector<double> constraint_tol(num_constraints, 0.0);
-//  opt.add_inequality_mconstraint(getConstraintsNLOPT, reinterpret_cast<void*>(this), constraint_tol);
+  std::vector<double> constraint_tol(num_constraints, 0.0);
+  opt.add_inequality_mconstraint(getConstraintsNLOPT, reinterpret_cast<void*>(this), constraint_tol);
 
   //stop when every parameter changes by less than the tolerance multiplied by the absolute value of the parameter.
   opt.set_xtol_rel(1e-6);
@@ -84,6 +91,8 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
 
   //stop when the maximum number of function evaluations is reached
   opt.set_maxeval(max_iter_per_pass);
+
+  int num_stored = 0;
 
   std::vector<double> lower_bounds(nDim()), upper_bounds(nDim());
   for (std::size_t i = 0; i < param_bounds.size(); ++i)
@@ -120,20 +129,30 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
     std::cout << "NLOPT result: " << getNLOPTResultDescription(result) << std::endl;
     std::cout << "Optimal cost: " << cost_opt << std::endl;
 
+    double penalty = getPenalty();
+    std::cout << "Penalty: " << penalty << std::endl;
+
     if (cost_opt < cost_min.back())
     {
       updateOptimalSolution(cost_opt, subcosts_dummy, x);
+      num_stored++;
     }
+
+//    param_vec = x;
+//    Vector con(num_constraints);
+//    getConstraintsDCT(con.getDataVector().data(), nullptr);
+//    std::cout << "Con: " << con << std::endl;
+//    std::cout << "Params: " << param_vec << std::endl;
 
     randomizeParameters();
     x = param_vec.getDataVector();
   }
 
 
-  for (int i = max_passes; i < NUM_RESULTS; ++i)
+  for (int i = num_stored; i < NUM_RESULTS; ++i)
   {
-    optimal_param_vec[i] = optimal_param_vec[max_passes-1];
-    cost_min[i] = cost_min[max_passes-1];
+    optimal_param_vec[i] = optimal_param_vec[num_stored-1];
+    cost_min[i] = cost_min[num_stored-1];
   }
 
   std::cout << std::endl;
@@ -168,7 +187,7 @@ OptimizerGlobalBasis::getConstraintsNLOPT(
 {
   OptimizerGlobalBasis* opt = reinterpret_cast<OptimizerGlobalBasis*>(data);
 
-  assert((int) m == 2*4*(opt->num_basis+1));
+  assert((int) m == 2*4); //*(opt->num_basis+1));
   assert((int) n == opt->nDim());
 
   for (unsigned int i = 0; i < n; ++i)
@@ -176,9 +195,12 @@ OptimizerGlobalBasis::getConstraintsNLOPT(
   opt->copyVector2Param(opt->param_vec, opt->params);
 
   std::fill(constraints, constraints + m, 0.0);
-  std::fill(grad, grad + m*n, 0.0);
 
-  opt->getConstraints(constraints, grad);
+  if (grad)
+    std::fill(grad, grad + m*n, 0.0);
+
+//  opt->getConstraints(constraints, grad);
+  opt->getConstraintsDCT(constraints, grad);
 }
 
 std::pair<double, std::array<double, 3>>
@@ -247,7 +269,7 @@ OptimizerGlobalBasis::getCost()
   sub_costs[2] = weight_fatal*(err_sq_fatal)/nt;
 #endif
 
-  const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2];
+  const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2]; // + getPenalty();
 
   f_eval_count++;
   return {cost, sub_costs};
@@ -340,6 +362,64 @@ OptimizerGlobalBasis::getConstraints(double* constraints, double* grad)
 }
 
 void
+OptimizerGlobalBasis::getConstraintsDCT(double* constraints, double* grad)
+{
+  const int ndim = nDim();
+  const int nt = params.nt_hist;
+
+  const double f0 = std::sqrt(1.0/nt);
+  const double f1 = std::sqrt(2.0/nt);
+
+  std::array<double,4> xmin = {0, 0, 0, 1};
+  std::array<double,4> xmax = {2, 1, 1, 1};
+
+  for (int p = 0; p < 4; ++p)
+  {
+    constraints[2*p    ] =  xmin[p] - f0 * param_vec[p*num_basis];
+    constraints[2*p + 1] = -xmax[p] + f0 * param_vec[p*num_basis];
+
+    for (int j = 1; j < num_basis; ++j)
+    {
+      constraints[2*p    ] += f1 * std::abs(param_vec[p*num_basis + j]);
+      constraints[2*p + 1] += f1 * std::abs(param_vec[p*num_basis + j]);
+    }
+  }
+
+  if (grad)
+  {
+    for (int p = 0; p < 4; ++p)
+    {
+      grad[(2*p    )*ndim + p*num_basis] = -f0;
+      grad[(2*p + 1)*ndim + p*num_basis] =  f0;
+
+      for (int j = 1; j < num_basis; ++j)
+      {
+        grad[(2*p    )*ndim + p*num_basis + j] = (param_vec[p*num_basis + j] >= 0) ? f1 : -f1;
+        grad[(2*p + 1)*ndim + p*num_basis + j] = (param_vec[p*num_basis + j] >= 0) ? f1 : -f1;
+      }
+    }
+  }
+
+}
+
+double
+OptimizerGlobalBasis::getPenalty()
+{
+  std::array<double,4> xmin = {0, 0, 0, 1};
+  std::array<double,4> xmax = {2, 0, 0, 1};
+
+  double cost = 0.0;
+  for (int i = 0; i < params.nt_hist; ++i)
+  {
+    cost += std::max(0.0, xmin[0] - params.betaN[i]) + std::max(0.0, params.betaN[i] - xmax[0]);
+    cost += std::max(0.0, xmin[1] - params.c0[i]) + std::max(0.0, params.c0[i] - xmax[1]);
+    cost += std::max(0.0, xmin[2] - params.c1[i]) + std::max(0.0, params.c1[i] - xmax[2]);
+    cost += std::max(0.0, xmin[3] - params.c2[i]) + std::max(0.0, params.c2[i] - xmax[3]);
+  }
+  return cost;
+}
+
+void
 OptimizerGlobalBasis::updateOptimalSolution(
     const double& cost, const std::array<double,3>& sub_costs, const Vector& param_vec_cur)
 {
@@ -360,27 +440,32 @@ OptimizerGlobalBasis::updateOptimalSolution(
 }
 
 std::vector<ParamBound>
-OptimizerGlobalBasis::getParameterBounds(int nbasis)
+OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
 {
   const int m = 4*nbasis + 11;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
-  const double a = 1e2;
+//  const double a = 1e2;
+  const double f0 = std::sqrt(nt);
+  const double f1 = std::sqrt(2.0*nt);
 
+  const double beta_max = 2.0;
   //Bounds for "average" basis coefficients
-  bounds[       0] = ParamBound(0, 2, delta); //betaN
-  bounds[  nbasis] = ParamBound(0, 0, delta); //c0 = ce
-  bounds[2*nbasis] = ParamBound(0, 1, delta); //c1
-  bounds[3*nbasis] = ParamBound(1, 1, delta); //c2 = c3
+  bounds[       0] = ParamBound(0*f0, beta_max*f0, delta); //betaN
+  bounds[  nbasis] = ParamBound(0*f0, 1*f0, delta); //c0 = ce
+  bounds[2*nbasis] = ParamBound(0*f0, 1*f0, delta); //c1
+  bounds[3*nbasis] = ParamBound(1*f0, 1*f0, delta); //c2 = c3
 
   for (int i = 1; i < nbasis; ++i)
   {
-    bounds[           i] = ParamBound(-a, a, delta); //betaN
-    bounds[  nbasis + i] = ParamBound(-a*0, a*0, delta); //c0 = ce
-    bounds[2*nbasis + i] = ParamBound(-a, a, delta); //c1
-    bounds[3*nbasis + i] = ParamBound(-a*0, a*0, delta); //c2 = c3
+    bounds[           i] = ParamBound(-beta_max*f1, beta_max*f1, delta); //betaN
+    bounds[  nbasis + i] = ParamBound(-f1, f1, delta); //c0 = ce
+    bounds[2*nbasis + i] = ParamBound(-f1, f1, delta); //c1
+    bounds[3*nbasis + i] = ParamBound(-f1*0, f1*0, delta); //c2 = c3
   }
+
+
   const int off = 4*nbasis;
 #if 1
   bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
@@ -417,28 +502,18 @@ OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
-  double avg_beta = 0.0;
-  std::array<double, 3> avg_c = {0.0, 0.0, 0.0};
+  std::fill(v.begin(), v.end(), 0.0);
 
-  for (int i = 0; i < params.nt_hist; ++i)
+  for (int i = 0; i < num_basis; ++i)
   {
-    avg_beta += params.betaN[i];
-    avg_c[0] += params.c0[i];
-    avg_c[1] += params.c1[i];
-    avg_c[2] += params.c2[i];
+    for (int j = 0; j < params.nt_hist; ++j)
+    {
+      v[              i] += transform_matrix(i,j) * params.betaN[j];
+      v[  num_basis + i] += transform_matrix(i,j) * params.c0[j];
+      v[2*num_basis + i] += transform_matrix(i,j) * params.c1[j];
+      v[3*num_basis + i] += transform_matrix(i,j) * params.c2[j];
+    }
   }
-  avg_beta /= (double) params.nt_hist;
-  v[0] = avg_beta;
-
-  for (std::size_t i = 0; i < avg_c.size(); ++i)
-  {
-    avg_c[i] /= (double) params.nt_hist;
-    v[(i+1)*num_basis] = avg_c[i];
-  }
-
-  for (int i = 0; i < 4; ++i)
-    for (int j = 1; j < num_basis; ++j)
-      v[i*num_basis + j] = 0.0;
 
   const int off = 4*num_basis;
   v[off  ] = params.T_incub0;
@@ -462,6 +537,23 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
+  for (int i = 0; i < params.nt_hist; ++i)
+  {
+    params.betaN[i] = 0.0;
+    params.c0[i] = 0.0;
+    params.c1[i] = 0.0;
+    params.c2[i] = 0.0;
+
+    for (int j = 0; j < num_basis; ++j)
+    {
+      params.betaN[i] += inv_transform_matrix(i,j) * v[              j];
+      params.c0[i]    += inv_transform_matrix(i,j) * v[  num_basis + j];
+      params.c1[i]    += inv_transform_matrix(i,j) * v[2*num_basis + j];
+      params.c2[i]    += inv_transform_matrix(i,j) * v[3*num_basis + j];
+    }
+  }
+
+#if 0
   Vector phi(num_basis, 0.0);
 
   for (int i = 0; i < nt; ++i)
@@ -482,6 +574,8 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
       params.c2[i]    += v[3*num_basis + j] * phi[j];
     }
   }
+#endif
+
   params.ce = params.c0;
   params.c3 = params.c2;
 
@@ -509,51 +603,6 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
   params.CFR             = v[off+9];
   params.T_discharge     = v[off+10];
 }
-
-//void
-//OptimizerGlobalBasis::evaluateLegendrePolynomial(const int nbasis, const int nt, const double* coeff, Vector& params)
-//{
-//  if (nbasis == 1)
-//  {
-//    for (int i = 0; i < nt; ++i)
-//      params[i] = coeff[0];
-//  }
-//  else if (nbasis == 2)
-//  {
-//    for (int i = 0; i < nt; ++i)
-//    {
-//      const double x = 2.0*(i / (double)(nt - 1)) - 1.0; //in range [-1, 1]
-//      const double phi0 = 1.0;
-//      const double phi1 = x;
-//      params[i] = coeff[0]*phi0 + coeff[1]*phi1;
-//    }
-//  }
-//  else if (nbasis == 3)
-//  {
-//    for (int i = 0; i < nt; ++i)
-//    {
-//      const double x = 2.0*(i / (double)(nt - 1)) - 1.0; //in range [-1, 1]
-//      const double phi0 = 1.0;
-//      const double phi1 = x;
-//      const double phi2 = 1.5*x*x - 0.5;
-//      params[i] = coeff[0]*phi0 + coeff[1]*phi1 + coeff[2]*phi2;
-//    }
-//  }
-//  else if (nbasis == 4)
-//  {
-//    for (int i = 0; i < nt; ++i)
-//    {
-//      const double x = 2.0*(i / (double)(nt - 1)) - 1.0; //in range [-1, 1]
-//      const double phi0 = 1.0;
-//      const double phi1 = x;
-//      const double phi2 = 1.5*x*x - 0.5;
-//      const double phi3 = 0.5*x*(5.0*x*x - 3.0);
-//      params[i] = coeff[0]*phi0 + coeff[1]*phi1 + coeff[2]*phi2 + coeff[3]*phi3;
-//    }
-//  }
-//  else
-//    throwError("evaluateLegendrePolynomial - Unsupported basis number!");
-//}
 
 void
 OptimizerGlobalBasis::getBasisLegendre(const double& x, Vector& phi)
