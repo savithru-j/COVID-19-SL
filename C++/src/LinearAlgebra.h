@@ -2,6 +2,7 @@
 #define LINEARALGEBRA_H
 
 #include <vector>
+#include <array>
 #include "ErrorHandler.h"
 
 class Vector
@@ -23,6 +24,8 @@ public:
   double& operator[](int i) { return data_[i]; }
 
   const double& back() const { return data_.back(); }
+  std::vector<double>::iterator begin() { return data_.begin(); }
+  std::vector<double>::iterator end() { return data_.end(); }
 
   void resize(int m, const double& val = 0.0) { data_.resize(m, val); }
 
@@ -36,6 +39,7 @@ class Matrix
 {
 public:
 
+  Matrix() = default;
   Matrix(int m, int n, double val = 0.0)
     : m_(m), n_(n), data_(m*n, val) {}
 
@@ -46,7 +50,7 @@ public:
   double& operator()(int i, int j) { return data_[n_*i + j]; }
 
 protected:
-  int m_, n_;
+  int m_ = 0, n_ = 0;
   std::vector<double> data_;
 };
 

@@ -40,7 +40,7 @@ Population::evolve(const ModelParams& params, int t)
   double dE0 = -dS - a0*E0;
   Array2 dE1 = {a0*E0, 0};
   Array2 dI0 = {0, 0};
-  Array2 dI1 = {0, 0}; //params.quarantine_input[t]];
+  Array2 dI1 = {0, params.quarantine_input[t]};
   Array2 dI2 = {0, 0};
   Array2 dI3 = {0, 0};
   Array2 dR  = {0, -gd*R[1]};
@@ -113,4 +113,32 @@ std::ostream& operator<<(std::ostream& os, const Population& pop)
             << "I3: " << pop.I3[0] << ", " << pop.I3[1] << std::endl
             << "R : " << pop.R[0] << ", " << pop.R[1] << std::endl
             << "D : " << pop.D[0] << ", " << pop.D[1] << std::endl;
+}
+
+Vector
+getQuarantineInputVector(const std::string& filepath)
+{
+  std::ifstream in(filepath);
+  if (!in)
+    return Vector(); //return empty vector
+
+  std::vector<int> indices;
+  std::vector<double> values;
+
+  int ind, max_ind = -1;
+  while (in >> ind)
+  {
+    double val;
+    in >> val;
+    indices.push_back(ind);
+    values.push_back(val);
+    max_ind = std::max(max_ind, ind);
+  }
+  in.close();
+
+  Vector vec(max_ind+1, 0.0);
+  for (std::size_t i = 0; i < indices.size(); ++i)
+    vec[indices[i]] = values[i];
+
+  return vec;
 }

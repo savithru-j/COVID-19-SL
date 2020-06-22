@@ -3,6 +3,12 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt,err_type)
         
     t_evolve                    = length(gt.confirmed);                     % gt struture" gt.confirmed, gt.deaths, gt.recovered
     
+    %% reset population
+    model_population.reset;    
+    model_population.E0.N = 5;
+    model_population.R.N(2) = 1; %Special case for Sri Lanka
+    model_population.S.N = model_population.S_0 - model_population.E0.N - model_population.R.N(2);
+
     %% set trainables from x
     x                               = reshape(x,t_evolve,6);
     model_population.Beta_gov       = x(:,1)/model_population.S.N;
@@ -34,14 +40,12 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt,err_type)
 %     if (model_population.R.frac_in_I3 < 0)
 %        disp('negative frac');     
 %     end
-    
-    model_population.reset;
-    
-    model_population.E0.N = 5;
-    model_population.R.N(2) = 1; %Special case for Sri Lanka
-    model_population.S.N = model_population.S_0 - model_population.E0.N - model_population.R.N(2);
-    
+        
+tic
+for i=1:1000
     evolutions = model_population.evolve(t_evolve);    
+end
+toc
 %     plot_results(evolutions, gt, t_evolve,[1:t_evolve]);                  % plot evaluation  
 %     drawnow
     
@@ -97,17 +101,17 @@ function [f evolutions]  = SEIR_objective_wlReg(x,model_population,gt,err_type)
     [c l]   = wavedec(x(:,5),n_wl,'db1');% 'haar','db1','sym2'
     reg_c_I3= norm(c,1);
     
-    w_reg = 0.001;
+    w_reg = 0.01;
 %              L2-conf    L2-dead     L2-rec      Reg_beta        Reg_c_I0 ...    
-    w       = [1          2           0           w_reg           w_reg           w_reg           w_reg           w_reg];
+    w       = [1          1           0           w_reg           w_reg           w_reg           w_reg           w_reg];
     f       =  w(1)*f1  + w(2)*f2   + w(3)*f3   + w(4)*reg_beta + w(5)*reg_c_I0 + w(6)*reg_c_I1 + w(7)*reg_c_I2 + w(8)*reg_c_I3;
     
     if (isnan(f))
        disp('found NaN'); 
     end
     
-    fprintf('conf = %1.4e | dead = %1.4e | rec = %1.4e | regs = [%1.4e %1.4e %1.4e %1.4e %1.4e] | cost = %1.4e\n', ...
-            w(1)*f1, w(2)*f2, w(3)*f3,  w(4)*reg_beta, w(5)*reg_c_I0, w(6)*reg_c_I1, w(7)*reg_c_I2, w(8)*reg_c_I3, f)        
+%     fprintf('conf = %1.4e | dead = %1.4e | rec = %1.4e | regs = [%1.4e %1.4e %1.4e %1.4e %1.4e] | cost = %1.4e\n', ...
+%             w(1)*f1, w(2)*f2, w(3)*f3,  w(4)*reg_beta, w(5)*reg_c_I0, w(6)*reg_c_I1, w(7)*reg_c_I2, w(8)*reg_c_I3, f)        
 end
 
 

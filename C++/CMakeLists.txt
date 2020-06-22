@@ -44,11 +44,14 @@ ADD_SUBDIRECTORY( src )
 #However, the file(GLOB...) allows for wildcard additions:
 #file(GLOB SOURCES "src/*.cpp")
  
-add_executable(CovidOpt src/CovidOpt.cpp)
-target_link_libraries(CovidOpt ${LIBS})
+add_executable(CovidOptFull src/CovidOptFull.cpp)
+target_link_libraries(CovidOptFull ${LIBS})
 
-add_executable(CovidOptLowDim src/CovidOptLowDim.cpp)
-target_link_libraries(CovidOptLowDim ${LIBS})
+add_executable(CovidOptPiecewise src/CovidOptPiecewise.cpp)
+target_link_libraries(CovidOptPiecewise ${LIBS})
+
+add_executable(CovidOptGlobalBasis src/CovidOptGlobalBasis.cpp)
+target_link_libraries(CovidOptGlobalBasis ${LIBS})
  
 add_executable(CovidSim src/CovidSim.cpp)
 target_link_libraries(CovidSim ${LIBS})

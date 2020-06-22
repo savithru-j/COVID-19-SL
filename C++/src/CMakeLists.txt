@@ -3,7 +3,11 @@ INCLUDE( ${CMAKE_SOURCE_DIR}/CMakeInclude/ForceOutOfSource.cmake ) #This must be
 SET( CovidLib_SRC
     Population.cpp
     Simulator.cpp
-    Optimizer.cpp
+    ModelParams.cpp
+    Optimization.cpp
+    OptimizerFull.cpp
+    OptimizerPiecewise.cpp
+    OptimizerGlobalBasis.cpp
   )
 
 ADD_LIBRARY( CovidLib STATIC ${CovidLib_SRC} )
