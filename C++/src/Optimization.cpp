@@ -1,15 +1,15 @@
-#include <random>
+//#include <random>
 
 #include "Optimization.h"
 #include "LinearAlgebra.h"
 
-double uniformRand(double min, double max)
-{
-//  static std::random_device rd;  //Will be used to obtain a seed for the random number engine
-  static std::mt19937 gen(2.0); //Standard mersenne_twister_engine seeded with rd()
-  static std::uniform_real_distribution<> uniform_rand(0, 1);
-  return min + (max - min)*uniform_rand(gen);
-}
+//double uniformRand(double min, double max)
+//{
+////  static std::random_device rd;  //Will be used to obtain a seed for the random number engine
+//  static std::mt19937 gen(2.0); //Standard mersenne_twister_engine seeded with rd()
+//  static std::uniform_real_distribution<> uniform_rand(0, 1);
+//  return min + (max - min)*uniform_rand(gen);
+//}
 
 Matrix getHaarMatrix(int m)
 {

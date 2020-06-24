@@ -37,7 +37,8 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
   f_eval_count = 0;
 
   //nlopt optimizer object
-  nlopt::opt opt(nlopt::LN_COBYLA, nDim());
+//  nlopt::opt opt(nlopt::LN_COBYLA, nDim());
+  nlopt::opt opt(nlopt::LD_MMA, nDim());
 
   opt.set_min_objective( getCostNLOPT, reinterpret_cast<void*>(this) );
 
@@ -156,7 +157,7 @@ OptimizerGlobalBasis::optimizeParametersNLOPT()
   }
 
   std::cout << std::endl;
-  std::cout << "Minimum costs (relative): " << cost_min << std::endl;
+  std::cout << "Minimum costs: " << cost_min << std::endl;
   std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
 }
 
@@ -446,21 +447,20 @@ OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
-//  const double a = 1e2;
   const double f0 = std::sqrt(nt);
   const double f1 = std::sqrt(2.0*nt);
 
   const double beta_max = 2.0;
   //Bounds for "average" basis coefficients
   bounds[       0] = ParamBound(0*f0, beta_max*f0, delta); //betaN
-  bounds[  nbasis] = ParamBound(0*f0, 1*f0, delta); //c0 = ce
+  bounds[  nbasis] = ParamBound(0*f0, 0*f0, delta); //c0 = ce
   bounds[2*nbasis] = ParamBound(0*f0, 1*f0, delta); //c1
   bounds[3*nbasis] = ParamBound(1*f0, 1*f0, delta); //c2 = c3
 
   for (int i = 1; i < nbasis; ++i)
   {
     bounds[           i] = ParamBound(-beta_max*f1, beta_max*f1, delta); //betaN
-    bounds[  nbasis + i] = ParamBound(-f1, f1, delta); //c0 = ce
+    bounds[  nbasis + i] = ParamBound(-f1*0, f1*0, delta); //c0 = ce
     bounds[2*nbasis + i] = ParamBound(-f1, f1, delta); //c1
     bounds[3*nbasis + i] = ParamBound(-f1*0, f1*0, delta); //c2 = c3
   }

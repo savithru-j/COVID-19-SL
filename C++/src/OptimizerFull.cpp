@@ -6,13 +6,15 @@
 #include "Simulator.h"
 
 OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                     double wconf, double wrecov, double wfatal, double wreg,
-                     int max_iter_per_pass_, int max_passes_) :
+                             const Vector& quarantine_input,
+                             double wconf, double wrecov, double wfatal, double wreg,
+                             int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal), weight_reg(wreg),
     max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
     nt_opt(pop_observed.getNumDays() - t_buffer),
-    params(nt_opt, t_buffer)
+    params(nt_opt, t_buffer, quarantine_input),
+    rand_engine(seed), uniform_rand(0,1)
 {
   if (pop_observed.N != pop_init.N)
     throwError("Initial population mismatch!");
@@ -41,7 +43,7 @@ OptimizerFull::optimizeParameters()
   optimal_param_vec.fill(param_vec);
 
   double cost0 = -1;
-  cost_rel_min.fill(1.0);
+  cost_min.fill(1.0); //relative cost
 
   Vector cost_grad(nDim(), 0.0); //storage vector for cost gradient
 
@@ -118,7 +120,7 @@ OptimizerFull::optimizeParameters()
     double cost_rel = cost.first/cost0;
     std::cout << "Num_iter: " << iter << ", cost: " << cost_rel << std::endl;
 
-    if (cost_rel < cost_rel_min.back())
+    if (cost_rel < cost_min.back())
     {
       updateOptimalSolution(cost_rel, cost.second, param_vec);
     }
@@ -132,7 +134,7 @@ OptimizerFull::optimizeParameters()
   } //passes
 
   std::cout << std::endl;
-  std::cout << "Minimum costs (relative): " << cost_rel_min << std::endl;
+  std::cout << "Minimum costs (relative): " << cost_min << std::endl;
   std::cout << "Minimum sub-costs [sol-error, beta-reg, c0-reg, c1-reg]:" << std::endl;
   for (std::size_t i = 0; i < NUM_RESULTS; i++)
       std::cout << "  " << sub_costs_min[i] << std::endl;
@@ -174,14 +176,14 @@ OptimizerFull::optimizeParametersNLOPT()
   opt.set_lower_bounds(lower_bounds);
   opt.set_upper_bounds(upper_bounds);
 
-  cost_rel_min.fill(std::numeric_limits<double>::max());
+  cost_min.fill(std::numeric_limits<double>::max());
   std::array<double,6> subcosts_dummy;
 
   std::cout << std::scientific << std::setprecision(4);
 
   for (int pass = 0; pass < max_passes; ++pass)
   {
-    std::cout << std::endl << "Pass " << pass << "/" << max_passes << " ----------------" << std::endl;
+    std::cout << std::endl << "Pass " << (pass+1) << "/" << max_passes << " ----------------" << std::endl;
 
     std::vector<double> x = param_vec.getDataVector();
     double cost_opt;
@@ -200,7 +202,7 @@ OptimizerFull::optimizeParametersNLOPT()
     std::cout << "NLOPT result: " << getNLOPTResultDescription(result) << std::endl;
     std::cout << "Optimal cost: " << cost_opt << std::endl;
 
-    if (cost_opt < cost_rel_min.back())
+    if (cost_opt < cost_min.back())
     {
       updateOptimalSolution(cost_opt, subcosts_dummy, x);
     }
@@ -209,13 +211,14 @@ OptimizerFull::optimizeParametersNLOPT()
     x = param_vec.getDataVector();
   }
 
-
   for (int i = max_passes; i < NUM_RESULTS; ++i)
+  {
     optimal_param_vec[i] = optimal_param_vec[max_passes-1];
+    cost_min[i] = cost_min[max_passes-1];
+  }
 
   std::cout << std::endl;
-  std::cout << "Minimum costs (relative): " << cost_rel_min << std::endl;
-
+  std::cout << "Minimum costs: " << cost_min << std::endl;
   std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
 }
 
@@ -374,20 +377,20 @@ OptimizerFull::getCostGradient(std::vector<double>& grad)
 
 void
 OptimizerFull::updateOptimalSolution(
-    const double& cost_rel, const std::array<double,6>& sub_costs, const Vector& param_vec_cur)
+    const double& cost, const std::array<double,6>& sub_costs, const Vector& param_vec_cur)
 {
   int min_ind = 0;
   for (min_ind = 0; min_ind < NUM_RESULTS; ++min_ind)
-    if (cost_rel < cost_rel_min[min_ind])
+    if (cost < cost_min[min_ind])
       break;
 
   for (int i = NUM_RESULTS-1; i > min_ind; i--)
   {
-    cost_rel_min[i] = cost_rel_min[i-1];
+    cost_min[i] = cost_min[i-1];
     sub_costs_min[i] = sub_costs_min[i-1];
     optimal_param_vec[i] = optimal_param_vec[i-1];
   }
-  cost_rel_min[min_ind] = cost_rel;
+  cost_min[min_ind] = cost;
   sub_costs_min[min_ind] = sub_costs;
   optimal_param_vec[min_ind] = param_vec_cur;
 }
@@ -504,10 +507,10 @@ OptimizerFull::getParameterBounds(int nt)
   for (int i = 0; i < nt; ++i)
   {
     bounds[       i] = ParamBound(0, 2, delta); //betaN
-    bounds[  nt + i] = ParamBound(0, 1, delta); //c0 = ce
+    bounds[  nt + i] = ParamBound(0, 0, delta); //c0 = ce
     bounds[2*nt + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*nt + i] = ParamBound(0, 1, delta); //c2
-    bounds[4*nt + i] = ParamBound(0, 1, delta); //c3
+    bounds[3*nt + i] = ParamBound(1, 1, delta); //c2
+    bounds[4*nt + i] = ParamBound(1, 1, delta); //c3
   }
   const int off = 5*nt;
   bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0

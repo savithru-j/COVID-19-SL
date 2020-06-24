@@ -1,17 +1,20 @@
 #ifndef OPTIMIZERFULL_H
 #define OPTIMIZERFULL_H
 
+#include <random>
+
 #include "Optimization.h"
 #include "Population.h"
 #include "LinearAlgebra.h"
 
 struct OptimizerFull
 {
-  static constexpr int NUM_RESULTS = 5;  //no. of optimal results to store (best to worst)
+  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
 
   OptimizerFull(const ObservedPopulation& pop_observed_, const Population& pop_init_,
+                const Vector& quarantine_input,
                 double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1, double wreg_ = 0.01,
-                int max_iter_per_pass_ = 1000, int max_passes_ = 1);
+                int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
   inline int nDim() const { return param_vec.size(); };
 
@@ -50,8 +53,11 @@ struct OptimizerFull
   int nlopt_iter = 0;
 
   std::array<Vector,NUM_RESULTS> optimal_param_vec;
-  std::array<double,NUM_RESULTS> cost_rel_min;
+  std::array<double,NUM_RESULTS> cost_min;
   std::array<std::array<double,6>,NUM_RESULTS> sub_costs_min;
+
+  std::mt19937 rand_engine; //Standard mersenne_twister_engine seeded with rd()
+  std::uniform_real_distribution<double> uniform_rand;
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
@@ -67,10 +73,15 @@ protected:
 
   static std::vector<ParamBound> getParameterBounds(int nt);
 
-  void updateOptimalSolution(const double& cost_rel, const std::array<double,6>& sub_costs,
+  void updateOptimalSolution(const double& cost, const std::array<double,6>& sub_costs,
                              const Vector& param_vec);
 
   double limitUpdate(Vector& dparam_vec);
+
+  inline double uniformRand(double min = 0.0, double max = 1.0)
+  {
+    return min + (max - min)*uniform_rand(rand_engine);
+  }
 };
 
 #endif

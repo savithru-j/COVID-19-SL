@@ -13,7 +13,7 @@ struct ParamBound {
   double min = 0.0, max = 1.0, step = 1e-4;
 };
 
-double uniformRand(double min = 0.0, double max = 1.0);
+//double uniformRand(double min = 0.0, double max = 1.0);
 
 Matrix getHaarMatrix(int m);
 Matrix getDCTMatrix(int N, int num_coeff);
