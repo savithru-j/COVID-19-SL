@@ -135,7 +135,7 @@ OptimizerPiecewise::getCost()
 
   double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
 
-#if 0
+#if 1 //L2
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
   for (int i = 1; i < nt; ++i)
   {
@@ -154,7 +154,7 @@ OptimizerPiecewise::getCost()
   sub_costs[0] = weight_conf*(err_sq_total/sq_total);
   sub_costs[1] = weight_recov*(err_sq_recov/sq_recov);
   sub_costs[2] = weight_fatal*(err_sq_fatal/sq_fatal);
-#elif 1
+#elif 0 //L2 of log
   for (int i = 1; i < nt; ++i)
   {
     double logA_obs = std::log(std::max(pop_observed.getNumActive(i), 1));
@@ -173,40 +173,26 @@ OptimizerPiecewise::getCost()
   sub_costs[0] = weight_conf * err_sq_total / denom;
   sub_costs[1] = weight_recov* err_sq_recov / denom;
   sub_costs[2] = weight_fatal* err_sq_fatal / denom;
-#elif 0
+#elif 0 //MLE
+  const double eps = 1e-5;
   for (int i = 1; i < nt; ++i)
   {
-    double trueC = std::max(pop_observed.confirmed[i], 1);
-    double trueR = std::max(pop_observed.recovered[i], 1);
-    double trueF = std::max(pop_observed.deaths[i], 1);
+    double dC_obs = pop_observed.confirmed[i] - pop_observed.confirmed[i-1];
+    double dR_obs = pop_observed.recovered[i] - pop_observed.recovered[i-1];
+    double dF_obs = pop_observed.deaths[i] - pop_observed.deaths[i-1];
 
-    double err_total = std::abs(pop_hist[i].getNumReported() - trueC) / trueC;
-    double err_recov = std::abs(pop_hist[i].getNumRecoveredReported() - trueR) / trueR;
-    double err_fatal = std::abs(pop_hist[i].getNumFatalReported() - trueF) / trueF;
+    double dC = pop_hist[i].getNumReported() - pop_hist[i-1].getNumReported();
+    double dR = pop_hist[i].getNumRecoveredReported() - pop_hist[i-1].getNumRecoveredReported();
+    double dF = pop_hist[i].getNumFatalReported() - pop_hist[i-1].getNumFatalReported();
 
-    err_sq_total += err_total*err_total;
-    err_sq_recov += err_recov*err_recov;
-    err_sq_fatal += err_fatal*err_fatal;
+    err_sq_total += dC_obs*std::log(dC + eps) - dC;
+    err_sq_recov += dR_obs*std::log(dR + eps) - dR;
+    err_sq_fatal += dF_obs*std::log(dF + eps) - dF;
   }
-  sub_costs[0] = weight_conf*(err_sq_total)/(3.0*nt);
-  sub_costs[1] = weight_recov*(err_sq_recov)/(3.0*nt);
-  sub_costs[2] = weight_fatal*(err_sq_fatal)/(3.0*nt);
-#else
-  const double eps = 1e-10;
-  double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
-  for (int i = 1; i < nt; ++i)
-  {
-    double err_total = (pop_hist[i].getNumReported() - pop_observed.confirmed[i]);
-    double err_recov = (pop_hist[i].getNumRecoveredReported() - pop_observed.recovered[i]);
-    double err_fatal = (pop_hist[i].getNumFatalReported() - pop_observed.deaths[i]);
-
-    err_sq_total += std::log(std::abs(err_total) + eps);
-    err_sq_recov += std::log(std::abs(err_recov) + eps);
-    err_sq_fatal += std::log(std::abs(err_fatal) + eps);
-  }
-  sub_costs[0] = weight_conf*(err_sq_total)/nt;
-  sub_costs[1] = weight_recov*(err_sq_recov)/nt;
-  sub_costs[2] = weight_fatal*(err_sq_fatal)/nt;
+  const double denom = (weight_conf + weight_recov + weight_fatal) * nt;
+  sub_costs[0] = -weight_conf * err_sq_total / denom;
+  sub_costs[1] = -weight_recov* err_sq_recov / denom;
+  sub_costs[2] = -weight_fatal* err_sq_fatal / denom;
 #endif
 
   const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2];

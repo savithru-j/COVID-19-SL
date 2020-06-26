@@ -27,7 +27,7 @@ struct OptimizerPiecewise
     constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
     for (int i = 0; i < (1+num_c_params); ++i)
     {
-#if 0 //Constant random solutions
+#if 1 //Constant random solutions
       param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
       for (int j = 1; j < num_nodes; ++j)
         param_vec[i*num_nodes + j] = param_vec[i*num_nodes];
