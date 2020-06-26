@@ -10,6 +10,9 @@
 struct OptimizerPiecewise
 {
   static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
+  static constexpr bool OPTIMIZE_C0 = false;
+  static constexpr bool OPTIMIZE_C1 = false;
+  static constexpr bool OPTIMIZE_C2 = false;
 
   OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                            const Vector& quarantine_input, int interval_size_, bool linear_basis_ = false,
@@ -21,7 +24,8 @@ struct OptimizerPiecewise
   inline void randomizeParameters()
   {
     const int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
-    for (int i = 0; i < 4; ++i)
+    constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
+    for (int i = 0; i < (1+num_c_params); ++i)
     {
 #if 0 //Constant random solutions
       param_vec[i*num_nodes] = uniformRand(param_bounds[i*num_nodes].min, param_bounds[i*num_nodes].max);
@@ -34,7 +38,7 @@ struct OptimizerPiecewise
 #endif
     }
 
-    const int off = 4*num_nodes;
+    const int off = (1+num_c_params)*num_nodes;
     for (int i = off; i < param_vec.m(); ++i)
       param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
 
