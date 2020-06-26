@@ -61,8 +61,8 @@ struct OptimizerFull
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
-  static void copyParam2Vector(const ModelParams& params, Vector& v) { copyParam2FullVector(params, v); }
-  static void copyVector2Param(const Vector& v, ModelParams& params) { copyFullVector2Param(v, params); }
+  static void copyParam2Vector(const ModelParams& params, Vector& v);
+  static void copyVector2Param(const Vector& v, ModelParams& params);
 
 protected:
 

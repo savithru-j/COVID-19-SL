@@ -21,8 +21,8 @@ OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Popu
 
   if (weight_reg != 0.0)
   {
-//    reg_matrix = getHaarMatrix(nt_opt);
-    reg_matrix = getDCTMatrix(nt_opt, nt_opt);
+    reg_matrix = getHaarMatrix(nt_opt);
+//    reg_matrix = getDCTMatrix(nt_opt, nt_opt);
   }
 
   param_bounds = getParameterBounds(nt_opt);
@@ -155,6 +155,7 @@ OptimizerFull::optimizeParametersNLOPT()
 
   //nlopt optimizer object
   nlopt::opt opt(nlopt::LD_LBFGS, nDim());
+//  nlopt::opt opt(nlopt::LN_COBYLA, nDim());
 
   opt.set_min_objective( getCostNLOPT, reinterpret_cast<void*>(this) );
 
@@ -419,135 +420,92 @@ OptimizerFull::limitUpdate(Vector& dparam_vec)
   return eta;
 }
 
-#if 0
 void
 OptimizerFull::copyParam2Vector(const ModelParams& params, Vector& v)
 {
   const int nt = params.nt_hist;
-  const int m = 5*nt + 11;
+  const int m = 2*nt;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
-//  if (v.m() != m)
-//    v.resize(m);
 
   for (int i = 0; i < nt; ++i)
   {
-    v[       i] = params.betaN[i];
-    v[  nt + i] = params.c0[i];
-    v[2*nt + i] = params.c1[i];
-    v[3*nt + i] = params.c2[i];
-    v[4*nt + i] = params.c3[i];
+    v[     i] = params.betaN[i];
+    v[nt + i] = params.c1[i];
   }
-  const int off = 5*nt;
-  v[off  ] = params.T_incub0;
-  v[off+1] = params.T_incub1;
-  v[off+2] = params.T_asympt;
-  v[off+3] = params.T_mild;
-  v[off+4] = params.T_severe;
-  v[off+5] = params.T_icu;
-  v[off+6] = params.f;
-  v[off+7] = params.frac_recover_I1;
-  v[off+8] = params.frac_recover_I2;
-  v[off+9] = params.CFR;
-  v[off+10] = params.T_discharge;
+//  const int off = 5*nt;
+//  v[off  ] = params.T_incub0;
+//  v[off+1] = params.T_incub1;
+//  v[off+2] = params.T_asympt;
+//  v[off+3] = params.T_mild;
+//  v[off+4] = params.T_severe;
+//  v[off+5] = params.T_icu;
+//  v[off+6] = params.f;
+//  v[off+7] = params.frac_recover_I1;
+//  v[off+8] = params.frac_recover_I2;
+//  v[off+9] = params.CFR;
+//  v[off+10] = params.T_discharge;
 }
 
 void
 OptimizerFull::copyVector2Param(const Vector& v, ModelParams& params)
 {
   const int nt = params.nt_hist;
-  const int m = 5*nt + 11;
+  const int m = 2*nt;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
   for (int i = 0; i < nt; ++i)
   {
-    params.betaN[i] = v[       i];
-    params.ce[i]    = v[  nt + i];
-    params.c0[i]    = v[  nt + i]; //ce = c0
-    params.c1[i]    = v[2*nt + i];
-    params.c2[i]    = v[3*nt + i];
-    params.c3[i]    = v[4*nt + i];
+    params.betaN[i] = v[     i];
+    params.c1[i]    = v[nt + i];
   }
 
   const int N = params.nt_hist + params.nt_pred;
   for (int i = nt; i < N; ++i) //Copy last "history" value to prediction section
   {
     params.betaN[i] = params.betaN[nt-1];
-    params.ce[i]    = params.ce[nt-1];
-    params.c0[i]    = params.c0[nt-1];
     params.c1[i]    = params.c1[nt-1];
-    params.c2[i]    = params.c2[nt-1];
-    params.c3[i]    = params.c3[nt-1];
   }
 
-  const int off = 5*nt;
-  params.T_incub0        = v[off  ];
-  params.T_incub1        = v[off+1];
-  params.T_asympt        = v[off+2];
-  params.T_mild          = v[off+3];
-  params.T_severe        = v[off+4];
-  params.T_icu           = v[off+5];
-  params.f               = v[off+6];
-  params.frac_recover_I1 = v[off+7];
-  params.frac_recover_I2 = v[off+8];
-  params.CFR             = v[off+9];
-  params.T_discharge     = v[off+10];
+//  const int off = 5*nt;
+//  params.T_incub0        = v[off  ];
+//  params.T_incub1        = v[off+1];
+//  params.T_asympt        = v[off+2];
+//  params.T_mild          = v[off+3];
+//  params.T_severe        = v[off+4];
+//  params.T_icu           = v[off+5];
+//  params.f               = v[off+6];
+//  params.frac_recover_I1 = v[off+7];
+//  params.frac_recover_I2 = v[off+8];
+//  params.CFR             = v[off+9];
+//  params.T_discharge     = v[off+10];
 }
-#endif
 
 std::vector<ParamBound>
 OptimizerFull::getParameterBounds(int nt)
 {
-  const int m = 5*nt + 11;
+  const int m = 2*nt;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
 
   for (int i = 0; i < nt; ++i)
   {
-    bounds[       i] = ParamBound(0, 2, delta); //betaN
-    bounds[  nt + i] = ParamBound(0, 0, delta); //c0 = ce
-    bounds[2*nt + i] = ParamBound(0, 1, delta); //c1
-    bounds[3*nt + i] = ParamBound(1, 1, delta); //c2
-    bounds[4*nt + i] = ParamBound(1, 1, delta); //c3
+    bounds[     i] = ParamBound(0, 2, delta); //betaN
+    bounds[nt + i] = ParamBound(0, 1, delta); //c1
   }
-  const int off = 5*nt;
-  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
-  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
-  bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
-  bounds[off+3] = ParamBound(6.0, 6.0, delta); //T_mild
-  bounds[off+4] = ParamBound(4.0, 4.0, delta); //T_severe
-  bounds[off+5] = ParamBound(10.0, 10.0, delta); //T_icu
-  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
-  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
-  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
-  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
-  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
-
-//  bounds[off  ] = ParamBound(2.9, 3.1, delta); //T_incub0
-//  bounds[off+1] = ParamBound(1.9, 2.1, delta); //T_incub1
-//  bounds[off+2] = ParamBound(5.9, 6.1, delta); //T_asympt
-//  bounds[off+3] = ParamBound(5.9, 6.1, delta); //T_mild
-//  bounds[off+4] = ParamBound(3.9, 4.1, delta); //T_severe
-//  bounds[off+5] = ParamBound(9.9, 10.1, delta); //T_icu
-//  bounds[off+6] = ParamBound(0.29, 0.31, delta); //f
-//  bounds[off+7] = ParamBound(0.5, 0.9, delta); //frac_recover_I1
-//  bounds[off+8] = ParamBound(0.5, 0.9, delta); //frac_recover_I2
-//  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
-//  bounds[off+10] = ParamBound(13.9, 14.1, delta); //T_discharge
-
-//  bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
-//  bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
-//  bounds[off+2] = ParamBound(1.0, 10.0, delta); //T_asympt
-//  bounds[off+3] = ParamBound(1.0, 10.0, delta); //T_mild
-//  bounds[off+4] = ParamBound(1.0, 10.0, delta); //T_severe
-//  bounds[off+5] = ParamBound(1.0, 10.0, delta); //T_icu
-//  bounds[off+6] = ParamBound(0.1, 0.9, delta); //f
-//  bounds[off+7] = ParamBound(0.1, 0.9, delta); //frac_recover_I1
-//  bounds[off+8] = ParamBound(0.1, 0.9, delta); //frac_recover_I2
-//  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
-//  bounds[off+10] = ParamBound(1.0, 28.0, delta); //T_discharge
-
+//  const int off = 5*nt;
+//  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
+//  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
+//  bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
+//  bounds[off+3] = ParamBound(6.0, 6.0, delta); //T_mild
+//  bounds[off+4] = ParamBound(4.0, 4.0, delta); //T_severe
+//  bounds[off+5] = ParamBound(10.0, 10.0, delta); //T_icu
+//  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
+//  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
+//  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
+//  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
+//  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
   return bounds;
 }
