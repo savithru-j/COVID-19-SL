@@ -35,7 +35,25 @@ var quarantine_data = {
                  {t: "2020-06-07", y: 21},
                  {t: "2020-06-08", y: 12},
                  {t: "2020-06-09", y: 1},
-                 {t: "2020-06-10", y: 2},]
+                 {t: "2020-06-10", y: 2},
+                 {t: "2020-06-11", y: 0},
+                 {t: "2020-06-12", y: 1},
+                 {t: "2020-06-13", y: 3},
+                 {t: "2020-06-14", y: 0},
+                 {t: "2020-06-15", y: 13},
+                 {t: "2020-06-16", y: 4},
+                 {t: "2020-06-17", y: 7},
+                 {t: "2020-06-18", y: 23},
+                 {t: "2020-06-19", y: 3},
+                 {t: "2020-06-20", y: 0},
+                 {t: "2020-06-21", y: 0},
+                 {t: "2020-06-22", y: 1},
+                 {t: "2020-06-23", y: 40},
+                 {t: "2020-06-24", y: 7},
+                 {t: "2020-06-25", y: 3},
+                 {t: "2020-06-26", y: 4},
+                 {t: "2020-06-27", y: 19},
+                 {t: "2020-06-28", y: 4}]
 }
 
 var data_start_dates = {
@@ -77,15 +95,15 @@ var data_start_dates = {
 var custom_country_data = {
   "Sri Lanka" : {
               //Mar 1, Mar 15, Mar 25, Apr 10, Apr 15, Apr 25, Apr 30
-      t_start: [0, 14, 24, 40, 45, 55, 60], //indices to start dates of any interventions
-      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(7).fill(0), //values of b2N
-      b3N: new Array(7).fill(0),
-      ce: [0, 0, 0, 0, 0, 0.5, 0.5],
-      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7],
-      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1],
-      c2: new Array(7).fill(1.0),
-      c3: new Array(7).fill(1.0),
+      t_start: [0, 14, 24, 40, 45, 55, 60, 92], //indices to start dates of any interventions
+      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.3], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(8).fill(0), //values of b2N
+      b3N: new Array(8).fill(0),
+      ce: [0, 0, 0, 0, 0, 0.5, 0.5, 0.5],
+      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7, 0.7],
+      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1, 0.1],
+      c2: new Array(8).fill(1.0),
+      c3: new Array(8).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
