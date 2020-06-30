@@ -55,7 +55,9 @@ OptimizerPiecewise::optimizeParametersNLOPT()
   opt.set_lower_bounds(lower_bounds);
   opt.set_upper_bounds(upper_bounds);
 
-  cost_min.fill(std::numeric_limits<double>::max());
+  cost_min.clear();
+  sub_costs_min.clear();
+  optimal_param_vec.clear();
   std::array<double,3> subcosts_dummy;
 
   std::cout << std::scientific << std::setprecision(4);
@@ -81,20 +83,10 @@ OptimizerPiecewise::optimizeParametersNLOPT()
     std::cout << "NLOPT result: " << getNLOPTResultDescription(result) << std::endl;
     std::cout << "Optimal cost: " << cost_opt << std::endl;
 
-    if (cost_opt < cost_min.back())
-    {
-      updateOptimalSolution(cost_opt, subcosts_dummy, x);
-    }
+    updateOptimalSolution(cost_opt, subcosts_dummy, x);
 
     randomizeParameters();
     x = param_vec.getDataVector();
-  }
-
-
-  for (int i = max_passes; i < NUM_RESULTS; ++i)
-  {
-    optimal_param_vec[i] = optimal_param_vec[max_passes-1];
-    cost_min[i] = cost_min[max_passes-1];
   }
 
   std::cout << std::endl;
@@ -135,7 +127,7 @@ OptimizerPiecewise::getCost()
 
   double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
 
-#if 1 //L2
+#if 0 //L2
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
   for (int i = 1; i < nt; ++i)
   {
@@ -173,7 +165,8 @@ OptimizerPiecewise::getCost()
   sub_costs[0] = weight_conf * err_sq_total / denom;
   sub_costs[1] = weight_recov* err_sq_recov / denom;
   sub_costs[2] = weight_fatal* err_sq_fatal / denom;
-#elif 0 //MLE
+#elif 1 //MLE
+  constexpr double scaling = 1e-4;
   const double eps = 1e-5;
   for (int i = 1; i < nt; ++i)
   {
@@ -190,9 +183,9 @@ OptimizerPiecewise::getCost()
     err_sq_fatal += dF_obs*std::log(dF + eps) - dF;
   }
   const double denom = (weight_conf + weight_recov + weight_fatal) * nt;
-  sub_costs[0] = -weight_conf * err_sq_total / denom;
-  sub_costs[1] = -weight_recov* err_sq_recov / denom;
-  sub_costs[2] = -weight_fatal* err_sq_fatal / denom;
+  sub_costs[0] = -scaling * weight_conf * err_sq_total / denom;
+  sub_costs[1] = -scaling * weight_recov* err_sq_recov / denom;
+  sub_costs[2] = -scaling * weight_fatal* err_sq_fatal / denom;
 #endif
 
   const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2];
@@ -236,20 +229,14 @@ void
 OptimizerPiecewise::updateOptimalSolution(
     const double& cost, const std::array<double,3>& sub_costs, const Vector& param_vec_cur)
 {
-  int min_ind = 0;
-  for (min_ind = 0; min_ind < NUM_RESULTS; ++min_ind)
+  std::size_t min_ind = 0;
+  for (min_ind = 0; min_ind < cost_min.size(); ++min_ind)
     if (cost < cost_min[min_ind])
       break;
 
-  for (int i = NUM_RESULTS-1; i > min_ind; i--)
-  {
-    cost_min[i] = cost_min[i-1];
-    sub_costs_min[i] = sub_costs_min[i-1];
-    optimal_param_vec[i] = optimal_param_vec[i-1];
-  }
-  cost_min[min_ind] = cost;
-  sub_costs_min[min_ind] = sub_costs;
-  optimal_param_vec[min_ind] = param_vec_cur;
+  cost_min.insert(cost_min.begin() + min_ind, cost);
+  sub_costs_min.insert(sub_costs_min.begin() + min_ind, sub_costs);
+  optimal_param_vec.insert(optimal_param_vec.begin() + min_ind, param_vec_cur);
 }
 
 std::vector<ParamBound>

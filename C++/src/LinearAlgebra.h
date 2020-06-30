@@ -72,10 +72,9 @@ inline Vector operator*(const Matrix& A, const Vector& x)
 
 inline std::ostream& operator<<(std::ostream& os, const Vector& v)
 {
-  os << "[";
   for (int i = 0; i < v.m()-1; ++i)
     os << v[i] << ", ";
-  os << v.back() << "]";
+  os << v.back();
   return os;
 }
 

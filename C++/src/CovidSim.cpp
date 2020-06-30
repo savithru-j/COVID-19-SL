@@ -63,9 +63,9 @@ main(int argc, char *argv[])
   file_predictions << N_population << std::endl;
   for (std::size_t i = 0; i < prediction.size(); ++i)
   {
-    file_predictions << std::round(prediction[i].getNumReported()) << " "
-                     << std::round(prediction[i].getNumRecoveredReported()) << " "
-                     << std::round(prediction[i].getNumFatalReported()) << std::endl;
+    file_predictions << (int) std::round(prediction[i].getNumReported()) << " "
+                     << (int) std::round(prediction[i].getNumRecoveredReported()) << " "
+                     << (int) std::round(prediction[i].getNumFatalReported()) << std::endl;
   }
   std::cout << "Wrote prediction to " << filepath_predictions << std::endl;
   file_predictions.close();

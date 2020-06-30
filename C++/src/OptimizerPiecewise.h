@@ -9,9 +9,9 @@
 
 struct OptimizerPiecewise
 {
-  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
+//  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
   static constexpr bool OPTIMIZE_C0 = false;
-  static constexpr bool OPTIMIZE_C1 = false;
+  static constexpr bool OPTIMIZE_C1 = true;
   static constexpr bool OPTIMIZE_C2 = false;
 
   OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
@@ -62,9 +62,9 @@ struct OptimizerPiecewise
   int f_eval_count = 0;
   int nlopt_iter = 0;
 
-  std::array<Vector,NUM_RESULTS> optimal_param_vec;
-  std::array<double,NUM_RESULTS> cost_min;
-  std::array<std::array<double,3>,NUM_RESULTS> sub_costs_min;
+  std::vector<Vector> optimal_param_vec;
+  std::vector<double> cost_min;
+  std::vector<std::array<double,3>> sub_costs_min;
 
   std::mt19937 rand_engine; //Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<double> uniform_rand;

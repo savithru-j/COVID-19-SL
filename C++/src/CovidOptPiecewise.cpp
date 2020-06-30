@@ -98,8 +98,8 @@ main(int argc, char *argv[])
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
   const int nt_hist = pop_observed.getNumDays();
-  std::array<std::vector<Population>, OptimizerPiecewise::NUM_RESULTS> predictions;
-  std::array<Vector, OptimizerPiecewise::NUM_RESULTS> param_vecs_full;
+  std::vector<std::vector<Population>> predictions(opt.cost_min.size());
+  std::vector<Vector> param_vecs_full(opt.cost_min.size());
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
