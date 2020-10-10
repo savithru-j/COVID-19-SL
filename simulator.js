@@ -95,15 +95,15 @@ var data_start_dates = {
 var custom_country_data = {
   "Sri Lanka" : {
               //Mar 1, Mar 15, Mar 25, Apr 10, Apr 15, Apr 25, Apr 30
-      t_start: [0, 14, 24, 40, 45, 55, 60, 92], //indices to start dates of any interventions
-      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.3], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(8).fill(0), //values of b2N
-      b3N: new Array(8).fill(0),
-      ce: [0, 0, 0, 0, 0, 0.5, 0.5, 0.5],
-      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7, 0.7],
-      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1, 0.1],
-      c2: new Array(8).fill(1.0),
-      c3: new Array(8).fill(1.0),
+      t_start: [0, 14, 24, 40, 45, 55, 60, 92, 153], //indices to start dates of any interventions
+      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.47, 0.53], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(9).fill(0), //values of b2N
+      b3N: new Array(9).fill(0),
+      ce: [0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5],
+      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7, 0.7, 0.7],
+      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1, 0.1, 0.1],
+      c2: new Array(9).fill(1.0),
+      c3: new Array(9).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
