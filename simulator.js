@@ -60,112 +60,26 @@ var data_start_dates = {
     "Sri Lanka": "2020-03-01"
 };
 
-// var custom_country_data = {
-//   "Sri Lanka" : {
-//       t_start: [0, 13, 34, 41], //indices to start dates of any interventions
-//       b1N: [0.85, 0.14, 0.2, 0.3], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(4).fill(0), //values of b2N
-//       b3N: new Array(4).fill(0),
-//       ce: new Array(4).fill(0),
-//       c0: new Array(4).fill(0),
-//       c1: new Array(4).fill(0.1),
-//       c2: new Array(4).fill(1.0),
-//       c3: new Array(4).fill(1.0),
-//       E0_0: 5, //no. of individuals exposed at start
-//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
-//   }
-// }
-
-// var custom_country_data = {
-//   "Sri Lanka" : {
-//       t_start: [0, 13, 17, 25, 37, 39, 41, 45, 47, 53, 55], //indices to start dates of any interventions
-//       b1N: [0.787, 0.379, 0.093, 0.045, 0.045, 0.045, 0.470, 0.730, 0.730, 0.472, 0.472], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(11).fill(0), //values of b2N
-//       b3N: new Array(11).fill(0),
-//       ce: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0.114, 0.508],
-//       c0: [0, 0, 0, 0, 0, 0, 0, 0.658, 0.801, 0.801, 0.801],
-//       c1: [0.029, 0.029, 0.029, 0.029, 0.465, 0.884, 0.884, 0.973, 0.973, 0.973, 0.973],
-//       c2: new Array(11).fill(1.0),
-//       c3: new Array(11).fill(1.0),
-//       E0_0: 5, //no. of individuals exposed at start
-//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
-//   }
-// }
-
 var custom_country_data = {
   "Sri Lanka" : {
-              //Mar 1, Mar 15, Mar 25, Apr 10, Apr 15, Apr 25, Apr 30
-      t_start: [0, 14, 24, 40, 45, 55, 60, 92, 153], //indices to start dates of any interventions
-      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.47, 0.53], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(9).fill(0), //values of b2N
-      b3N: new Array(9).fill(0),
-      ce: [0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5],
-      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7, 0.7, 0.7],
-      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1, 0.1, 0.1],
-      c2: new Array(9).fill(1.0),
-      c3: new Array(9).fill(1.0),
+              //Mar 1, Mar 15, Mar 25, Apr 10, Apr 15, Apr 25, Apr 30, Jun 1, Aug 1, Sep 15
+      t_start: [0, 14, 24, 40, 45, 55, 60, 92, 153, 198], //indices to start dates of any interventions
+      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.45, 0.45, 0.5], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(10).fill(0), //values of b2N
+      b3N: new Array(10).fill(0),
+      ce: [0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.4, 0.4],
+      c0: [0, 0, 0, 0, 0.7, 0.7, 0.7, 0.4, 0.3, 0.3],
+      c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1, 0.1, 0.1, 0.1],
+      c2: new Array(10).fill(1.0),
+      c3: new Array(10).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
 }
 
-// var b1_f = 0.3;
-// var b1_q90 = 0.14 + 0.1*(b1_f - 0.14);
-// var b1_q50 = 0.14 + 0.5*(b1_f - 0.14);
-// var b1_cyc = b1_q50;
-
-// var custom_country_data = {
-//   "Sri Lanka" : {
-//       t_start: [0, 13, 50], //indices to start dates of any interventions
-//       b1N: [0.85, 0.14, b1_f], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(3).fill(0), //values of b2N
-//       b3N: new Array(3).fill(0),
-//       c1: new Array(3).fill(0.1),
-//       E0_0: 5, //no. of individuals exposed at start
-//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
-//   }
-// }
-
-// var custom_country_data = {
-//   "Sri Lanka" : {
-//       t_start: [0, 13, 50, 84], //indices to start dates of any interventions
-//       b1N: [0.85, 0.14, 0.3, 0.14], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(4).fill(0), //values of b2N
-//       b3N: new Array(4).fill(0),
-//       c1: new Array(4).fill(0.1),
-//       E0_0: 5, //no. of individuals exposed at start
-//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
-//   }
-// }
-
-// var custom_country_data = {
-//   "Sri Lanka" : {
-//       t_start: [0, 13, 61, 92, 122, 153, 184, 214, 245, 275, 306, 336], //indices to start dates of any interventions
-//       b1N: [0.85, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(12).fill(0), //values of b2N
-//       b3N: new Array(12).fill(0),
-//       c1: new Array(12).fill(0.1),
-//       E0_0: 5, //no. of individuals exposed at start
-//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
-//   }
-// }
-
-// var custom_country_data = {
-//   "Sri Lanka" : {
-//       t_start: [0, 13, 61, 75, 92, 106, 122, 136, 153, 167, 184, 198, 214, 228, 245, 259, 275, 289, 306], //indices to start dates of any interventions
-//       b1N: [0.85, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc, 0.14, b1_cyc], //values of b1N for each intervention segment defined in t_start
-//       b2N: new Array(19).fill(0), //values of b2N
-//       b3N: new Array(19).fill(0),
-//       c1: new Array(19).fill(0.1),
-//       E0_0: 5, //no. of individuals exposed at start
-//       Rd_0: 1, //no. of recovered-diagnosed individuals at start
-//   }
-// }
-
-
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
-  T_pred: 14,    //prediction length
+  T_pred: 30,    //prediction length
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
@@ -174,7 +88,7 @@ var default_controls = {
   c1: 0.5,      //fraction of mild patients diagnosed daily
   c2: 1.0,      //fraction of severe patients diagnosed daily
   c3: 1.0,      //fraction of critical patients diagnosed daily
-  CFR: 0.02,    //case fatality ratio
+  CFR: 0.004,   //case fatality ratio
   param_error: 0.05 //error in parameters
 }
 
@@ -899,19 +813,29 @@ function refreshMainChartData()
   if (main_chart)
   {
     let array_name = document.querySelector('input[name="plot_data_type"]:checked').value; //returns cat_diag or cat_sum
+    let data_freq = document.querySelector('input[name="plot_data_freq"]:checked').value; //returns cumulative or daily
 
     let n_cat = data_predicted[array_name].length;
     for (let i = 0; i < n_cat; ++i)
-      main_chart.data.datasets[i].data = data_predicted[array_name][i];
+      main_chart.data.datasets[i].data = copyDataArray(data_predicted[array_name][i]);
 
-    main_chart.data.datasets[n_cat].data = data_real.total;
-    main_chart.data.datasets[n_cat+1].data = data_predicted.total;
+    main_chart.data.datasets[n_cat].data = copyDataArray(data_real.total);
+    main_chart.data.datasets[n_cat+1].data = copyDataArray(data_predicted.total);
 
-    main_chart.data.datasets[n_cat+2].data = data_real.fatal;
-    main_chart.data.datasets[n_cat+3].data = data_predicted[array_name][3];
+    main_chart.data.datasets[n_cat+2].data = copyDataArray(data_real.fatal);
+    main_chart.data.datasets[n_cat+3].data = copyDataArray(data_predicted[array_name][3]);
 
-    main_chart.data.datasets[n_cat+4].data = data_predicted.lower;
-    main_chart.data.datasets[n_cat+5].data = data_predicted.upper;
+    main_chart.data.datasets[n_cat+4].data = copyDataArray(data_predicted.lower);
+    main_chart.data.datasets[n_cat+5].data = copyDataArray(data_predicted.upper);
+
+    if (data_freq == "daily") {
+      for (let i = 0; i < main_chart.data.datasets.length; ++i)
+      {
+        for (let j = main_chart.data.datasets[i].data.length-1; j > 0; --j)
+          main_chart.data.datasets[i].data[j].y -= main_chart.data.datasets[i].data[j-1].y;
+        main_chart.data.datasets[i].data[0].y = 0;
+      }
+    }
 
     main_chart.update();
     delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
@@ -1044,6 +968,10 @@ function initializeSimulationParameters(hist_length, pred_length)
   //allocate maximum possible through sliders so that we don't have to resize later
   let total_length = hist_length + 280;
 
+  let frac_recover_I1 = 0.80;
+  let frac_recover_I2 = 0.75;
+  let frac_recover_I3 = 1.0 - default_controls.CFR / ((1.0 - frac_recover_I1)*(1.0 - frac_recover_I2));
+
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
@@ -1065,9 +993,9 @@ function initializeSimulationParameters(hist_length, pred_length)
     T_severe: 4,
     T_icu   : 10,
     f: 0.3,                                                             //exposed to asymptomatic probability
-    frac_recover_I1: 0.80,                                              //fraction of cases that recover from mild-infected stage I1
-    frac_recover_I2: 0.75,                                              //fraction of cases that recover from severe-infected stage I2
-    frac_recover_I3: 0.60,                                              //fraction of cases that recover from critical-infected stage I3
+    frac_recover_I1: frac_recover_I1,                                   //fraction of cases that recover from mild-infected stage I1
+    frac_recover_I2: frac_recover_I2,                                   //fraction of cases that recover from severe-infected stage I2
+    frac_recover_I3: frac_recover_I3,                                   //fraction of cases that recover from critical-infected stage I3
     population: 1E7,                                                    //population of country
     E0_0: 5,                                                            //number of non-infectious exposed individuals at start
     Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
@@ -1297,4 +1225,12 @@ function predictModel(params)
   }
 
   return population_hist;
+}
+
+function copyDataArray(vec)
+{
+  let res = [];
+  for (let i = 0; i < vec.length; ++i)
+    res.push({t: vec[i].t, y: vec[i].y});
+  return res;
 }

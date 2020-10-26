@@ -67,6 +67,16 @@
         <div class="control">
           <input type="checkbox" id="check_calibration_mode" onchange="toggleDatasets()">Turn on calibration mode</input>
         </div>
+        
+        <div class="control">
+          <input type="radio" id="radio_data_cumulative" name="plot_data_freq" value="cumulative" checked onchange="refreshMainChartData()">
+          <label for="radio_data_cumulative">Show cumulative cases</label>
+        </div>
+        
+        <div style="margin-top:5px;">
+          <input type="radio" id="radio_data_daily" name="plot_data_freq" value="daily" onchange="refreshMainChartData()">
+          <label for="radio_data_daily">Show daily new cases</label>
+        </div>
 
         <div class="control">
           <button type="button" class="small" id="reset_zoom" onclick="resetZoom()">Default view</button>
