@@ -57,7 +57,7 @@ var quarantine_data = {
 }
 
 var data_start_dates = {
-    "Sri Lanka": "2020-03-01"
+    "Sri Lanka": ["2020-03-01", "2020-09-15"]
 };
 
 var custom_country_data = {
@@ -73,7 +73,7 @@ var custom_country_data = {
       c2: new Array(10).fill(1.0),
       c3: new Array(10).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
-      Rd_0: 1, //no. of recovered-diagnosed individuals at start
+      // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
 }
 
@@ -166,7 +166,7 @@ window.onload = function()
 
 function generateCountryDropDown()
 {
-  let menu = document.getElementById("dropdown_country");
+  let country_menu = document.getElementById("dropdown_country");
   let country_list = [];
   for (let key of Object.keys(world_data))
     country_list.push(key);
@@ -176,15 +176,41 @@ function generateCountryDropDown()
   {
     let option = document.createElement("option");
     option.text = name;
-    menu.add(option);
+    country_menu.add(option);
   }
-  menu.value = active_country;
+  country_menu.value = active_country;
 }
 
 function changeCountry(country_name)
 {
   active_country = country_name;
-  data_real = getCountryData(country_name);
+
+  let startdate_menu = document.getElementById("dropdown_startdate");
+  startdate_menu.innerHTML = "";
+  let start_date_list = data_start_dates[active_country];
+  if (start_date_list)
+  {
+    for (let start_date of start_date_list)
+    {
+      let option = document.createElement("option");
+      option.text = start_date;
+      startdate_menu.add(option);
+    }
+    startdate_menu.value = start_date_list[0];
+  }
+  else {
+    let option = document.createElement("option");
+    option.text = "2020-02-01";
+    startdate_menu.add(option);
+    startdate_menu.value = option.text;
+  }
+
+  updateCountryData();
+}
+
+function updateCountryData()
+{
+  data_real = getCountryData();
   sim_params = initializeSimulationParameters(data_real.total.length, default_controls.T_pred);
 
   data_predicted = getPredictionData(data_real.total[0].t);
@@ -199,11 +225,12 @@ function changeCountry(country_name)
   }
 }
 
-function getCountryData(country_name)
+function getCountryData()
 {
-  let data_array = world_data[country_name];
+  let data_array = world_data[active_country];
 
-  let start_date = data_start_dates[country_name];
+  let startdate_menu = document.getElementById("dropdown_startdate");
+  let start_date = startdate_menu.value;
   if (start_date)
     start_date = moment(start_date, date_format);
 
@@ -248,14 +275,15 @@ function getCountryData(country_name)
   }
 
   //Check if country has any quarantine data
-  let qdata = quarantine_data[country_name];
+  let qdata = quarantine_data[active_country];
   if (qdata)
   {
     for (let data of qdata)
     {
       let data_t = moment(data.t, date_format);
       let ind = data_t.diff(data_cat[0].t, 'days');
-      data_cat[ind].y[3] = data.y;
+      if (ind > 0)
+        data_cat[ind].y[3] = data.y;
     }
   }
 
@@ -972,6 +1000,9 @@ function initializeSimulationParameters(hist_length, pred_length)
   let frac_recover_I2 = 0.75;
   let frac_recover_I3 = 1.0 - default_controls.CFR / ((1.0 - frac_recover_I1)*(1.0 - frac_recover_I2));
 
+  //Number of infected-diagnosed patients at start = total - recovered - fatal
+  let Id0 = data_real.categorized[0].y[0] - data_real.categorized[0].y[1] - data_real.categorized[0].y[2];
+
   let params = {
     T_hist: hist_length,
     T_pred: pred_length,
@@ -998,7 +1029,9 @@ function initializeSimulationParameters(hist_length, pred_length)
     frac_recover_I3: frac_recover_I3,                                   //fraction of cases that recover from critical-infected stage I3
     population: 1E7,                                                    //population of country
     E0_0: 5,                                                            //number of non-infectious exposed individuals at start
-    Rd_0: 0,                                                            //number of recovered-diagnosed individuals at start
+    Id_0: Id0,                                                          //number of infected-diagnosed individuals at start
+    Rd_0: data_real.categorized[0].y[1],                                //number of recovered-diagnosed individuals at start
+    Dd_0: data_real.categorized[0].y[2],                                //number of fatal-diagnosed individuals at start
   }
 
   setRateParameters(params);
@@ -1204,8 +1237,10 @@ function predictModel(params)
   //Create initial population object
   let pop0 = new Population(params.population);
   pop0.E0 = params.E0_0;
+  pop0.I1[1] = params.Id_0; //infected-diagnosed
   pop0.R[1] = params.Rd_0; //recovered-diagnosed
-  pop0.S = pop0.N - pop0.E0 - pop0.R[1];
+  pop0.D[1] = params.Dd_0; //fatal-diagnosed
+  pop0.S = pop0.N - pop0.E0 - pop0.I1[1] - pop0.R[1] - pop0.D[1];
 
   let population_hist = [pop0];
 

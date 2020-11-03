@@ -51,6 +51,11 @@
         </div>
 
         <div class="control">
+          <div style="text-align:left; padding-bottom:3px;">Select start date:</div>
+          <select id="dropdown_startdate" class="small" style="min-height:30px;" onchange="updateCountryData()"></select>
+        </div>
+
+        <div class="control">
           <input type="radio" id="radio_data_diagnosed" name="plot_data_type" value="cat_diag" checked onchange="refreshMainChartData()">
           <label for="radio_data_diagnosed">Show diagnosed cases</label>
         </div>
@@ -67,12 +72,12 @@
         <div class="control">
           <input type="checkbox" id="check_calibration_mode" onchange="toggleDatasets()">Turn on calibration mode</input>
         </div>
-        
+
         <div class="control">
           <input type="radio" id="radio_data_cumulative" name="plot_data_freq" value="cumulative" checked onchange="refreshMainChartData()">
           <label for="radio_data_cumulative">Show cumulative cases</label>
         </div>
-        
+
         <div style="margin-top:5px;">
           <input type="radio" id="radio_data_daily" name="plot_data_freq" value="daily" onchange="refreshMainChartData()">
           <label for="radio_data_daily">Show daily new cases</label>
