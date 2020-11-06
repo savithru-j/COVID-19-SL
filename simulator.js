@@ -61,10 +61,10 @@ var data_start_dates = {
 };
 
 var custom_country_data = {
-  "Sri Lanka" : {
+  "Sri Lanka-2020-03-01" : {
               //Mar 1, Mar 15, Mar 25, Apr 10, Apr 15, Apr 25, Apr 30, Jun 1, Aug 1, Sep 15
       t_start: [0, 14, 24, 40, 45, 55, 60, 92, 153, 198], //indices to start dates of any interventions
-      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.45, 0.45, 0.5], //values of b1N for each intervention segment defined in t_start
+      b1N: [0.8, 0.1, 0.05, 0.470, 0.6, 0.48, 0.48, 0.45, 0.45, 0.53], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(10).fill(0), //values of b2N
       b3N: new Array(10).fill(0),
       ce: [0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.4, 0.4],
@@ -72,6 +72,20 @@ var custom_country_data = {
       c1: [0.03, 0.03, 0.03, 0.965, 0.965, 0.965, 0.1, 0.1, 0.1, 0.1],
       c2: new Array(10).fill(1.0),
       c3: new Array(10).fill(1.0),
+      E0_0: 5, //no. of individuals exposed at start
+      // Rd_0: 1, //no. of recovered-diagnosed individuals at start
+  },
+  "Sri Lanka-2020-09-15" : {
+              //Sep 15, Oct 10
+      t_start: [0, 26], //indices to start dates of any interventions
+      b1N: [1.0, 0.44], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(2).fill(0), //values of b2N
+      b3N: new Array(2).fill(0),
+      ce: [0.176, 0.176],
+      c0: [0.2, 0.2],
+      c1: [0.5, 0.5],
+      c2: new Array(2).fill(1.0),
+      c3: new Array(2).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -89,7 +103,7 @@ var default_controls = {
   c2: 1.0,      //fraction of severe patients diagnosed daily
   c3: 1.0,      //fraction of critical patients diagnosed daily
   CFR: 0.004,   //case fatality ratio
-  param_error: 0.05 //error in parameters
+  param_error: 0.0 //error in parameters
 }
 
 //Storage for real and predicted data to be plotted on chart: {categorized, total}
@@ -292,7 +306,13 @@ function getCountryData()
 
 function customizeParametersByCountry(country_name, params)
 {
-  let data = custom_country_data[country_name];
+  let country_name_with_start_date = country_name;
+
+  let start_date = document.getElementById("dropdown_startdate").value;
+  if (country_name == "Sri Lanka" && start_date)
+    country_name_with_start_date += "-" + start_date;
+
+  let data = custom_country_data[country_name_with_start_date];
   if (data)
   {
     for (let i = 0; i < data.t_start.length; ++i)
