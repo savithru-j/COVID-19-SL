@@ -102,7 +102,7 @@ var default_controls = {
   c1: 0.5,      //fraction of mild patients diagnosed daily
   c2: 1.0,      //fraction of severe patients diagnosed daily
   c3: 1.0,      //fraction of critical patients diagnosed daily
-  CFR: 0.004,   //case fatality ratio
+  CFR: 0.01,    //case fatality ratio
   param_error: 0.0 //error in parameters
 }
 
