@@ -4,13 +4,14 @@
 
 'use strict';
 
-// var date_format = 'DD-MM-YYYY';
 var date_format = 'YYYY-MM-DD';
 
 var country_data;
+var district_data;
 
 //Chart objects
-var main_chart;
+var country_chart;
+var district_chart;
 
 var countries_to_plot = ['Sri Lanka', 'United States', 'United Kingdom', 'India',
                          'Pakistan','China', 'Singapore', 'Japan', 'Brazil', 'Spain', 'Italy',
@@ -19,7 +20,8 @@ var countries_to_plot = ['Sri Lanka', 'United States', 'United Kingdom', 'India'
 window.onload = function()
 {
   loadCountryData();
-  setupChart();
+  setupCountryChart();
+  setupDistrictChart();
 }
 
 function loadCountryData()
@@ -51,7 +53,7 @@ function loadCountryData()
   }
 }
 
-function setupChart()
+function setupCountryChart()
 {
   let chart_element = document.getElementById('chart_country');
 
@@ -133,6 +135,94 @@ function setupChart()
     },
   }
 
-  main_chart = new ApexCharts(chart_element, options);
-  main_chart.render();
+  country_chart = new ApexCharts(chart_element, options);
+  country_chart.render();
+};
+
+function setupDistrictChart()
+{
+  let chart_element = document.getElementById('chart_district');
+
+  let dataseries_vec = [];
+  // let districts = ['Colombo','Gampaha','Jaffna'];
+  for (let district_name of Object.keys(SL_district_data))
+  {
+    dataseries_vec.push({
+      name: district_name,
+      data: SL_district_data[district_name]
+    });
+  }
+
+  var options = {
+    chart: {
+      type: 'line',
+      animations: {
+        enabled: true,
+        easing: 'easeinout',
+        speed: 500,
+        animateGradually: {
+            enabled: false,
+        },
+        dynamicAnimation: {
+            enabled: true,
+            speed: 350
+        }
+      }
+    },
+    series: dataseries_vec,
+    xaxis: {
+      type: 'datetime',
+      title: {
+        text: 'Date',
+        style: {
+            fontSize: "16px",
+            color: '#666'
+        },
+        offsetY: 10
+      },
+    },
+    yaxis: {
+      logarithmic: true,
+      title: {
+        text: 'No. of cases',
+        style: {
+            fontSize: "16px",
+            color: '#666',
+        },
+      },
+    },
+    legend: {
+      offsetY: 15,
+      position: 'right'
+    },
+    grid: {
+      xaxis: {
+        lines: {
+          show: true
+        }
+      },
+      yaxis: {
+        lines: {
+          show: true
+        }
+      }
+    },
+    colors: ['#1f78b4','#a6cee3','#b2df8a','#33a02c','#fb9a99','#e31a1c',
+             '#fdbf6f','#ff7f00','#cab2d6','#6a3d9a','#b15928','#ffff99',
+             '#9665c7'],
+    fill: {
+      type: 'solid'
+    },
+    stroke: {
+      width: 1.5,
+      curve: 'smooth',
+    },
+    tooltip: {
+      enabled: true,
+      shared: true
+    }
+  }
+
+  district_chart = new ApexCharts(chart_element, options);
+  district_chart.render();
 };
