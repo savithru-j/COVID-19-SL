@@ -219,7 +219,7 @@ function setupDistrictChart()
     },
     tooltip: {
       enabled: true,
-      shared: true
+      shared: false
     }
   }
 
