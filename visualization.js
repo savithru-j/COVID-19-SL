@@ -153,6 +153,8 @@ function setupDistrictChart()
     });
   }
 
+  let yaxis_log = document.querySelector('input[name="plot_yaxis_type"]:checked').value == 'logarithmic';
+
   var options = {
     chart: {
       type: 'line',
@@ -182,7 +184,7 @@ function setupDistrictChart()
       },
     },
     yaxis: {
-      logarithmic: true,
+      logarithmic: yaxis_log,
       title: {
         text: 'No. of cases',
         style: {
@@ -226,3 +228,13 @@ function setupDistrictChart()
   district_chart = new ApexCharts(chart_element, options);
   district_chart.render();
 };
+
+function updateYAxisType()
+{
+  let yaxis_log = document.querySelector('input[name="plot_yaxis_type"]:checked').value == 'logarithmic';
+  district_chart.updateOptions({
+    yaxis: {
+      logarithmic: yaxis_log,
+    }
+  });
+}

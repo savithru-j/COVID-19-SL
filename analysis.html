@@ -31,13 +31,19 @@
     <br>
     <h2>COVID-19 Data Analysis</h2>
 
+    <br>
+    <h3>Case history for districts of Sri Lanka</h3>
+    <div class="control">
+      <input type="radio" id="radio_yaxis_linear" name="plot_yaxis_type" value="linear" onchange="updateYAxisType()">
+      <label for="radio_yaxis_linear">Linear y-axis</label>
+      <input type="radio" id="radio_yaxis_logarithmic" name="plot_yaxis_type" value="logarithmic" checked onchange="updateYAxisType()">
+      <label for="radio_yaxis_logarithmic">Logarithmic y-axis</label>
+    </div>
+    <div id="chart_district" style="width:80%"></div>
+
     <br><br>
     <h3>Case growth by country</h3>
     <div id="chart_country" style="width:80%"></div>
-
-    <br><br>
-    <h3>Case history for districts of Sri Lanka</h3>
-    <div id="chart_district" style="width:80%"></div>
 
     <br>
     <br>
