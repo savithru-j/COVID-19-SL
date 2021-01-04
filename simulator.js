@@ -76,16 +76,16 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1
-      t_start: [0, 26, 47], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(3).fill(0), //values of b2N
-      b3N: new Array(3).fill(0),
-      ce: [0.176, 0.176, 0.176],
-      c0: [0.2, 0.2, 0.2],
-      c1: [0.5, 0.5, 0.5],
-      c2: new Array(3).fill(1.0),
-      c3: new Array(3).fill(1.0),
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10
+      t_start: [0, 26, 47, 64, 86], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.36], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(5).fill(0), //values of b2N
+      b3N: new Array(5).fill(0),
+      ce: new Array(5).fill(0.176),
+      c0: new Array(5).fill(0.2),
+      c1: new Array(5).fill(0.5),
+      c2: new Array(5).fill(1.0),
+      c3: new Array(5).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -93,7 +93,7 @@ var custom_country_data = {
 
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
-  T_pred: 30,    //prediction length
+  T_pred: 30,   //prediction length
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
@@ -102,7 +102,7 @@ var default_controls = {
   c1: 0.5,      //fraction of mild patients diagnosed daily
   c2: 1.0,      //fraction of severe patients diagnosed daily
   c3: 1.0,      //fraction of critical patients diagnosed daily
-  CFR: 0.01,    //case fatality ratio
+  IFR: 0.0055,  //infection fatality ratio
   param_error: 0.0 //error in parameters
 }
 
@@ -170,8 +170,8 @@ window.onload = function()
   document.getElementById("slider_finalT").value = default_controls.T_pred;
   document.getElementById("slider_finalT_value").innerHTML = default_controls.T_pred;
 
-  document.getElementById("slider_param_CFR").value = default_controls.CFR * 100;
-  document.getElementById("slider_param_CFR_value").innerHTML = (default_controls.CFR * 100).toFixed(1);
+  document.getElementById("slider_param_IFR").value = default_controls.IFR * 100;
+  document.getElementById("slider_param_IFR_value").innerHTML = (default_controls.IFR * 100).toFixed(2);
 
   document.getElementById("slider_param_error").value = default_controls.param_error * 100;
   document.getElementById("slider_param_error_value").innerHTML = (default_controls.param_error * 100).toFixed(1);
@@ -334,6 +334,7 @@ function customizeParametersByCountry(country_name, params)
     //Update initial E0 and Rd
     if (data.E0_0)
       params.E0_0 = data.E0_0;
+
 
     if (data.Rd_0)
       params.Rd_0 = data.Rd_0;
@@ -1016,9 +1017,10 @@ function initializeSimulationParameters(hist_length, pred_length)
   //allocate maximum possible through sliders so that we don't have to resize later
   let total_length = hist_length + 280;
 
+  let frac_f          = 0.3;
   let frac_recover_I1 = 0.80;
   let frac_recover_I2 = 0.75;
-  let frac_recover_I3 = 1.0 - default_controls.CFR / ((1.0 - frac_recover_I1)*(1.0 - frac_recover_I2));
+  let frac_recover_I3 = 1.0 - default_controls.IFR / ((1.0 - frac_f)*(1.0 - frac_recover_I1)*(1.0 - frac_recover_I2));
 
   //Number of infected-diagnosed patients at start = total - recovered - fatal
   let Id0 = data_real.categorized[0].y[0] - data_real.categorized[0].y[1] - data_real.categorized[0].y[2];
@@ -1043,7 +1045,7 @@ function initializeSimulationParameters(hist_length, pred_length)
     T_mild  : 6,
     T_severe: 4,
     T_icu   : 10,
-    f: 0.3,                                                             //exposed to asymptomatic probability
+    f: frac_f,                                                             //exposed to asymptomatic probability
     frac_recover_I1: frac_recover_I1,                                   //fraction of cases that recover from mild-infected stage I1
     frac_recover_I2: frac_recover_I2,                                   //fraction of cases that recover from severe-infected stage I2
     frac_recover_I3: frac_recover_I3,                                   //fraction of cases that recover from critical-infected stage I3
@@ -1117,17 +1119,17 @@ function updateParameters(force = false)
     }
   }
 
-  let slider_param_CFR = document.getElementById("slider_param_CFR");
-  if (slider_param_CFR)
+  let slider_param_IFR = document.getElementById("slider_param_IFR");
+  if (slider_param_IFR)
   {
-    let CFR = Number(slider_param_CFR.value) / 100.0;
-    let frac_recover_I3 = 1.0 - CFR / ((1.0 - sim_params.frac_recover_I1)*(1.0 - sim_params.frac_recover_I2));
+    let IFR = Number(slider_param_IFR.value) / 100.0;
+    let frac_recover_I3 = 1.0 - IFR / ((1.0 - sim_params.f)*(1.0 - sim_params.frac_recover_I1)*(1.0 - sim_params.frac_recover_I2));
     if (sim_params.frac_recover_I3 != frac_recover_I3)
     {
       sim_params.frac_recover_I3 = frac_recover_I3;
       setRateParameters(sim_params);
       requires_update = true;
-      document.getElementById("slider_param_CFR_value").innerHTML = (CFR*100).toFixed(1);
+      document.getElementById("slider_param_IFR_value").innerHTML = (IFR*100).toFixed(2);
     }
   }
 
