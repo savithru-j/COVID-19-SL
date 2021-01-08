@@ -151,18 +151,6 @@ var linear_ticks = {
 
 window.onload = function()
 {
-  //TODO: Temporary code for generating spikes in beta-1
-  // for (let t = 61; t < 350; t += 14)
-  // {
-  //   custom_country_data["Sri Lanka"].t_start.push(t);
-  //   custom_country_data["Sri Lanka"].t_start.push(t+1);
-  //   custom_country_data["Sri Lanka"].b1N.push(0.60);
-  //   custom_country_data["Sri Lanka"].b1N.push(0.14);
-  // }
-  // custom_country_data["Sri Lanka"].b2N = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0);
-  // custom_country_data["Sri Lanka"].b3N = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0);
-  // custom_country_data["Sri Lanka"].c1 = new Array(custom_country_data["Sri Lanka"].t_start.length).fill(0.1);
-
   generateCountryDropDown();
   changeCountry(active_country);
 
@@ -230,6 +218,7 @@ function updateCountryData()
   data_predicted = getPredictionData(data_real.total[0].t);
   document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
   document.getElementById("R0_value").innerHTML = getR0(sim_params, 0).toFixed(1);
+  document.getElementById("estimated_CFR").innerHTML = (data_predicted.CFR*100).toFixed(2);
 
   if (main_chart)
     refreshAllChartData();
@@ -863,6 +852,7 @@ function refreshMainChartData()
   {
     let array_name = document.querySelector('input[name="plot_data_type"]:checked').value; //returns cat_diag or cat_sum
     let data_freq = document.querySelector('input[name="plot_data_freq"]:checked').value; //returns cumulative or daily
+    let calibration_mode = document.getElementById("check_calibration_mode").checked;
 
     let n_cat = data_predicted[array_name].length;
     for (let i = 0; i < n_cat; ++i)
@@ -877,7 +867,8 @@ function refreshMainChartData()
     main_chart.data.datasets[n_cat+4].data = copyDataArray(data_predicted.lower);
     main_chart.data.datasets[n_cat+5].data = copyDataArray(data_predicted.upper);
 
-    if (data_freq == "daily") {
+    if (data_freq == "daily")
+    {
       for (let i = 0; i < main_chart.data.datasets.length; ++i)
       {
         for (let j = main_chart.data.datasets[i].data.length-1; j > 0; --j)
@@ -885,6 +876,9 @@ function refreshMainChartData()
         main_chart.data.datasets[i].data[0].y = 0;
       }
     }
+
+    for (let i = 0; i < 7; ++i)
+      main_chart.data.datasets[i].hidden = calibration_mode || (data_freq == "daily");
 
     main_chart.update();
     delete main_chart.$zoom._originalOptions[main_chart.options.scales.xAxes[0].id].time.min;
@@ -948,9 +942,10 @@ function setLogYAxis(is_log)
 function toggleDatasets()
 {
   let calibration_mode = document.getElementById("check_calibration_mode").checked;
+  let data_freq = document.querySelector('input[name="plot_data_freq"]:checked').value; //returns cumulative or daily
 
   for (let i = 0; i < 7; ++i)
-    main_chart.data.datasets[i].hidden = calibration_mode;
+    main_chart.data.datasets[i].hidden = calibration_mode || (data_freq == "daily");
 
   for (let i = 9; i < 11; ++i)
     main_chart.data.datasets[i].hidden = !calibration_mode; //actual deaths, predicted deaths
@@ -1014,8 +1009,8 @@ function updateLegend(day = last_active_tooltip_day)
 
 function initializeSimulationParameters(hist_length, pred_length)
 {
-  //allocate maximum possible through sliders so that we don't have to resize later
-  let total_length = hist_length + 280;
+  //allocate memory for a year of prediction, so that we don't have to resize later
+  let total_length = hist_length + 365;
 
   let frac_f          = 0.3;
   let frac_recover_I1 = 0.80;
@@ -1150,6 +1145,7 @@ function updateParameters(force = false)
     data_predicted = getPredictionData(data_real.total[0].t);
     refreshAllChartData();
     document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
+    document.getElementById("estimated_CFR").innerHTML = (data_predicted.CFR*100).toFixed(2);
   }
 }
 
@@ -1207,6 +1203,17 @@ function getErrorData()
 
 function getPredictionData(start_date)
 {
+  let T_pred_orig = sim_params.T_pred;
+  sim_params.T_pred = 365;
+  let pop_hist_long_horizon = predictModel(sim_params); //population history
+  sim_params.T_pred = T_pred_orig; //restore original T_pred
+
+  //Estimate CFR from long term prediction
+  let pop_final = pop_hist_long_horizon[pop_hist_long_horizon.length-1];
+  let num_fatal_diag_final = pop_final.getNumFatalDiagnosed();
+  let num_diag_final = pop_final.getNumActiveDiagnosed() + pop_final.getNumRecoveredDiagnosed() + pop_final.getNumFatalDiagnosed();
+  let CFR_estimate = num_fatal_diag_final / num_diag_final;
+
   let pop_hist = predictModel(sim_params); //population history
   let error_data = getErrorData();
 
@@ -1251,7 +1258,7 @@ function getPredictionData(start_date)
     data_upper.push({t: date, y: Math.max(num_diag, num_diag_lower, num_diag_upper)});
   }
 
-  return {total: data_agg, cat_diag: data_cat_diag, cat_sum: data_cat_sum, lower: data_lower, upper: data_upper};
+  return {total: data_agg, cat_diag: data_cat_diag, cat_sum: data_cat_sum, lower: data_lower, upper: data_upper, CFR: CFR_estimate};
 }
 
 function predictModel(params)
