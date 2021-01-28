@@ -1050,11 +1050,11 @@ function initializeSimulationParameters(hist_length, pred_length)
     Rd_0: data_real.categorized[0].y[1],                                //number of recovered-diagnosed individuals at start
     Dd_0: data_real.categorized[0].y[2],                                //number of fatal-diagnosed individuals at start
   }
-
   setRateParameters(params);
 
   //Modify any parameters that are specific to the currently active country.
   customizeParametersByCountry(active_country, params);
+  params.S_0 = params.population - params.E0_0 - params.Id_0 - params.Rd_0 - params.Dd_0; //Set initial susceptible population
 
   return params;
 }
@@ -1090,12 +1090,51 @@ function setRateParameters(params)
 //Computes the basic reproduction number (R0) from the model parameters
 function getR0(params, ind)
 {
-  let b1N = params.b1N[ind];
-  let b2N = params.b2N[ind];
-  let b3N = params.b3N[ind];
-  let a1 = params.a10 + params.a11;
-  let tmp = b1N + params.p1*(b2N + b3N*params.p2/(params.mu + params.g3)) / (params.p2 + params.g2);
-  return (b1N/a1 + b1N*params.f/params.g0 + (1-params.f)/(params.p1 + params.g1)*tmp);
+  // let b1N = params.b1N[ind];
+  // let b2N = params.b2N[ind];
+  // let b3N = params.b3N[ind];
+  // let a1 = params.a10 + params.a11;
+  // let tmp = b1N + params.p1*(b2N + b3N*params.p2/(params.mu + params.g3)) / (params.p2 + params.g2);
+  // return (b1N/a1 + b1N*params.f/params.g0 + (1-params.f)/(params.p1 + params.g1)*tmp);
+
+  let T_pred_R0 = 30;
+
+  let params_R0 = {
+    T_hist: 0,
+    T_pred: T_pred_R0,
+    dt: 1.0/24.0,                                                       //timestep size [days]
+    param_error: params.param_error,                          //assumed error in rate parameters
+    b1N: new Array(T_pred_R0).fill(params.b1N[ind]),            //transmission rate from mild to susceptible
+    b2N: new Array(T_pred_R0).fill(params.b2N[ind]),            //transmission rate from severe to susceptible
+    b3N: new Array(T_pred_R0).fill(params.b3N[ind]),            //transmission rate from critical to susceptible
+    quarantine_input: new Array(T_pred_R0).fill(0.0),                //no. of patients added directly to quarantine
+    ce: new Array(T_pred_R0).fill(params.ce[ind]),              //fraction of exposed patients diagnosed daily
+    c0: new Array(T_pred_R0).fill(params.c0[ind]),              //fraction of asymptomatic patients diagnosed daily
+    c1: new Array(T_pred_R0).fill(params.c1[ind]),              //fraction of mild patients diagnosed daily
+    c2: new Array(T_pred_R0).fill(params.c2[ind]),              //fraction of severe patients diagnosed daily
+    c3: new Array(T_pred_R0).fill(params.c3[ind]),              //fraction of critical patients diagnosed daily
+    T_incub0: params.T_incub0,                                                        //periods [days]
+    T_incub1: params.T_incub1,
+    T_asympt: params.T_asympt,
+    T_mild  : params.T_mild,
+    T_severe: params.T_severe,
+    T_icu   : params.T_icu,
+    f: params.f,                                                             //exposed to asymptomatic probability
+    frac_recover_I1: params.frac_recover_I1,                                   //fraction of cases that recover from mild-infected stage I1
+    frac_recover_I2: params.frac_recover_I2,                                   //fraction of cases that recover from severe-infected stage I2
+    frac_recover_I3: params.frac_recover_I3,                                   //fraction of cases that recover from critical-infected stage I3
+    population: params.population,                                                    //population of country
+    E0_0: 1000,                                                            //number of non-infectious exposed individuals at start
+    Id_0: 0,                                                          //number of infected-diagnosed individuals at start
+    Rd_0: 0,                                //number of recovered-diagnosed individuals at start
+    Dd_0: 0,                                //number of fatal-diagnosed individuals at start
+  }
+  params_R0.S_0 = 0; //susceptible population should be set to zero for R0 calc simulation
+  setRateParameters(params_R0);
+
+  let pop_hist_R0 = predictModel(params_R0); //population history
+
+  return 0;
 }
 
 function updateParameters(force = false)
@@ -1269,7 +1308,7 @@ function predictModel(params)
   pop0.I1[1] = params.Id_0; //infected-diagnosed
   pop0.R[1] = params.Rd_0; //recovered-diagnosed
   pop0.D[1] = params.Dd_0; //fatal-diagnosed
-  pop0.S = pop0.N - pop0.E0 - pop0.I1[1] - pop0.R[1] - pop0.D[1];
+  pop0.S = params.S_0; //susceptible
 
   let population_hist = [pop0];
 
