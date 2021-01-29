@@ -1102,39 +1102,47 @@ function getR0(params, ind)
   let params_R0 = {
     T_hist: 0,
     T_pred: T_pred_R0,
-    dt: 1.0/24.0,                                                       //timestep size [days]
-    param_error: params.param_error,                          //assumed error in rate parameters
-    b1N: new Array(T_pred_R0).fill(params.b1N[ind]),            //transmission rate from mild to susceptible
-    b2N: new Array(T_pred_R0).fill(params.b2N[ind]),            //transmission rate from severe to susceptible
-    b3N: new Array(T_pred_R0).fill(params.b3N[ind]),            //transmission rate from critical to susceptible
-    quarantine_input: new Array(T_pred_R0).fill(0.0),                //no. of patients added directly to quarantine
-    ce: new Array(T_pred_R0).fill(params.ce[ind]),              //fraction of exposed patients diagnosed daily
-    c0: new Array(T_pred_R0).fill(params.c0[ind]),              //fraction of asymptomatic patients diagnosed daily
-    c1: new Array(T_pred_R0).fill(params.c1[ind]),              //fraction of mild patients diagnosed daily
-    c2: new Array(T_pred_R0).fill(params.c2[ind]),              //fraction of severe patients diagnosed daily
-    c3: new Array(T_pred_R0).fill(params.c3[ind]),              //fraction of critical patients diagnosed daily
-    T_incub0: params.T_incub0,                                                        //periods [days]
+    dt: 1.0/24.0,                                       //timestep size [days]
+    param_error: params.param_error,                    //assumed error in rate parameters
+    b1N: new Array(T_pred_R0).fill(params.b1N[ind]),    //transmission rate from mild to susceptible
+    b2N: new Array(T_pred_R0).fill(params.b2N[ind]),    //transmission rate from severe to susceptible
+    b3N: new Array(T_pred_R0).fill(params.b3N[ind]),    //transmission rate from critical to susceptible
+    quarantine_input: new Array(T_pred_R0).fill(0.0),   //no. of patients added directly to quarantine
+    ce: new Array(T_pred_R0).fill(params.ce[ind]),      //fraction of exposed patients diagnosed daily
+    c0: new Array(T_pred_R0).fill(params.c0[ind]),      //fraction of asymptomatic patients diagnosed daily
+    c1: new Array(T_pred_R0).fill(params.c1[ind]),      //fraction of mild patients diagnosed daily
+    c2: new Array(T_pred_R0).fill(params.c2[ind]),      //fraction of severe patients diagnosed daily
+    c3: new Array(T_pred_R0).fill(params.c3[ind]),      //fraction of critical patients diagnosed daily
+    T_incub0: params.T_incub0,                          //periods [days]
     T_incub1: params.T_incub1,
     T_asympt: params.T_asympt,
     T_mild  : params.T_mild,
     T_severe: params.T_severe,
     T_icu   : params.T_icu,
-    f: params.f,                                                             //exposed to asymptomatic probability
-    frac_recover_I1: params.frac_recover_I1,                                   //fraction of cases that recover from mild-infected stage I1
-    frac_recover_I2: params.frac_recover_I2,                                   //fraction of cases that recover from severe-infected stage I2
-    frac_recover_I3: params.frac_recover_I3,                                   //fraction of cases that recover from critical-infected stage I3
-    population: params.population,                                                    //population of country
-    E0_0: 1000,                                                            //number of non-infectious exposed individuals at start
-    Id_0: 0,                                                          //number of infected-diagnosed individuals at start
-    Rd_0: 0,                                //number of recovered-diagnosed individuals at start
-    Dd_0: 0,                                //number of fatal-diagnosed individuals at start
+    f: params.f,                                        //exposed to asymptomatic probability
+    frac_recover_I1: params.frac_recover_I1,            //fraction of cases that recover from mild-infected stage I1
+    frac_recover_I2: params.frac_recover_I2,            //fraction of cases that recover from severe-infected stage I2
+    frac_recover_I3: params.frac_recover_I3,            //fraction of cases that recover from critical-infected stage I3
+    population: params.population,                      //population of country
+    E0_0: 1000,                                         //number of non-infectious exposed individuals at start
+    Id_0: 0,                                            //number of infected-diagnosed individuals at start
+    Rd_0: 0,                                            //number of recovered-diagnosed individuals at start
+    Dd_0: 0,                                            //number of fatal-diagnosed individuals at start
   }
   params_R0.S_0 = 0; //susceptible population should be set to zero for R0 calc simulation
   setRateParameters(params_R0);
 
   let pop_hist_R0 = predictModel(params_R0); //population history
 
-  return 0;
+  let dS = 0; //no. of individuals removed from S
+  for (let t = 0; t < T_pred_R0; ++t)
+  {
+    let pop = pop_hist_R0[t];
+    dS += params_R0.b1N[t]*(pop.E1[0] + pop.I0[0] + pop.I1[0])
+        + params_R0.b2N[t]*pop.I2[0]
+        + params_R0.b3N[t]*pop.I3[0];
+  }
+  return dS/1000;
 }
 
 function updateParameters(force = false)
