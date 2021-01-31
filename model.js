@@ -134,4 +134,11 @@ class Population
     this.I3[0] -= delta;
     this.I3[1] += delta;
   }
+
+  vaccinate(params, t)
+  {
+    this.S -= params.vaccine_rate[t];
+    if (this.S < 0)
+      this.S = 0;
+  }
 }

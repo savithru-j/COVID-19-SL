@@ -217,7 +217,7 @@ function updateCountryData()
 
   data_predicted = getPredictionData(data_real.total[0].t);
   document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
-  document.getElementById("R0_value").innerHTML = getR0(sim_params, 0).toFixed(1);
+  document.getElementById("R0_value").innerHTML = getR0(sim_params, 0).toFixed(2);
   document.getElementById("estimated_CFR").innerHTML = (data_predicted.CFR*100).toFixed(2);
 
   if (main_chart)
@@ -556,7 +556,7 @@ function setupChart()
           callbacks: {
                 label: function(tooltipItem, data) {
                     updateLegend(tooltipItem.index);
-                    document.getElementById("R0_value").innerHTML = getR0(sim_params, tooltipItem.index).toFixed(1);
+                    document.getElementById("R0_value").innerHTML = getR0(sim_params, tooltipItem.index).toFixed(2);
 
                     if (tooltipItem.datasetIndex >= 7)
                       return (data.datasets[tooltipItem.datasetIndex].label +
@@ -712,7 +712,7 @@ function setupControlChart()
             if (el[0])
             {
               control_chart_canvas.style.cursor = "pointer";
-              document.getElementById("R0_value").innerHTML = getR0(sim_params, el[0]._index).toFixed(1);
+              document.getElementById("R0_value").innerHTML = getR0(sim_params, el[0]._index).toFixed(2);
             }
             else {
               control_chart_canvas.style.cursor = "default";
@@ -793,8 +793,15 @@ function move_handler(event)
       let chart_area = control_chart.chartArea;
       let yaxis = control_chart.scales["y-axis-0"];
       let yval_new = map(position.y, chart_area.bottom, chart_area.top, yaxis.min, yaxis.max);
-      yval_new = Math.round(yval_new*1000)/1000;
-      yval_new = Math.min(Math.max(yval_new, 0.0), 1.0);
+
+      if (active_control_parameter == "vaccine_rate") {
+        yval_new = Math.round(yval_new/100)*100; //round to nearest hundred
+        yval_new = Math.min(Math.max(yval_new, 0.0), 20000); //limit to [0,20000]
+      }
+      else { //parameters in [0,1] range
+        yval_new = Math.round(yval_new*1000)/1000; //round to nearest 0.001
+        yval_new = Math.min(Math.max(yval_new, 0.0), 1.0); //limit to [0,1]
+      }
 
       //Update values to the right of the current index, until a different value is encountered.
       let datavec = sim_params[active_control_parameter]; //get the data vector of the parameter current selected for editing
@@ -898,7 +905,8 @@ function refreshControlChartData()
     "c0": "c_0",
     "c1": "c_1",
     "c2": "c_2",
-    "c3": "c_3"
+    "c3": "c_3",
+    "vaccine_rate" : "vaccine rate"
   };
 
   const param_to_titlestring = {
@@ -909,7 +917,8 @@ function refreshControlChartData()
     "c0": "Fraction of asymptomatic cases diagnosed daily",
     "c1": "Fraction of mildly-infected cases diagnosed daily",
     "c2": "Fraction of severely-infected cases diagnosed daily",
-    "c3": "Fraction of critically-infected cases diagnosed daily"
+    "c3": "Fraction of critically-infected cases diagnosed daily",
+    "vaccine_rate" : "No. of vaccinations per day"
   };
 
   if (control_chart)
@@ -917,6 +926,16 @@ function refreshControlChartData()
     control_chart.data.datasets[0].data = getControlChartData();
     control_chart.data.datasets[0].label = param_to_labelstring[active_control_parameter];
     control_chart.options.scales.yAxes[0].scaleLabel.labelString = param_to_labelstring[active_control_parameter];
+    if (active_control_parameter=="vaccine_rate")
+    {
+      control_chart.options.scales.yAxes[0].ticks.max = 20000;
+      control_chart.options.plugins.zoom.zoom.rangeMax.y = 20000;
+    }
+    else
+    {
+      control_chart.options.scales.yAxes[0].ticks.max = 1;
+      control_chart.options.plugins.zoom.zoom.rangeMax.y = 1;
+    }
     control_chart.update();
     delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.min;
     delete control_chart.$zoom._originalOptions[control_chart.options.scales.xAxes[0].id].time.max;
@@ -1040,6 +1059,7 @@ function initializeSimulationParameters(hist_length, pred_length)
     c1: new Array(total_length).fill(default_controls.c1),              //fraction of mild patients diagnosed daily
     c2: new Array(total_length).fill(default_controls.c2),              //fraction of severe patients diagnosed daily
     c3: new Array(total_length).fill(default_controls.c3),              //fraction of critical patients diagnosed daily
+    vaccine_rate: new Array(total_length).fill(0.0),                    //no. of individuals vaccinated per day
     T_incub0: 3,                                                        //periods [days]
     T_incub1: 2,
     T_asympt: 6,
@@ -1103,7 +1123,7 @@ function getR0(params, ind)
   // let tmp = b1N + params.p1*(b2N + b3N*params.p2/(params.mu + params.g3)) / (params.p2 + params.g2);
   // return (b1N/a1 + b1N*params.f/params.g0 + (1-params.f)/(params.p1 + params.g1)*tmp);
 
-  let T_pred_R0 = 30;
+  let T_pred_R0 = 60;
 
   let params_R0 = {
     T_hist: 0,
@@ -1119,6 +1139,7 @@ function getR0(params, ind)
     c1: new Array(T_pred_R0).fill(params.c1[ind]),      //fraction of mild patients diagnosed daily
     c2: new Array(T_pred_R0).fill(params.c2[ind]),      //fraction of severe patients diagnosed daily
     c3: new Array(T_pred_R0).fill(params.c3[ind]),      //fraction of critical patients diagnosed daily
+    vaccine_rate: new Array(T_pred_R0).fill(0.0),       //no. of individuals vaccinated per day
     T_incub0: params.T_incub0,                          //periods [days]
     T_incub1: params.T_incub1,
     T_asympt: params.T_asympt,
@@ -1337,6 +1358,7 @@ function predictModel(params)
       pop_new.evolve(params, t);
 
     pop_new.report(params, t); //report once daily
+    pop_new.vaccinate(params, t); //remove vaccinated individuals daily
 
     population_hist.push(pop_new); //save solution daily
   }
