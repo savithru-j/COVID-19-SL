@@ -76,6 +76,10 @@
         </div>
 
         <div class="control">
+          <input type="checkbox" id="check_show_legend" onchange="updateLegend()" checked>Show legend</input>
+        </div>
+
+        <div class="control">
           <input type="radio" id="radio_data_cumulative" name="plot_data_freq" value="cumulative" checked onchange="refreshMainChartData()">
           <label for="radio_data_cumulative">Show cumulative cases</label>
         </div>

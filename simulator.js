@@ -76,16 +76,16 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10
-      t_start: [0, 26, 47, 64, 86], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.36], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(5).fill(0), //values of b2N
-      b3N: new Array(5).fill(0),
-      ce: new Array(5).fill(0.176),
-      c0: new Array(5).fill(0.2),
-      c1: new Array(5).fill(0.5),
-      c2: new Array(5).fill(1.0),
-      c3: new Array(5).fill(1.0),
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6
+      t_start: [0, 26, 47, 64, 86, 113], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.44], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(6).fill(0), //values of b2N
+      b3N: new Array(6).fill(0),
+      ce: new Array(6).fill(0.176),
+      c2: new Array(6).fill(1.0),
+      c1: new Array(6).fill(0.5),
+      c0: new Array(6).fill(0.2),
+      c3: new Array(6).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -1005,6 +1005,12 @@ function updateLegend(day = last_active_tooltip_day)
   document.getElementById("legend_true_recovered").innerHTML = true_data[1];
   document.getElementById("legend_true_fatal").innerHTML = true_data[2];
   document.getElementById("legend_true_total").innerHTML = true_data[3];
+
+  if (document.getElementById("check_show_legend").checked)
+    document.getElementById("legend").style.visibility = 'visible';
+  else
+    document.getElementById("legend").style.visibility = 'hidden';
+
 }
 
 function initializeSimulationParameters(hist_length, pred_length)
