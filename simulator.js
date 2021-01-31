@@ -795,8 +795,8 @@ function move_handler(event)
       let yval_new = map(position.y, chart_area.bottom, chart_area.top, yaxis.min, yaxis.max);
 
       if (active_control_parameter == "vaccine_rate") {
-        yval_new = Math.round(yval_new/100)*100; //round to nearest hundred
-        yval_new = Math.min(Math.max(yval_new, 0.0), 20000); //limit to [0,20000]
+        yval_new = Math.round(yval_new/1000)*1000; //round to nearest thousand
+        yval_new = Math.min(Math.max(yval_new, 0.0), 100000); //limit to [0,100000]
       }
       else { //parameters in [0,1] range
         yval_new = Math.round(yval_new*1000)/1000; //round to nearest 0.001
@@ -928,8 +928,8 @@ function refreshControlChartData()
     control_chart.options.scales.yAxes[0].scaleLabel.labelString = param_to_labelstring[active_control_parameter];
     if (active_control_parameter=="vaccine_rate")
     {
-      control_chart.options.scales.yAxes[0].ticks.max = 20000;
-      control_chart.options.plugins.zoom.zoom.rangeMax.y = 20000;
+      control_chart.options.scales.yAxes[0].ticks.max = 100000;
+      control_chart.options.plugins.zoom.zoom.rangeMax.y = 100000;
     }
     else
     {
