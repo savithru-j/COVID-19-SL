@@ -72,6 +72,9 @@ class Population
     const mu = params.mu;
 
     //Only individuals in layer 0 (unreported) contribute to dS
+    let dS_exit_linearized = (params.b1N[t]*(this.E1[0] + this.I0[0] + this.I1[0])
+                            + params.b2N[t]*this.I2[0]
+                            + params.b3N[t]*this.I3[0]);
     let dS = -(b1*(this.E1[0] + this.I0[0] + this.I1[0]) + b2*this.I2[0] + b3*this.I3[0]) * this.S;
     let dE0 = -dS - a0*this.E0;
     let dE1 = [a0*this.E0, 0];
@@ -95,6 +98,7 @@ class Population
 
     //Update states
     const dt = params.dt;
+    dS_exit_linearized *= dt;
     this.S  += dS * dt;
     this.E0 += dE0 * dt;
     for (let d = 0; d < 2; ++d)
@@ -110,6 +114,8 @@ class Population
 
     if (this.E0 < 0.5)
       this.E0 = 0.0;
+
+    return dS_exit_linearized;
   }
 
   report(params, t)

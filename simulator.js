@@ -1151,7 +1151,7 @@ function getR0(params, ind)
     frac_recover_I2: params.frac_recover_I2,            //fraction of cases that recover from severe-infected stage I2
     frac_recover_I3: params.frac_recover_I3,            //fraction of cases that recover from critical-infected stage I3
     population: params.population,                      //population of country
-    E0_0: 1000,                                         //number of non-infectious exposed individuals at start
+    E0_0: 10000,                                         //number of non-infectious exposed individuals at start
     Id_0: 0,                                            //number of infected-diagnosed individuals at start
     Rd_0: 0,                                            //number of recovered-diagnosed individuals at start
     Dd_0: 0,                                            //number of fatal-diagnosed individuals at start
@@ -1159,17 +1159,8 @@ function getR0(params, ind)
   params_R0.S_0 = 0; //susceptible population should be set to zero for R0 calc simulation
   setRateParameters(params_R0);
 
-  let pop_hist_R0 = predictModel(params_R0); //population history
-
-  let dS = 0; //no. of individuals removed from S
-  for (let t = 0; t < T_pred_R0; ++t)
-  {
-    let pop = pop_hist_R0[t];
-    dS += params_R0.b1N[t]*(pop.E1[0] + pop.I0[0] + pop.I1[0])
-        + params_R0.b2N[t]*pop.I2[0]
-        + params_R0.b3N[t]*pop.I3[0];
-  }
-  return dS/1000;
+  let pred_result = predictModel(params_R0);
+  return pred_result.dS_exit/10000;
 }
 
 function updateParameters(force = false)
@@ -1249,7 +1240,7 @@ function getErrorData()
   for (let name of names)
     sim_params[name] = params_orig[name] * f_lower;
 
-  let sol_history_lower = predictModel(sim_params);
+  let sol_history_lower = predictModel(sim_params).pop_hist;
 
   for (let i = 0; i < total_length; ++i)
   {
@@ -1260,7 +1251,7 @@ function getErrorData()
   for (let name of names)
     sim_params[name] = params_orig[name] * f_upper;
 
-  let sol_history_upper = predictModel(sim_params);
+  let sol_history_upper = predictModel(sim_params).pop_hist;
 
   //Restore original parameters
   for (let i = 0; i < total_length; ++i)
@@ -1279,7 +1270,7 @@ function getPredictionData(start_date)
 {
   let T_pred_orig = sim_params.T_pred;
   sim_params.T_pred = 365;
-  let pop_hist_long_horizon = predictModel(sim_params); //population history
+  let pop_hist_long_horizon = predictModel(sim_params).pop_hist; //population history
   sim_params.T_pred = T_pred_orig; //restore original T_pred
 
   //Estimate CFR from long term prediction
@@ -1288,7 +1279,7 @@ function getPredictionData(start_date)
   let num_diag_final = pop_final.getNumActiveDiagnosed() + pop_final.getNumRecoveredDiagnosed() + pop_final.getNumFatalDiagnosed();
   let CFR_estimate = num_fatal_diag_final / num_diag_final;
 
-  let pop_hist = predictModel(sim_params); //population history
+  let pop_hist = predictModel(sim_params).pop_hist; //population history
   let error_data = getErrorData();
 
   let data_agg = [], data_lower = [], data_upper = [];
@@ -1350,12 +1341,13 @@ function predictModel(params)
   const nt = params.T_hist + params.T_pred - 1;
   const nt_sub = 1.0/params.dt;
 
+  let num_exit_S = 0.0;
   for (let t = 0; t < nt; t++)
   {
     let pop_new = population_hist[t].clone();
 
     for (let j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
-      pop_new.evolve(params, t);
+      num_exit_S += pop_new.evolve(params, t);
 
     pop_new.report(params, t); //report once daily
     pop_new.vaccinate(params, t); //remove vaccinated individuals daily
@@ -1363,7 +1355,7 @@ function predictModel(params)
     population_hist.push(pop_new); //save solution daily
   }
 
-  return population_hist;
+  return {pop_hist: population_hist, dS_exit: num_exit_S};
 }
 
 function copyDataArray(vec)
