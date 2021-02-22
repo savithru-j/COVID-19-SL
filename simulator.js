@@ -76,16 +76,16 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6
-      t_start: [0, 26, 47, 64, 86, 113], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(6).fill(0), //values of b2N
-      b3N: new Array(6).fill(0),
-      ce: new Array(6).fill(0.176),
-      c2: new Array(6).fill(1.0),
-      c1: new Array(6).fill(0.5),
-      c0: new Array(6).fill(0.2),
-      c3: new Array(6).fill(1.0),
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1
+      t_start: [0, 26, 47, 64, 86, 113, 139], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(7).fill(0), //values of b2N
+      b3N: new Array(7).fill(0),
+      ce: new Array(7).fill(0.176),
+      c2: new Array(7).fill(1.0),
+      c1: new Array(7).fill(0.5),
+      c0: new Array(7).fill(0.2),
+      c3: new Array(7).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
