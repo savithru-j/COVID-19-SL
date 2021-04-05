@@ -76,16 +76,16 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10
-      t_start: [0, 26, 47, 64, 86, 113, 139, 148], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(8).fill(0), //values of b2N
-      b3N: new Array(8).fill(0),
-      ce: new Array(8).fill(0.176),
-      c2: new Array(8).fill(1.0),
-      c1: new Array(8).fill(0.5),
-      c0: new Array(8).fill(0.2),
-      c3: new Array(8).fill(1.0),
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1
+      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.35], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(9).fill(0), //values of b2N
+      b3N: new Array(9).fill(0),
+      ce: new Array(9).fill(0.176),
+      c2: new Array(9).fill(1.0),
+      c1: new Array(9).fill(0.5),
+      c0: new Array(9).fill(0.2),
+      c3: new Array(9).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -217,7 +217,7 @@ function updateCountryData()
 
   data_predicted = getPredictionData(data_real.total[0].t);
   document.getElementById("prediction_error").innerHTML = getCurrentPredictionError().toFixed(3);
-  document.getElementById("R0_value").innerHTML = getR0(sim_params, 0).toFixed(2);
+  document.getElementById("R_value").innerHTML = getReff(sim_params, 0).toFixed(3);
   document.getElementById("estimated_CFR").innerHTML = (data_predicted.CFR*100).toFixed(2);
 
   if (main_chart)
@@ -556,7 +556,7 @@ function setupChart()
           callbacks: {
                 label: function(tooltipItem, data) {
                     updateLegend(tooltipItem.index);
-                    document.getElementById("R0_value").innerHTML = getR0(sim_params, tooltipItem.index).toFixed(2);
+                    document.getElementById("R_value").innerHTML = getReff(sim_params, tooltipItem.index).toFixed(3);
 
                     if (tooltipItem.datasetIndex >= 7)
                       return (data.datasets[tooltipItem.datasetIndex].label +
@@ -712,7 +712,7 @@ function setupControlChart()
             if (el[0])
             {
               control_chart_canvas.style.cursor = "pointer";
-              document.getElementById("R0_value").innerHTML = getR0(sim_params, el[0]._index).toFixed(2);
+              document.getElementById("R_value").innerHTML = getReff(sim_params, el[0]._index).toFixed(3);
             }
             else {
               control_chart_canvas.style.cursor = "default";
@@ -1113,8 +1113,8 @@ function setRateParameters(params)
   params.mu  = (1/params.T_icu)    * prob_I3_D;
 }
 
-//Computes the basic reproduction number (R0) from the model parameters
-function getR0(params, ind)
+//Computes the effective reproduction number (R) from the model parameters
+function getReff(params, ind)
 {
   // let b1N = params.b1N[ind];
   // let b2N = params.b2N[ind];
@@ -1123,23 +1123,23 @@ function getR0(params, ind)
   // let tmp = b1N + params.p1*(b2N + b3N*params.p2/(params.mu + params.g3)) / (params.p2 + params.g2);
   // return (b1N/a1 + b1N*params.f/params.g0 + (1-params.f)/(params.p1 + params.g1)*tmp);
 
-  let T_pred_R0 = 60;
+  let T_pred_Reff = 60;
 
-  let params_R0 = {
+  let params_Reff = {
     T_hist: 0,
-    T_pred: T_pred_R0,
+    T_pred: T_pred_Reff,
     dt: 1.0/24.0,                                       //timestep size [days]
     param_error: params.param_error,                    //assumed error in rate parameters
-    b1N: new Array(T_pred_R0).fill(params.b1N[ind]),    //transmission rate from mild to susceptible
-    b2N: new Array(T_pred_R0).fill(params.b2N[ind]),    //transmission rate from severe to susceptible
-    b3N: new Array(T_pred_R0).fill(params.b3N[ind]),    //transmission rate from critical to susceptible
-    quarantine_input: new Array(T_pred_R0).fill(0.0),   //no. of patients added directly to quarantine
-    ce: new Array(T_pred_R0).fill(params.ce[ind]),      //fraction of exposed patients diagnosed daily
-    c0: new Array(T_pred_R0).fill(params.c0[ind]),      //fraction of asymptomatic patients diagnosed daily
-    c1: new Array(T_pred_R0).fill(params.c1[ind]),      //fraction of mild patients diagnosed daily
-    c2: new Array(T_pred_R0).fill(params.c2[ind]),      //fraction of severe patients diagnosed daily
-    c3: new Array(T_pred_R0).fill(params.c3[ind]),      //fraction of critical patients diagnosed daily
-    vaccine_rate: new Array(T_pred_R0).fill(0.0),       //no. of individuals vaccinated per day
+    b1N: new Array(T_pred_Reff).fill(params.b1N[ind]),  //transmission rate from mild to susceptible
+    b2N: new Array(T_pred_Reff).fill(params.b2N[ind]),  //transmission rate from severe to susceptible
+    b3N: new Array(T_pred_Reff).fill(params.b3N[ind]),  //transmission rate from critical to susceptible
+    quarantine_input: new Array(T_pred_Reff).fill(0.0), //no. of patients added directly to quarantine
+    ce: new Array(T_pred_Reff).fill(params.ce[ind]),    //fraction of exposed patients diagnosed daily
+    c0: new Array(T_pred_Reff).fill(params.c0[ind]),    //fraction of asymptomatic patients diagnosed daily
+    c1: new Array(T_pred_Reff).fill(params.c1[ind]),    //fraction of mild patients diagnosed daily
+    c2: new Array(T_pred_Reff).fill(params.c2[ind]),    //fraction of severe patients diagnosed daily
+    c3: new Array(T_pred_Reff).fill(params.c3[ind]),    //fraction of critical patients diagnosed daily
+    vaccine_rate: new Array(T_pred_Reff).fill(0.0),     //no. of individuals vaccinated per day
     T_incub0: params.T_incub0,                          //periods [days]
     T_incub1: params.T_incub1,
     T_asympt: params.T_asympt,
@@ -1156,10 +1156,11 @@ function getR0(params, ind)
     Rd_0: 0,                                            //number of recovered-diagnosed individuals at start
     Dd_0: 0,                                            //number of fatal-diagnosed individuals at start
   }
-  params_R0.S_0 = 0; //susceptible population should be set to zero for R0 calc simulation
-  setRateParameters(params_R0);
+  params_Reff.S_0 = 0; //susceptible population should be set to zero for R-eff calc simulation
+  params_Reff.S_Reff = data_predicted.S_hist[ind]; //Susceptible value used for R-eff calc should come from the original simulation
+  setRateParameters(params_Reff);
 
-  let pred_result = predictModel(params_R0);
+  let pred_result = predictModel(params_Reff);
   return pred_result.dS_exit/10000;
 }
 
@@ -1290,6 +1291,7 @@ function getPredictionData(start_date)
     data_cat_diag[i] = new Array();
     data_cat_sum[i] = new Array();
   }
+  let data_susceptible = [];
 
   // const report_sum_indices = [4, 6, 7, 8, 9, 11]; //I1d + I1q + I2 + I3 + Rd + D
 
@@ -1314,6 +1316,8 @@ function getPredictionData(start_date)
     data_cat_sum[5].push({t: date, y: pop_hist[i].getNumSevere()}); //severe: I2u + I2d
     data_cat_sum[6].push({t: date, y: pop_hist[i].getNumCritical()}); //critical: I3u + I3d
 
+    data_susceptible.push(pop_hist[i].S);
+
     let num_diag = pop_hist[i].getNumDiagnosed();
     let num_diag_lower = error_data.lower[i].getNumDiagnosed();
     let num_diag_upper = error_data.upper[i].getNumDiagnosed();
@@ -1323,7 +1327,8 @@ function getPredictionData(start_date)
     data_upper.push({t: date, y: Math.max(num_diag, num_diag_lower, num_diag_upper)});
   }
 
-  return {total: data_agg, cat_diag: data_cat_diag, cat_sum: data_cat_sum, lower: data_lower, upper: data_upper, CFR: CFR_estimate};
+  return {total: data_agg, cat_diag: data_cat_diag, cat_sum: data_cat_sum,
+          lower: data_lower, upper: data_upper, CFR: CFR_estimate, S_hist: data_susceptible};
 }
 
 function predictModel(params)

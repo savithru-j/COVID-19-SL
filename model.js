@@ -35,6 +35,7 @@ class Population
     return p;
   }
 
+
   getNumExposed() { return Math.round(this.E0) + Math.round(this.E1[0]) + Math.round(this.E1[1]); }
   getNumAsymptomatic() { return Math.round(this.I0[0]) + Math.round(this.I0[1]); }
   getNumMild() { return Math.round(this.I1[0]) + Math.round(this.I1[1]); }
@@ -72,9 +73,7 @@ class Population
     const mu = params.mu;
 
     //Only individuals in layer 0 (unreported) contribute to dS
-    let dS_exit_linearized = (params.b1N[t]*(this.E1[0] + this.I0[0] + this.I1[0])
-                            + params.b2N[t]*this.I2[0]
-                            + params.b3N[t]*this.I3[0]);
+    let dS_exit_linearized = (b1*(this.E1[0] + this.I0[0] + this.I1[0]) + b2*this.I2[0] + b3*this.I3[0]) * params.S_Reff;
     let dS = -(b1*(this.E1[0] + this.I0[0] + this.I1[0]) + b2*this.I2[0] + b3*this.I3[0]) * this.S;
     let dE0 = -dS - a0*this.E0;
     let dE1 = [a0*this.E0, 0];
