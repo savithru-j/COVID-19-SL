@@ -37,7 +37,7 @@ struct OptimizerFull
   int max_iter_per_pass = 1000;
   int max_passes = 1;
 
-  const int t_buffer = 0; //no. of non-optimized days at end
+  const int t_buffer = 7; //no. of non-optimized days at end
   const int nt_opt; //number of days to optimize parameters for
 
   double cost_reduction_tol = 1e-4;

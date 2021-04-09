@@ -267,8 +267,7 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
   bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
   bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
   bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
-  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
-  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //IFR
 #endif
   return bounds;
 }
@@ -320,8 +319,7 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
   v[off+6] = params.f;
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
-  v[off+9] = params.CFR;
-  v[off+10] = params.T_discharge;
+  v[off+9] = params.IFR;
 #endif
 }
 
@@ -387,8 +385,7 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
   params.f               = v[off+6];
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
-  params.CFR             = v[off+9];
-  params.T_discharge     = v[off+10];
+  params.IFR             = v[off+9];
 #endif
 }
 

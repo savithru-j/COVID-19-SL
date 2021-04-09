@@ -107,7 +107,7 @@ main(int argc, char *argv[])
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
-    param_vecs_full[i].resize(5*params.nt_hist + 11);
+    param_vecs_full[i].resize(5*params.nt_hist + 10);
     copyParam2FullVector(params, param_vecs_full[i]);
   }
 

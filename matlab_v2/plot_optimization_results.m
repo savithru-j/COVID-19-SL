@@ -4,8 +4,8 @@ close all
 
 
 num_threads = 1;
-trueCan = true;
-data = readOptData('synthetic_SIR1',1:num_threads,trueCan);
+trueCan = false;
+data = readOptData('srilanka',1:num_threads,trueCan);
 
 % load tempcosts
 [sortedCost inds_selected] = sort(data.cost);

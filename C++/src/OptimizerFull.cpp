@@ -12,8 +12,8 @@ OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Popu
     pop_observed(pop_observed_), pop_init(pop_init_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal), weight_reg(wreg),
     max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
-    nt_opt(pop_observed.getNumDays() - t_buffer),
-    params(nt_opt, t_buffer, quarantine_input),
+    nt_opt(pop_observed.getNumDays() + t_buffer),
+    params(pop_observed.getNumDays(), t_buffer, quarantine_input),
     rand_engine(seed), uniform_rand(0,1)
 {
   if (pop_observed.N != pop_init.N)
@@ -302,37 +302,37 @@ OptimizerFull::getCost()
     for (int i = 0; i < reg_matrix.m(); ++i)
     {
       double coeff_betaN = 0.0;
-      double coeff_c0 = 0.0;
-      double coeff_c1 = 0.0;
-      double coeff_c2 = 0.0;
-      double coeff_c3 = 0.0;
+//      double coeff_c0 = 0.0;
+//      double coeff_c1 = 0.0;
+//      double coeff_c2 = 0.0;
+//      double coeff_c3 = 0.0;
 
       for (int j = 0; j < reg_matrix.n(); ++j)
       {
         if (j < params.betaN.m())
         {
           coeff_betaN += reg_matrix(i,j) * params.betaN(j);
-          coeff_c0 += reg_matrix(i,j) * params.c0(j);
-          coeff_c1 += reg_matrix(i,j) * params.c1(j);
-          coeff_c2 += reg_matrix(i,j) * params.c2(j);
-          coeff_c3 += reg_matrix(i,j) * params.c3(j);
+//          coeff_c0 += reg_matrix(i,j) * params.c0(j);
+//          coeff_c1 += reg_matrix(i,j) * params.c1(j);
+//          coeff_c2 += reg_matrix(i,j) * params.c2(j);
+//          coeff_c3 += reg_matrix(i,j) * params.c3(j);
         }
         else
         {
           coeff_betaN += reg_matrix(i,j) * params.betaN.back();
-          coeff_c0 += reg_matrix(i,j) * params.c0.back();
-          coeff_c1 += reg_matrix(i,j) * params.c1.back();
-          coeff_c2 += reg_matrix(i,j) * params.c2.back();
-          coeff_c3 += reg_matrix(i,j) * params.c3.back();
+//          coeff_c0 += reg_matrix(i,j) * params.c0.back();
+//          coeff_c1 += reg_matrix(i,j) * params.c1.back();
+//          coeff_c2 += reg_matrix(i,j) * params.c2.back();
+//          coeff_c3 += reg_matrix(i,j) * params.c3.back();
         }
       }
 
       //Take L1-norms of coefficient vectors
       sub_costs[1] += std::abs(coeff_betaN);
-      sub_costs[2] += std::abs(coeff_c0);
-      sub_costs[3] += std::abs(coeff_c1);
-      sub_costs[4] += std::abs(coeff_c2);
-      sub_costs[5] += std::abs(coeff_c3);
+//      sub_costs[2] += std::abs(coeff_c0);
+//      sub_costs[3] += std::abs(coeff_c1);
+//      sub_costs[4] += std::abs(coeff_c2);
+//      sub_costs[5] += std::abs(coeff_c3);
     }
 
     for (int i = 1; i < 6; ++i)
@@ -423,16 +423,17 @@ OptimizerFull::limitUpdate(Vector& dparam_vec)
 void
 OptimizerFull::copyParam2Vector(const ModelParams& params, Vector& v)
 {
-  const int nt = params.nt_hist;
-  const int m = 2*nt;
+  const int nt = params.nt_hist + params.nt_pred;
+  const int m = nt + 2;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
   for (int i = 0; i < nt; ++i)
-  {
-    v[     i] = params.betaN[i];
-    v[nt + i] = params.c1[i];
-  }
+    v[i] = params.betaN[i];
+
+  v[nt  ] = params.ce[0];
+  v[nt+1] = params.c1[0];
+
 //  const int off = 5*nt;
 //  v[off  ] = params.T_incub0;
 //  v[off+1] = params.T_incub1;
@@ -443,31 +444,32 @@ OptimizerFull::copyParam2Vector(const ModelParams& params, Vector& v)
 //  v[off+6] = params.f;
 //  v[off+7] = params.frac_recover_I1;
 //  v[off+8] = params.frac_recover_I2;
-//  v[off+9] = params.CFR;
-//  v[off+10] = params.T_discharge;
+//  v[off+9] = params.IFR;
 }
 
 void
 OptimizerFull::copyVector2Param(const Vector& v, ModelParams& params)
 {
-  const int nt = params.nt_hist;
-  const int m = 2*nt;
+  const int nt = params.nt_hist + params.nt_pred;
+  const int m = nt + 2;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
   for (int i = 0; i < nt; ++i)
   {
-    params.betaN[i] = v[     i];
-    params.c1[i]    = v[nt + i];
+    params.betaN[i] = v[i ];
+    params.ce[i]    = v[nt];
+    params.c0[i]    = v[nt];
+    params.c1[i]    = v[nt+1];
   }
 
-  const int N = params.nt_hist + params.nt_pred;
-  for (int i = nt; i < N; ++i) //Copy last "history" value to prediction section
-  {
-    params.betaN[i] = params.betaN[nt-1];
-    params.c1[i]    = params.c1[nt-1];
-  }
-
+//  const int N = params.nt_hist + params.nt_pred;
+//  for (int i = nt; i < N; ++i) //Copy last "history" value to prediction section
+//  {
+//    params.betaN[i] = params.betaN[nt-1];
+//    params.c1[i]    = params.c1[nt-1];
+//  }
+//
 //  const int off = 5*nt;
 //  params.T_incub0        = v[off  ];
 //  params.T_incub1        = v[off+1];
@@ -478,23 +480,23 @@ OptimizerFull::copyVector2Param(const Vector& v, ModelParams& params)
 //  params.f               = v[off+6];
 //  params.frac_recover_I1 = v[off+7];
 //  params.frac_recover_I2 = v[off+8];
-//  params.CFR             = v[off+9];
-//  params.T_discharge     = v[off+10];
+//  params.IFR             = v[off+9];
 }
 
 std::vector<ParamBound>
 OptimizerFull::getParameterBounds(int nt)
 {
-  const int m = 2*nt;
+  const int m = nt + 2;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
 
   for (int i = 0; i < nt; ++i)
-  {
-    bounds[     i] = ParamBound(0, 2, delta); //betaN
-    bounds[nt + i] = ParamBound(0, 1, delta); //c1
-  }
+    bounds[i] = ParamBound(0, 2, delta); //betaN
+
+  bounds[nt  ] = ParamBound(0, 1, delta); //ce = c0
+  bounds[nt+1] = ParamBound(0, 1, delta); //c1
+
 //  const int off = 5*nt;
 //  bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
 //  bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
@@ -505,7 +507,6 @@ OptimizerFull::getParameterBounds(int nt)
 //  bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
 //  bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
 //  bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
-//  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
-//  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+//  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //IFR
   return bounds;
 }

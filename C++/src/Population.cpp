@@ -15,8 +15,8 @@ Population::evolve(const ModelParams& params, int t)
   const double prob_I1_I2 = 1 - prob_I1_R;          //mild to severe  //0.2
   const double prob_I2_R  = params.frac_recover_I2; //severe to recovered  //0.75
   const double prob_I2_I3 = 1 - prob_I2_R;          //severe to critical //0.25
-  const double prob_I3_D  = (prob_I1_I2 == 0 || prob_I2_I3 == 0) ?
-                            0.0 : std::min(params.CFR/(prob_I1_I2*prob_I2_I3), 1.0); //critical to dead //0.40
+  const double prob_I3_D  = (prob_E1_I1 == 0 || prob_I1_I2 == 0 || prob_I2_I3 == 0) ?
+                            0.0 : std::min(params.IFR/(prob_E1_I1*prob_I1_I2*prob_I2_I3), 1.0); //critical to dead //0.40
   const double prob_I3_R  = 1 - prob_I3_D;          //critical to recovered //0.6
 
   //set rate parameters [1/day]
@@ -30,22 +30,21 @@ Population::evolve(const ModelParams& params, int t)
   const double p2  = (1/params.T_severe) * prob_I2_I3;
   const double g3  = (1/params.T_icu)    * prob_I3_R;
   const double mu  = (1/params.T_icu)    * prob_I3_D;
-  const double gd =  (1/params.T_discharge);
 
   double a1 = a10 + a11;
   double b = params.betaN[t] / N;
 
   //Only individuals in layer 0 (unreported) contribute to dS
-  double dS = -b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * S;
+  double dS      = -b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * S;
+  double dS_exit =  b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * params.S_Reff;
   double dE0 = -dS - a0*E0;
   Array2 dE1 = {a0*E0, 0};
   Array2 dI0 = {0, 0};
   Array2 dI1 = {0, params.quarantine_input[t]};
   Array2 dI2 = {0, 0};
   Array2 dI3 = {0, 0};
-  Array2 dR  = {0, -gd*R[1]};
+  Array2 dR  = {0, 0};
   Array2 dD  = {0, 0};
-  double dRd = gd*R[1];
 
   for (int d = 0; d < 2; ++d) //loop over layers
   {
@@ -60,6 +59,7 @@ Population::evolve(const ModelParams& params, int t)
 
   //Update states
   S  +=  dS * params.dt;
+  dS_exit_Reff += dS_exit * params.dt;
   E0 += dE0 * params.dt;
   for (int d = 0; d < 2; ++d)
   {
@@ -71,7 +71,6 @@ Population::evolve(const ModelParams& params, int t)
     R[d]  +=  dR[d] * params.dt;
     D[d]  +=  dD[d] * params.dt;
   }
-  Rd += dRd * params.dt;
 
   if (E0 < 0.5)
     E0 = 0.0;

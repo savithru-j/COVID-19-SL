@@ -443,7 +443,7 @@ OptimizerGlobalBasis::updateOptimalSolution(
 std::vector<ParamBound>
 OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
 {
-  const int m = 4*nbasis + 11;
+  const int m = 4*nbasis + 10;
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
@@ -477,8 +477,7 @@ OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
   bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
   bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
   bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
-  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //CFR
-  bounds[off+10] = ParamBound(14.0, 14.0, delta); //T_discharge
+  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //IFR
 #else
   bounds[off  ] = ParamBound(1.0, 10.0, delta); //T_incub0
   bounds[off+1] = ParamBound(1.0, 10.0, delta); //T_incub1
@@ -489,8 +488,7 @@ OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
   bounds[off+6] = ParamBound(0.1, 0.9, delta); //f
   bounds[off+7] = ParamBound(0.1, 0.9, delta); //frac_recover_I1
   bounds[off+8] = ParamBound(0.1, 0.9, delta); //frac_recover_I2
-  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //CFR
-  bounds[off+10] = ParamBound(1.0, 28.0, delta); //T_discharge
+  bounds[off+9] = ParamBound(0, 0.02, 0.1*delta); //IFR
 #endif
   return bounds;
 }
@@ -498,7 +496,7 @@ OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
 void
 OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
 {
-  const int m = 4*num_basis + 11;
+  const int m = 4*num_basis + 10;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
@@ -525,15 +523,14 @@ OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
   v[off+6] = params.f;
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
-  v[off+9] = params.CFR;
-  v[off+10] = params.T_discharge;
+  v[off+9] = params.IFR;
 }
 
 void
 OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
 {
   const int nt = params.nt_hist;
-  const int m = 4*num_basis + 11;
+  const int m = 4*num_basis + 10;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
@@ -600,8 +597,7 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
   params.f               = v[off+6];
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
-  params.CFR             = v[off+9];
-  params.T_discharge     = v[off+10];
+  params.IFR             = v[off+9];
 }
 
 void

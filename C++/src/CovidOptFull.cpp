@@ -100,11 +100,11 @@ main(int argc, char *argv[])
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams params(nt_hist - opt.t_buffer, opt.t_buffer);
+    ModelParams params(nt_hist, opt.t_buffer);
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
-    param_vecs_full[i].resize(5*params.nt_hist + 11);
+    param_vecs_full[i].resize(5*(params.nt_hist + opt.t_buffer) + 10);
     copyParam2FullVector(params, param_vecs_full[i]);
   }
 

@@ -20,9 +20,9 @@ public:
   void evolve(const ModelParams& params, int t);
   void report(const ModelParams& params, int t);
 
-  inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1] + Rd + D[1]; }
+  inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1] + D[1]; }
   inline double getNumActiveReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1]; }
-  inline double getNumRecoveredReported() const { return Rd; }
+  inline double getNumRecoveredReported() const { return R[1]; }
   inline double getNumFatalReported() const { return D[1]; }
 
   inline double getNumInfectedUnreported() const { return I0[0] + I1[0] + I2[0] + I3[0]; }
@@ -39,7 +39,7 @@ public:
   Array2 I3;
   Array2 R;
   Array2 D;
-  double Rd = 0; //discharged after recovery
+  double dS_exit_Reff = 0;
 };
 
 std::ostream& operator<<(std::ostream& os, const Population& pop);

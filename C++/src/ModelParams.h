@@ -11,7 +11,7 @@ struct ModelParams
     : nt_hist(nt_hist_), nt_pred(nt_pred_)
   {
     const int nt = nt_hist + nt_pred;
-    quarantine_input.resize(nt);
+    quarantine_input.resize(nt, 0);
     betaN.resize(nt);
     ce.resize(nt);
     c0.resize(nt);
@@ -48,11 +48,11 @@ struct ModelParams
   double T_mild          = 6.0;
   double T_severe        = 4.0;
   double T_icu           = 10.0;
-  double T_discharge     = 14.0;
   double f               = 0.3;   //exposed to asymptomatic probability
   double frac_recover_I1 = 0.80;  //fraction of cases that recover from mild-infected stage I1
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
-  double CFR             = 0.02;  //case fatality rate
+  double IFR             = 0.02;  //infection fatality ratio
+  double S_Reff          = 0.0;   //susceptible population at a given time - only used for R-effective calc
 };
 
 void copyParam2FullVector(const ModelParams& params, Vector& v);
