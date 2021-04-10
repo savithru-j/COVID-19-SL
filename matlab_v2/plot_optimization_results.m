@@ -3,15 +3,18 @@ clc
 close all
 
 
-num_threads = 1;
+num_threads = 8;
 trueCan = false;
 data = readOptData('srilanka',1:num_threads,trueCan);
 
 % load tempcosts
 [sortedCost inds_selected] = sort(data.cost);
-figure(1);plot(sortedCost)
+figure(1);
+plot(sortedCost)
+xlabel('Realization');
+ylabel('Cost');
 
-max_sel = min(3, length(sortedCost));
+max_sel = min(24, length(sortedCost));
 inds_selected = inds_selected(1:max_sel);
 sortedCost    = sortedCost(1:max_sel);
 
@@ -33,16 +36,27 @@ data.c3 = data.c3(:,inds_selected);
 data.last = data.last(:,inds_selected);
 
 plot_log = false;
+plot_cumulative = true;
 
 figure(2)
 subplot(2,3,1)
 hold off
 if (plot_log)
-    semilogy(data.obs_conf, 'k--'); hold on
-    semilogy(data.pred_conf, '-');
+    if (plot_cumulative)
+        semilogy(data.obs_conf, 'k--'); hold on
+        semilogy(data.pred_conf, '-');
+    else
+        semilogy(diff(data.obs_conf), 'k--'); hold on
+        semilogy(diff(data.pred_conf), '-');
+    end
 else
-    plot(data.obs_conf, 'k--'); hold on
-    plot(data.pred_conf, '-');
+    if (plot_cumulative)
+        plot(data.obs_conf, 'k--'); hold on
+        plot(data.pred_conf, '-');
+    else
+        plot(diff(data.obs_conf), 'k--'); hold on
+        plot(diff(data.pred_conf), '-');
+    end
 end
 xlabel('Day')
 ylabel('No. of confirmed cases')
@@ -158,7 +172,7 @@ function data = readOptData(country, seed_range, trueCan)
 if trueCan
   true_params_file = sprintf('csv_data/%s_params.txt', country);
   data_true_params = importdata(true_params_file);
-  nt = (size(data_true_params,1) - 11) / 5;
+  nt = (size(data_true_params,1) - 10) / 5;
   data.beta_true = data_true_params(1:nt, :);
   data.c0_true = data_true_params((  nt+1):2*nt, :);
   data.c1_true = data_true_params((2*nt+1):3*nt, :);
@@ -195,7 +209,7 @@ data.pred_inf_unreported = data_pred(:,4:6:end);
 data.pred_recov_unreported = data_pred(:,5:6:end);
 data.pred_fatal_unreported = data_pred(:,6:6:end);
 
-nt = (size(data_params,1) - 11 -1) / 5
+nt = (size(data_params,1) - 10 - 1) / 5
 data.beta = data_params(1:nt, :);
 data.c0 = data_params((  nt+1):2*nt, :);
 data.c1 = data_params((2*nt+1):3*nt, :);

@@ -9,7 +9,7 @@
 
 struct OptimizerFull
 {
-  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
+//  static constexpr int NUM_RESULTS = 40;
 
   OptimizerFull(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                 const Vector& quarantine_input,
@@ -52,9 +52,10 @@ struct OptimizerFull
   int f_eval_count = 0;
   int nlopt_iter = 0;
 
-  std::array<Vector,NUM_RESULTS> optimal_param_vec;
-  std::array<double,NUM_RESULTS> cost_min;
-  std::array<std::array<double,6>,NUM_RESULTS> sub_costs_min;
+  int num_results; //no. of optimal results to store (best to worst)
+  std::vector<Vector> optimal_param_vec;
+  std::vector<double> cost_min;
+  std::vector<std::array<double,6>> sub_costs_min;
 
   std::mt19937 rand_engine; //Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<double> uniform_rand;

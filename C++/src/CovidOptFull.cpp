@@ -95,8 +95,8 @@ main(int argc, char *argv[])
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
   const int nt_hist = pop_observed.getNumDays();
-  std::array<std::vector<Population>, OptimizerFull::NUM_RESULTS> predictions;
-  std::array<Vector, OptimizerFull::NUM_RESULTS> param_vecs_full;
+  std::vector<std::vector<Population>> predictions(opt.num_results);
+  std::vector<Vector> param_vecs_full(opt.num_results);
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
@@ -107,7 +107,6 @@ main(int argc, char *argv[])
     param_vecs_full[i].resize(5*(params.nt_hist + opt.t_buffer) + 10);
     copyParam2FullVector(params, param_vecs_full[i]);
   }
-
   file_opt_params << std::scientific << std::setprecision(6);
   for (int i = 0; i < param_vecs_full[0].m(); ++i)
   {
