@@ -76,9 +76,9 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 3
-      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 200], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.35, 0.45], //values of b1N for each intervention segment defined in t_start
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5
+      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.35, 0.52], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(10).fill(0), //values of b2N
       b3N: new Array(10).fill(0),
       ce: new Array(10).fill(0.176),
@@ -93,7 +93,7 @@ var custom_country_data = {
 
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
-  T_pred: 30,   //prediction length
+  T_pred: 15,   //prediction length
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value
