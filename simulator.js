@@ -57,7 +57,10 @@ var quarantine_data = {
 }
 
 var data_start_dates = {
-    "Sri Lanka": ["2020-09-15", "2020-03-01"]
+    "Sri Lanka"             : ["2020-09-15", "2020-03-01"],
+    "Sri Lanka - Colombo"   : ["2020-09-15"],
+    "Sri Lanka - Gampaha"   : ["2020-09-15"],
+    "Sri Lanka - Kurunegala": ["2020-09-15"],
 };
 
 var custom_country_data = {
@@ -151,6 +154,7 @@ var linear_ticks = {
 
 window.onload = function()
 {
+  readDistrictData();
   generateCountryDropDown();
   changeCountry(active_country);
 
@@ -164,6 +168,44 @@ window.onload = function()
   document.getElementById("slider_param_error").value = default_controls.param_error * 100;
   document.getElementById("slider_param_error_value").innerHTML = (default_controls.param_error * 100).toFixed(1);
 
+}
+
+//Function for merging district-level data to the global dataset.
+function readDistrictData()
+{
+  let district_names = ["Colombo", "Gampaha", "Kurunegala"];
+  for (const name of district_names)
+  {
+    const data_vec = SL_district_data[name];
+    let obj_vec = [];
+
+
+    const T_avg = 30;
+    const num_days = moment(data_vec[T_avg].x, date_format).diff(data_vec[0].x, 'days');
+    let avg_rate = (data_vec[T_avg].y - data_vec[0].y) / num_days;
+    const num_days_to_zero = Math.round(data_vec[0].y / avg_rate);
+
+    //Linearly extrapolate data to the zero-case date.
+    const start_date = moment(data_vec[0].x, date_format).subtract(num_days_to_zero, 'days');
+    for (let i = 0; i < num_days_to_zero; ++i)
+    {
+      obj_vec.push({"date": start_date.clone().add(i, 'days').format(date_format),
+                    "confirmed": Math.round(avg_rate*i),
+                    "deaths": 0,
+                    "recovered": 0});
+    }
+
+    //Append actual reported data
+    for (const data of data_vec)
+    {
+      obj_vec.push({"date": data.x,
+                    "confirmed": data.y,
+                    "deaths": 0,
+                    "recovered": 0});
+    }
+
+    world_data["Sri Lanka - " + name] = obj_vec;
+  }
 }
 
 function generateCountryDropDown()
