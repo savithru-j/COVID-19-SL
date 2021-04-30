@@ -60,7 +60,7 @@ var data_start_dates = {
     "Sri Lanka"             : ["2020-09-15", "2020-03-01"],
     "Sri Lanka - Colombo"   : ["2020-09-15"],
     "Sri Lanka - Gampaha"   : ["2020-09-15"],
-    "Sri Lanka - Kurunegala": ["2020-09-15"],
+    "Sri Lanka - Kurunegala": ["2020-10-09"],
 };
 
 var custom_country_data = {
@@ -85,10 +85,24 @@ var custom_country_data = {
       b2N: new Array(10).fill(0), //values of b2N
       b3N: new Array(10).fill(0),
       ce: new Array(10).fill(0.176),
-      c2: new Array(10).fill(1.0),
-      c1: new Array(10).fill(0.5),
       c0: new Array(10).fill(0.2),
+      c1: new Array(10).fill(0.5),
+      c2: new Array(10).fill(1.0),
       c3: new Array(10).fill(1.0),
+      E0_0: 5, //no. of individuals exposed at start
+      // Rd_0: 1, //no. of recovered-diagnosed individuals at start
+  },
+  "Sri Lanka - Kurunegala-2020-10-09" : {
+           //Oct9, Oct20, Nov20, Jan22,  Feb5, Feb19,  Apr1, Apr22
+      t_start: [0,    11,    42,   105,   119,   133,   174,   195], //indices to start dates of any interventions
+      b1N: [0.802, 0.233, 0.244, 0.335, 0.156, 0.156, 0.482, 0.280], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(8).fill(0), //values of b2N
+      b3N: new Array(8).fill(0),
+      ce: new Array(8).fill(0.0),
+      c0: new Array(8).fill(0.0),
+      c1: new Array(8).fill(0.5),
+      c2: new Array(8).fill(1.0),
+      c3: new Array(8).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   }
@@ -174,6 +188,10 @@ window.onload = function()
 function readDistrictData()
 {
   let district_names = ["Colombo", "Gampaha", "Kurunegala"];
+  world_population["Sri Lanka - Colombo"] = 2.31E6;
+  world_population["Sri Lanka - Gampaha"] = 2.295E6;
+  world_population["Sri Lanka - Kurunegala"] = 1.61E6;
+
   for (const name of district_names)
   {
     const data_vec = SL_district_data[name];
@@ -340,8 +358,8 @@ function customizeParametersByCountry(country_name, params)
   let country_name_with_start_date = country_name;
 
   let start_date = document.getElementById("dropdown_startdate").value;
-  if (country_name == "Sri Lanka" && start_date)
-    country_name_with_start_date += "-" + start_date;
+  //if (country_name == "Sri Lanka" && start_date)
+  country_name_with_start_date += "-" + start_date;
 
   let data = custom_country_data[country_name_with_start_date];
   if (data)
