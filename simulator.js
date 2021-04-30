@@ -110,7 +110,7 @@ var custom_country_data = {
 
 //The control parameters will be set to these default values when the user first loads the page.
 var default_controls = {
-  T_pred: 15,   //prediction length
+  T_pred: 21,   //prediction length
   b1N: 0.0,     //beta_1 value
   b2N: 0.0,     //beta_2 value
   b3N: 0.0,     //beta_3 value

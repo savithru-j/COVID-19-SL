@@ -110,11 +110,6 @@
             <div class="small" style="padding-top:5px;">Case fatality ratio (CFR): <span id="estimated_CFR"></span>%</div>
         </div>
 
-        <div class="control full">
-            <input class"control" type="range" style="width: 90%;" id="slider_param_error" onmousemove="updateParameters()" min=0 max=20 step=0.5></input>
-            <div class="small">Uncertainty in parameters: <span id="slider_param_error_value"></span>%</div>
-        </div>
-
       </div>
       <div class="column" style="width:80%;">
 
@@ -184,8 +179,7 @@
 
     <div class="clearfix">
       <div class="column" id="chart_controls" style="width:20%;">
-
-        <div>
+        <div class="control full">
             <div>Select a parameter to edit on graph:</div>
             <select id="dropdown_parameter" class="small" style="min-height:30px; margin-top:5px;" onchange="changeControlChartParameter(this.value)">
               <option value="b1N">Transmission rate $$\beta$$₁</option>
@@ -202,6 +196,11 @@
             <!-- <button type="button" class="control small" id="btn_optimize" onclick="optimizeParameters()">Optimize parameters to data</button> -->
 
             <button type="button" class="control small" id="btn_reset_params" onclick="resetParameters()">Reset parameters</button>
+        </div>
+
+        <div class="control full">
+            <input class"control" type="range" style="width: 90%;" id="slider_param_error" onmousemove="updateParameters()" min=0 max=20 step=0.5></input>
+            <div class="small">Uncertainty in parameters: <span id="slider_param_error_value"></span>%</div>
         </div>
 
       </div>
