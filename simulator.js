@@ -58,9 +58,9 @@ var quarantine_data = {
 
 var data_start_dates = {
     "Sri Lanka"             : ["2020-09-15", "2020-03-01"],
-    "Sri Lanka - Colombo"   : ["2020-09-15"],
-    "Sri Lanka - Gampaha"   : ["2020-09-15"],
-    "Sri Lanka - Kurunegala": ["2020-10-09"],
+    "Sri Lanka - Colombo"   : ["2020-10-22"],
+    "Sri Lanka - Gampaha"   : ["2020-09-05"],
+    "Sri Lanka - Kurunegala": ["2020-10-02"],
 };
 
 var custom_country_data = {
@@ -81,7 +81,7 @@ var custom_country_data = {
   "Sri Lanka-2020-09-15" : {
               //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5
       t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.35, 0.52], //values of b1N for each intervention segment defined in t_start
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.56], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(10).fill(0), //values of b2N
       b3N: new Array(10).fill(0),
       ce: new Array(10).fill(0.176),
@@ -92,10 +92,10 @@ var custom_country_data = {
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
-  "Sri Lanka - Kurunegala-2020-10-09" : {
-           //Oct9, Oct20, Nov20, Jan22,  Feb5, Feb19,  Apr1, Apr22
-      t_start: [0,    11,    42,   105,   119,   133,   174,   195], //indices to start dates of any interventions
-      b1N: [0.802, 0.233, 0.244, 0.335, 0.156, 0.156, 0.482, 0.280], //values of b1N for each intervention segment defined in t_start
+  "Sri Lanka - Kurunegala-2020-10-02" : {
+           //Oct2, Oct13, Nov13, Jan15, Jan29, Feb12,  Apr1, Apr22
+      t_start: [0,    11,    42,   105,   119,   133,   181,   202], //indices to start dates of any interventions
+      b1N: [0.900, 0.204, 0.239, 0.349, 0.239, 0.146, 0.506, 0.280], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(8).fill(0), //values of b2N
       b3N: new Array(8).fill(0),
       ce: new Array(8).fill(0.0),
@@ -204,11 +204,12 @@ function readDistrictData()
     const num_days_to_zero = Math.round(data_vec[0].y / avg_rate);
 
     //Linearly extrapolate data to the zero-case date.
-    const start_date = moment(data_vec[0].x, date_format).subtract(num_days_to_zero, 'days');
-    for (let i = 0; i < num_days_to_zero; ++i)
+    let T_extrap = num_days_to_zero + 7;
+    const start_date = moment(data_vec[0].x, date_format).subtract(T_extrap, 'days');
+    for (let i = 0; i < T_extrap; ++i)
     {
       obj_vec.push({"date": start_date.clone().add(i, 'days').format(date_format),
-                    "confirmed": Math.round(avg_rate*i),
+                    "confirmed": Math.round(Math.max(data_vec[0].y - avg_rate*(T_extrap - i), 0)),
                     "deaths": 0,
                     "recovered": 0});
     }
