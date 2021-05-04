@@ -168,3 +168,33 @@ ul li {
 input:checked + .slider {
   background-color: #2196F3;
 }
+
+.fixed_header{
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+}
+
+.fixed_header tbody{
+  /* display:block; */
+  /* width: 100%; */
+  overflow: auto;
+  height: 160px;
+}
+
+.fixed_header thead tr {
+   /* display: block; */
+}
+
+.fixed_header thead {
+  background: gray;
+  color:#fff;
+  border: 1px solid black;
+}
+
+.fixed_header th, .fixed_header td {
+  padding: 5px;
+  text-align: center;
+  /* width: 50px; */
+  border: 1px solid black;
+}

@@ -28,6 +28,7 @@
 
   <script src="model.js"></script>
   <script src="simulator.js"></script>
+  <script src="prediction_history.js"></script>
   <script src="optimizer.js"></script>
 
   <title>COVID-19 simulator for Sri Lanka</title>
@@ -44,6 +45,64 @@
     <div class="small" style="color:gray;"><b>Disclaimer</b>: This simulation tool is primarily intended for research and public awareness purposes. There are many uncertainties about the infection and transmission of COVID-19 and there are many limitations to this simple model.</div>
 
     <h3><a href="analysis.html">Click here</a> for more visualizations of the COVID-19 data for Sri Lanka.</h3>
+
+<!--
+    <hr>
+    <h3>Prediction History</h3>
+
+    <div style="height: 240px; overflow: auto;">
+    <table class="fixed_header" id="table_pred_hist">
+      <thead>
+        <tr>
+          <th colspan="2">Current date</th>
+          <th>Today</th>
+          <th>Tomorrow</th>
+          <th>+2 days</th>
+          <th>+3 days</th>
+          <th>+5 days</th>
+          <th>+7 days</th>
+          <th>+14 days</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td rowspan="3">03-05-2021</td>
+          <td>Predicted new cases</td>
+          <td>1921</td>
+          <td>2116</td>
+          <td>2328</td>
+          <td>2564</td>
+          <td>3105</td>
+          <td>3763</td>
+          <td>7343</td>>
+        </tr>
+        <tr>
+          <td>Actual new cases</td>
+          <td>1921</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>% Difference</td>
+          <td>0.0%</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <br>
+  -->
+
+    <hr>
 
     <div class="clearfix">
       <div class="column" id="chart_controls" style="width:20%;">
