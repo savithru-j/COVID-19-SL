@@ -78,7 +78,7 @@ function populatePredictionHistoryTable()
       {
         let cellj = row.insertCell(1+j);
         if (j < actual_new_cases.length)
-          cellj.innerHTML = (Math.abs(actual_new_cases[j] - data.y[j]) / actual_new_cases[j] * 100.0).toFixed(2) + "%";
+          cellj.innerHTML = ((data.y[j] - actual_new_cases[j]) / actual_new_cases[j] * 100.0).toFixed(2) + "%";
         else
           cellj.innerHTML = '-';
       }
