@@ -79,16 +79,16 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15
-      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.56, 0.61], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(11).fill(0), //values of b2N
-      b3N: new Array(11).fill(0),
-      ce: new Array(11).fill(0.176),
-      c0: new Array(11).fill(0.2),
-      c1: new Array(11).fill(0.5),
-      c2: new Array(11).fill(1.0),
-      c3: new Array(11).fill(1.0),
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15, May 1
+      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212, 225], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.5], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(12).fill(0), //values of b2N
+      b3N: new Array(12).fill(0),
+      ce: new Array(12).fill(0.176),
+      c0: new Array(12).fill(0.2),
+      c1: new Array(12).fill(0.5),
+      c2: new Array(12).fill(1.0),
+      c3: new Array(12).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
@@ -168,7 +168,7 @@ var linear_ticks = {
 
 window.onload = function()
 {
-  // populatePredictionHistoryTable();
+  populatePredictionHistoryTable();
   readDistrictData();
   generateCountryDropDown();
   changeCountry(active_country);
