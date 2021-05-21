@@ -8,7 +8,7 @@ var date_format = 'YYYY-MM-DD';
 
 // [+0 days, +1 day, +2 days, +3 days, +5 days, +7 days, +14 days]
 var prediction_data = [
-  {t: "2021-05-16", y: [2431, 2445, 2457, 2471, 2497, 2527, 2624]},
+  {t: "2021-05-16", y: [2994, 3109, 3231, 3355, 3619, 3901, 5065]},
   {t: "2021-05-04", y: [1949, 2055, 2158, 2276, 2518, 2790, 3987]},
   {t: "2021-05-01", y: [1586, 1745, 1921, 2116, 2564, 3105, 6071]},
 ];
@@ -78,8 +78,14 @@ function populatePredictionHistoryTable()
       for (let j = 0; j < data.y.length; ++j)
       {
         let cellj = row.insertCell(1+j);
+        let error = ((data.y[j] - actual_new_cases[j]) / actual_new_cases[j] * 100.0);
         if (j < actual_new_cases.length)
-          cellj.innerHTML = ((data.y[j] - actual_new_cases[j]) / actual_new_cases[j] * 100.0).toFixed(2) + "%";
+        {
+          if (error >= 0.0)
+            cellj.innerHTML = "+" + error.toFixed(2) + "%";
+          else
+            cellj.innerHTML = error.toFixed(2) + "%";
+        }
         else
           cellj.innerHTML = '-';
       }

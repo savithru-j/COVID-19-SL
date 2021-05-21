@@ -81,7 +81,7 @@ var custom_country_data = {
   "Sri Lanka-2020-09-15" : {
               //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15, Apr 28, May 8
       t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212, 225, 235], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.40], //values of b1N for each intervention segment defined in t_start
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.47], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(13).fill(0), //values of b2N
       b3N: new Array(13).fill(0),
       ce: new Array(13).fill(0.176),
