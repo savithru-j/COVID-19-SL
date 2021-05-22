@@ -31,7 +31,6 @@ function populatePredictionHistoryTable()
         ind = j;
         break;
       }
-    console.log("ind: " + ind);
 
     let actual_new_cases = [];
     for (let j = 0; j < t_offsets.length; ++j)
@@ -55,6 +54,7 @@ function populatePredictionHistoryTable()
         let cellj = row.insertCell(2+j);
         cellj.innerHTML = data.y[j];
       }
+      row.style.borderTop = "3px solid";
     }
     {
       let row = table.insertRow();
