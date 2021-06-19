@@ -1431,3 +1431,22 @@ function copyDataArray(vec)
     res.push({t: vec[i].t, y: vec[i].y});
   return res;
 }
+
+function downloadData()
+{
+  let filename = 'SL_COVID_Model_Data.csv';
+  let csv = 'data:text/csv;charset=utf-8, Date, Actual reported, Predicted reported, Actual deaths, Predicted deaths\n';
+
+  for (let i = 0; i < data_real.total.length; ++i)
+    csv += data_predicted.total[i].t.format(date_format) + ", " +
+           data_real.total[i].y + ", " + data_predicted.total[i].y + ", " +
+           data_real.fatal[i].y + ", " + data_predicted.cat_diag[3][i].y +"\n";
+
+  // console.log(csv);
+  let data = encodeURI(csv);
+
+  let link = document.createElement('a');
+  link.setAttribute('href', data);
+  link.setAttribute('download', filename);
+  link.click();
+}
