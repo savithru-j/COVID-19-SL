@@ -597,6 +597,17 @@ function setupChart()
           pointRadius: 0,
           order: 12
         },
+        {
+          label: '7-day moving average',
+          backgroundColor: 'rgba(1,1,1,0)',
+          borderColor: '#3465a4',
+          borderDash: [5, 5],
+          type: 'line',
+          fill: true,
+          borderWidth: 1,
+          pointRadius: 0,
+          order: 13
+        },
 				]
 			},
 			options: {
@@ -937,13 +948,26 @@ function refreshMainChartData()
 
     if (data_freq == "daily")
     {
-      for (let i = 0; i < main_chart.data.datasets.length; ++i)
+      for (let i = 0; i < main_chart.data.datasets.length-1; ++i)
       {
         for (let j = main_chart.data.datasets[i].data.length-1; j > 0; --j)
           main_chart.data.datasets[i].data[j].y -= main_chart.data.datasets[i].data[j-1].y;
         main_chart.data.datasets[i].data[0].y = 0;
       }
     }
+
+    //Compute 7-day moving average
+    const T_avg = 7;
+    let moving_avg = [];
+    let real_data_vec = main_chart.data.datasets[n_cat].data;
+    for (let i = T_avg-1; i < real_data_vec.length; ++i)
+    {
+      let sum = 0.0;
+      for (let j = 0; j < T_avg; ++j)
+        sum += real_data_vec[i-j].y;
+      moving_avg.push({t: real_data_vec[i].t, y: Math.round(sum/T_avg)});
+    }
+    main_chart.data.datasets[n_cat+6].data = moving_avg;
 
     for (let i = 0; i < 7; ++i)
       main_chart.data.datasets[i].hidden = calibration_mode || (data_freq == "daily");
