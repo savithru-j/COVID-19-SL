@@ -8,3 +8,4 @@ cat timeseries.json >> world_data.js
 
 rm timeseries.json
 
+./update_vaccine_data.py
