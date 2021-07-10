@@ -81,7 +81,7 @@ var custom_country_data = {
   "Sri Lanka-2020-09-15" : {
               //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15, Apr 28, May 8, May 16, Jun 3
       t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212, 225, 235, 243, 261], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.425, 0.40, 0.349], //values of b1N for each intervention segment defined in t_start
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.425, 0.405, 0.36], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(15).fill(0), //values of b2N
       b3N: new Array(15).fill(0),
       ce: new Array(15).fill(0.176),
@@ -298,7 +298,8 @@ function getCountryData()
   if (start_date)
     start_date = moment(start_date, date_format);
 
-  let data_cat = [], data_total = [], data_fatal = [];
+  let data_cat = []; //{time t, y = [#confirmed, #recovered, #fatal, #quarantined, #vaccinated]}
+  let data_total = [], data_fatal = [];
   if (start_date)
   {
     for (let data of data_array)
@@ -307,7 +308,7 @@ function getCountryData()
       if (start_date <= data_t)
       {
         data_total.push({t: data_t, y: data.confirmed});
-        data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0]});
+        data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0, 0]});
         data_fatal.push({t: data_t, y: data.deaths});
       }
     }
@@ -326,13 +327,13 @@ function getCountryData()
           {
             let t_tmp = data_t.clone().subtract(i, 'days');
             data_total.push({t: t_tmp, y: 0});
-            data_cat.push({t: t_tmp, y: [0, 0, 0, 0]});
+            data_cat.push({t: t_tmp, y: [0, 0, 0, 0, 0]});
             data_fatal.push({t: t_tmp, y: 0});
           }
           first_time = false;
         }
         data_total.push({t: data_t, y: data.confirmed});
-        data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0]});
+        data_cat.push({t: data_t, y: [data.confirmed, data.recovered, data.deaths, 0, 0]});
         data_fatal.push({t: data_t, y: data.deaths});
       }
     }
@@ -348,6 +349,19 @@ function getCountryData()
       let ind = data_t.diff(data_cat[0].t, 'days');
       if (ind > 0)
         data_cat[ind].y[3] = data.y;
+    }
+  }
+
+  //Check if country has any vaccine data
+  let vac_data = world_vaccine_data[active_country];
+  if (vac_data)
+  {
+    for (let i = 1; i < vac_data.length; ++i)
+    {
+      let data_t = moment(vac_data[i].t, date_format);
+      let ind = data_t.diff(data_cat[0].t, 'days');
+      if (ind >= 0)
+        data_cat[ind].y[4] = vac_data[i].dose2 - vac_data[i-1].dose2;
     }
   }
 
@@ -393,6 +407,10 @@ function customizeParametersByCountry(country_name, params)
   //Update quarantine input data
   for (let i = 0; i < data_real.categorized.length; ++i)
     params.quarantine_input[i] = data_real.categorized[i].y[3];
+
+  //Update vaccine data
+  for (let i = 0; i < data_real.categorized.length; ++i)
+    params.vaccine_rate[i] = data_real.categorized[i].y[4];
 
   //Update population
   let N = world_population[country_name];
@@ -868,7 +886,7 @@ function move_handler(event)
 
       if (active_control_parameter == "vaccine_rate") {
         yval_new = Math.round(yval_new/1000)*1000; //round to nearest thousand
-        yval_new = Math.min(Math.max(yval_new, 0.0), 100000); //limit to [0,100000]
+        yval_new = Math.min(Math.max(yval_new, 0.0), 50000); //limit to [0,50000]
       }
       else { //parameters in [0,1] range
         yval_new = Math.round(yval_new*1000)/1000; //round to nearest 0.001
@@ -1013,8 +1031,8 @@ function refreshControlChartData()
     control_chart.options.scales.yAxes[0].scaleLabel.labelString = param_to_labelstring[active_control_parameter];
     if (active_control_parameter=="vaccine_rate")
     {
-      control_chart.options.scales.yAxes[0].ticks.max = 100000;
-      control_chart.options.plugins.zoom.zoom.rangeMax.y = 100000;
+      control_chart.options.scales.yAxes[0].ticks.max = 50000;
+      control_chart.options.plugins.zoom.zoom.rangeMax.y = 50000;
     }
     else
     {

@@ -21,7 +21,11 @@ next(csvreader) # This skips the first row of the CSV file.
 jsonfile.write('let world_vaccine_data = {"Sri Lanka": [\n')
 
 for row in csvreader:
-    json.dump(row, jsonfile)
+    row_sum = {'t': row['Date'], 
+               'dose1': (int(row['Covishield 1']) + int(row['Sinopharm 1']) + int(row['Sputnik 1'])),
+               'dose2': (int(row['Covishield 2']) + int(row['Sinopharm 2']) + int(row['Sputnik 2']))
+              }
+    json.dump(row_sum, jsonfile)
     jsonfile.write(',\n')
     
 jsonfile.write(']\n}')
