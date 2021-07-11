@@ -360,7 +360,7 @@ function getCountryData()
     {
       let data_t = moment(vac_data[i].t, date_format);
       let ind = data_t.diff(data_cat[0].t, 'days');
-      if (ind >= 0)
+      if (ind >= 0 && ind < data_cat.length)
         data_cat[ind].y[4] = vac_data[i].dose2 - vac_data[i-1].dose2;
     }
   }
@@ -886,7 +886,7 @@ function move_handler(event)
 
       if (active_control_parameter == "vaccine_rate") {
         yval_new = Math.round(yval_new/1000)*1000; //round to nearest thousand
-        yval_new = Math.min(Math.max(yval_new, 0.0), 50000); //limit to [0,50000]
+        yval_new = Math.min(Math.max(yval_new, 0.0), 100000); //limit to [0,100000]
       }
       else { //parameters in [0,1] range
         yval_new = Math.round(yval_new*1000)/1000; //round to nearest 0.001
@@ -1031,8 +1031,8 @@ function refreshControlChartData()
     control_chart.options.scales.yAxes[0].scaleLabel.labelString = param_to_labelstring[active_control_parameter];
     if (active_control_parameter=="vaccine_rate")
     {
-      control_chart.options.scales.yAxes[0].ticks.max = 50000;
-      control_chart.options.plugins.zoom.zoom.rangeMax.y = 50000;
+      control_chart.options.scales.yAxes[0].ticks.max = 100000;
+      control_chart.options.plugins.zoom.zoom.rangeMax.y = 100000;
     }
     else
     {
