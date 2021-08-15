@@ -72,6 +72,8 @@ public:
   inline int getNumDays() const { return confirmed.size(); }
   inline int getNumActive(int day) const { return confirmed[day] - recovered[day] - deaths[day]; }
 
+  void smooth(const int T_smooth);
+
   int N = 0; //population
   std::vector<int> confirmed;
   std::vector<int> recovered;

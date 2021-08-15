@@ -1484,6 +1484,11 @@ function downloadData()
            data_real.total[i].y + ", " + data_predicted.total[i].y + ", " +
            data_real.fatal[i].y + ", " + data_predicted.cat_diag[3][i].y +"\n";
 
+  for (let i = data_real.total.length; i < data_predicted.total.length; ++i)
+    csv += data_predicted.total[i].t.format(date_format) + ", 0, " +
+           data_predicted.total[i].y + ", 0, " +
+           data_predicted.cat_diag[3][i].y +"\n";
+
   // console.log(csv);
   let data = encodeURI(csv);
 

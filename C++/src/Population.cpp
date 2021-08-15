@@ -1,5 +1,7 @@
 #include <iostream>
 #include <iomanip>
+#include <cassert>
+#include <cmath>
 
 #include "Population.h"
 
@@ -141,3 +143,33 @@ getQuarantineInputVector(const std::string& filepath)
 
   return vec;
 }
+
+void
+ObservedPopulation::smooth(const int T_smooth)
+{
+  assert(T_smooth % 2 == 1);
+  const int r = (T_smooth-1)/2;
+
+  auto confirmed_tmp = confirmed;
+  auto recovered_tmp = recovered;
+  auto deaths_tmp = deaths;
+
+  for (int i = 0; i < (int) confirmed.size(); ++i)
+  {
+    int js = std::max(i-r, 0);
+    int je = std::min(i+r, (int)confirmed.size()-1);
+    int r_i = std::min(i-js, je-i);
+    double sum_c = 0, sum_r = 0, sum_d = 0;
+    double denom = 2*r_i + 1;
+    for (int j = i-r_i; j <= i+r_i; ++j)
+    {
+      sum_c += confirmed_tmp[j];
+      sum_r += recovered_tmp[j];
+      sum_d += deaths_tmp[j];
+    }
+    confirmed[i] = std::round(sum_c / denom);
+    recovered[i] = std::round(sum_r / denom);
+    deaths[i]    = std::round(sum_d / denom);
+  }
+}
+
