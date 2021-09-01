@@ -8,6 +8,7 @@ SET( CovidLib_SRC
     OptimizerFull.cpp
     OptimizerPiecewise.cpp
     OptimizerGlobalBasis.cpp
+    #OptimizerFunctional.cpp
   )
 
 ADD_LIBRARY( CovidLib STATIC ${CovidLib_SRC} )

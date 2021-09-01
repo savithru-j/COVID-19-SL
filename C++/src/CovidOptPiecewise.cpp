@@ -53,10 +53,25 @@ main(int argc, char *argv[])
 
 	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
 
-	Population pop_init(pop_observed.N, 5, 0);
-
 	std::string folder_path = "results";
 	mkdir(folder_path.c_str(), 0777);
+
+  std::ofstream file_popsmooth(folder_path + "/" + country + "_popsmooth.txt");
+  auto confirmed_vec = pop_observed.confirmed;
+  auto death_vec = pop_observed.deaths;
+  pop_observed.smooth(7);
+
+  for (std::size_t i = 0; i < pop_observed.confirmed.size(); ++i)
+  {
+    file_popsmooth << confirmed_vec[i] << ", " << death_vec[i] << ", "
+                   << pop_observed.confirmed[i] << ", " << pop_observed.deaths[i] << std::endl;
+  }
+  file_popsmooth.close();
+
+  Population pop_init(pop_observed.N, 100,
+                      pop_observed.confirmed[0] - pop_observed.recovered[0],
+                      pop_observed.recovered[0],
+                      pop_observed.deaths[0]);
 
 	std::string suffix = "_seed" + std::to_string(seed);
 	std::string filepath_opt_params = folder_path + "/" + country + "_params" + suffix + ".txt";
@@ -107,7 +122,7 @@ main(int argc, char *argv[])
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
-    param_vecs_full[i].resize(5*params.nt_hist + 10);
+    param_vecs_full[i].resize(6*params.nt_hist + 9);
     copyParam2FullVector(params, param_vecs_full[i]);
   }
 
@@ -121,17 +136,34 @@ main(int argc, char *argv[])
   file_opt_params << opt.cost_min << std::endl;
   std::cout << "Wrote optimal parameters to " << filepath_opt_params << std::endl;
 
+  //Write header
+  for (std::size_t j = 0; j < predictions.size(); ++j)
+  {
+    file_predictions << "TotalR" << j
+                     << ", RecoveredR" << j
+                     << ", FatalR" << j
+                     << ", InfectedU" << j
+                     << ", RecoveredU" << j
+                     << ", FatalU" << j;
+    if (j < predictions.size()-1)
+      file_predictions << ", ";
+  }
+  file_predictions << std::endl;
 
   file_predictions << std::scientific << std::setprecision(6);
   for (std::size_t i = 0; i < predictions[0].size(); ++i)
   {
     for (std::size_t j = 0; j < predictions.size(); ++j)
-    file_predictions << predictions[j][i].getNumReported() << ", "
-                     << predictions[j][i].getNumRecoveredReported() << ", "
-                     << predictions[j][i].getNumFatalReported() << ", "
-                     << predictions[j][i].getNumInfectedUnreported() << ", "
-                     << predictions[j][i].getNumRecoveredUnreported() << ", "
-                     << predictions[j][i].getNumFatalUnreported() << ", ";
+    {
+      file_predictions << predictions[j][i].getNumReported() << ", "
+                       << predictions[j][i].getNumRecoveredReported() << ", "
+                       << predictions[j][i].getNumFatalReported() << ", "
+                       << predictions[j][i].getNumInfectedUnreported() << ", "
+                       << predictions[j][i].getNumRecoveredUnreported() << ", "
+                       << predictions[j][i].getNumFatalUnreported();
+      if (j < predictions.size()-1)
+        file_predictions << ", ";
+    }
     file_predictions << std::endl;
   }
   std::cout << "Wrote predictions to " << filepath_predictions << std::endl;

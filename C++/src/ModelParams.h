@@ -18,6 +18,7 @@ struct ModelParams
     c1.resize(nt);
     c2.resize(nt);
     c3.resize(nt);
+    IFR.resize(nt);
 
     for (int i = 0; i < nt; ++i)
     {
@@ -27,6 +28,7 @@ struct ModelParams
       c1[i]    = c1_val;
       c2[i]    = c2_val;
       c3[i]    = c3_val;
+      IFR[i]   = 0.005; //default value of 0.5%
 
       if (i < (int) external_quarantine_input.size())
         quarantine_input[i] = external_quarantine_input[i];
@@ -51,7 +53,7 @@ struct ModelParams
   double f               = 0.3;   //exposed to asymptomatic probability
   double frac_recover_I1 = 0.80;  //fraction of cases that recover from mild-infected stage I1
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
-  double IFR             = 0.02;  //infection fatality ratio
+  Vector IFR;                     //infection fatality ratio (for each day)
   double S_Reff          = 0.0;   //susceptible population at a given time - only used for R-effective calc
 };
 

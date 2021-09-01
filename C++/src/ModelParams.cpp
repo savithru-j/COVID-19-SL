@@ -3,7 +3,7 @@
 void copyParam2FullVector(const ModelParams& params, Vector& v)
 {
   const int nt = params.nt_hist + params.nt_pred;
-  const int m = 5*nt + 10;
+  const int m = 6*nt + 9;
   if (v.m() != m)
     throwError("copyParam2FullVector - inconsistent dimensions!\n"
                + std::to_string(v.m()) + " != " + std::to_string(m));
@@ -15,8 +15,9 @@ void copyParam2FullVector(const ModelParams& params, Vector& v)
     v[2*nt + i] = params.c1[i];
     v[3*nt + i] = params.c2[i];
     v[4*nt + i] = params.c3[i];
+    v[5*nt + i] = params.IFR[i];
   }
-  const int off = 5*nt;
+  const int off = 6*nt;
   v[off  ] = params.T_incub0;
   v[off+1] = params.T_incub1;
   v[off+2] = params.T_asympt;
@@ -26,13 +27,12 @@ void copyParam2FullVector(const ModelParams& params, Vector& v)
   v[off+6] = params.f;
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
-  v[off+9] = params.IFR;
 }
 
 void copyFullVector2Param(const Vector& v, ModelParams& params)
 {
   const int nt = params.nt_hist;
-  const int m = 5*nt + 10;
+  const int m = 6*nt + 9;
   if (v.m() != m)
     throwError("copyFullVector2Param - inconsistent dimensions!");
 
@@ -44,6 +44,7 @@ void copyFullVector2Param(const Vector& v, ModelParams& params)
     params.c1[i]    = v[2*nt + i];
     params.c2[i]    = v[3*nt + i];
     params.c3[i]    = v[4*nt + i];
+    params.IFR[i]   = v[5*nt + i];
   }
 
   const int N = params.nt_hist + params.nt_pred;
@@ -55,9 +56,10 @@ void copyFullVector2Param(const Vector& v, ModelParams& params)
     params.c1[i]    = params.c1[nt-1];
     params.c2[i]    = params.c2[nt-1];
     params.c3[i]    = params.c3[nt-1];
+    params.IFR[i]   = params.IFR[nt-1];
   }
 
-  const int off = 5*nt;
+  const int off = 6*nt;
   params.T_incub0        = v[off  ];
   params.T_incub1        = v[off+1];
   params.T_asympt        = v[off+2];
@@ -67,5 +69,4 @@ void copyFullVector2Param(const Vector& v, ModelParams& params)
   params.f               = v[off+6];
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
-  params.IFR             = v[off+9];
 }

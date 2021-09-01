@@ -10,9 +10,10 @@
 struct OptimizerPiecewise
 {
 //  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
-  static constexpr bool OPTIMIZE_C0 = false;
+  static constexpr bool OPTIMIZE_C0 = true;
   static constexpr bool OPTIMIZE_C1 = true;
   static constexpr bool OPTIMIZE_C2 = false;
+  static constexpr std::array<int,3> IFR_SEG_STARTS = {0, 182};//, 273};
 
   OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                            const Vector& quarantine_input, int interval_size_, bool linear_basis_ = false,
@@ -38,7 +39,13 @@ struct OptimizerPiecewise
 #endif
     }
 
-    const int off = (1+num_c_params)*num_nodes;
+    //Random constant solution for IFR (same value for all segments)
+    int off = (1+num_c_params)*num_nodes;
+    param_vec[off] = uniformRand(param_bounds[off].min, param_bounds[off].max);
+    for (std::size_t i = 1; i < IFR_SEG_STARTS.size(); ++i)
+      param_vec[off + i] = param_vec[off];
+
+    off += IFR_SEG_STARTS.size();
     for (int i = off; i < param_vec.m(); ++i)
       param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
 

@@ -4,6 +4,8 @@
 #include "OptimizerPiecewise.h"
 #include "Simulator.h"
 
+constexpr std::array<int,3> OptimizerPiecewise::IFR_SEG_STARTS;
+
 OptimizerPiecewise::OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                                  const Vector& quarantine_input, int interval_size_, bool linear_basis_,
                                  double wconf, double wrecov, double wfatal,
@@ -127,7 +129,7 @@ OptimizerPiecewise::getCost()
 
   double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
 
-#if 0 //L2
+#if 1 //L2
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
   for (int i = 1; i < nt; ++i)
   {
@@ -165,7 +167,7 @@ OptimizerPiecewise::getCost()
   sub_costs[0] = weight_conf * err_sq_total / denom;
   sub_costs[1] = weight_recov* err_sq_recov / denom;
   sub_costs[2] = weight_fatal* err_sq_fatal / denom;
-#elif 1 //MLE
+#elif 0 //MLE
   constexpr double scaling = 1e-4;
   const double eps = 1e-5;
   for (int i = 1; i < nt; ++i)
@@ -244,7 +246,7 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
 {
   int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
-  const int m = (1 + num_c_params)*num_nodes;
+  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size(); //[beta values, c_params values, IFR segment values]
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
@@ -256,8 +258,13 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
     for (int i = 0; i < num_nodes; ++i)
       bounds[j*num_nodes + i] = ParamBound(0, 1, delta); //(c0 = ce), c1, (c2 = c3)
 
-#if 0
   const int off = (1 + num_c_params)*num_nodes;
+
+  for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
+    bounds[off + i] = ParamBound(0, 0.02, delta); //IFR in [0%, 2%]
+
+#if 0
+  off += NUM_IFR_SEGMENTS;
   bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
   bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
   bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
@@ -267,7 +274,6 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
   bounds[off+6] = ParamBound(0.3, 0.3, delta); //f
   bounds[off+7] = ParamBound(0.8, 0.8, delta); //frac_recover_I1
   bounds[off+8] = ParamBound(0.75, 0.75, delta); //frac_recover_I2
-  bounds[off+9] = ParamBound(0.02, 0.02, 0.1*delta); //IFR
 #endif
   return bounds;
 }
@@ -277,7 +283,7 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
-  const int m = (1 + num_c_params)*num_nodes;
+  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size(); //[beta values, c_params values, IFR segment values]
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
@@ -308,8 +314,13 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
   if (OPTIMIZE_C2)
     v[j2*num_nodes-1] = params.c2[nt_opt-1];
 
+  int off = (1 + num_c_params)*num_nodes;
+
+  for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
+    v[off + i] = params.IFR[IFR_SEG_STARTS[i]];
+
 #if 0
-  const int off = (1 + num_c_params)*num_nodes;
+  off += IFR_SEG_STARTS.size();
   v[off  ] = params.T_incub0;
   v[off+1] = params.T_incub1;
   v[off+2] = params.T_asympt;
@@ -319,7 +330,6 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
   v[off+6] = params.f;
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
-  v[off+9] = params.IFR;
 #endif
 }
 
@@ -328,7 +338,7 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
-  const int m = (1 + num_c_params)*num_nodes;
+  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size(); //[beta values, c_params values, IFR segment values]
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
@@ -336,32 +346,70 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
   constexpr int j1 = j0 + OPTIMIZE_C1;
   constexpr int j2 = j1 + OPTIMIZE_C2;
 
-  for (int i = 0; i < num_nodes-1; ++i)
+  if (linear_basis)
   {
-    const int ind0 = i*interval_size;
-    const int ind1 = (i < num_nodes-2) ? (i+1)*interval_size : (nt_opt-1);
-    const double L = ind1 - ind0;
-
-    for (int j = 0; j <= L; ++j)
+    for (int i = 0; i < num_nodes-1; ++i)
     {
-      const double s = linear_basis*(j / L);
-      const int ind = ind0 + j;
-      params.betaN[ind] = (1-s)*v[i] + s*v[i+1];
+      const int ind0 = i*interval_size;
+      const int ind1 = (i < num_nodes-2) ? (i+1)*interval_size : (nt_opt-1);
+      const double L = ind1 - ind0;
 
-      if (OPTIMIZE_C0)
+      for (int j = 0; j <= L; ++j)
       {
-        params.c0[ind]    = (1-s)*v[j0*num_nodes + i] + s*v[j0*num_nodes + i+1];
-        params.ce[ind]    = params.c0[ind];
-      }
-      if (OPTIMIZE_C1)
-        params.c1[ind]    = (1-s)*v[j1*num_nodes + i] + s*v[j1*num_nodes + i+1];
+        const double s = (double) j / L;
+        const int ind = ind0 + j;
+        params.betaN[ind] = (1-s)*v[i] + s*v[i+1];
 
-      if (OPTIMIZE_C2)
-      {
-        params.c2[ind]    = (1-s)*v[j2*num_nodes + i] + s*v[j2*num_nodes + i+1];
-        params.c3[ind]    = params.c2[ind];
+        if (OPTIMIZE_C0)
+        {
+          params.c0[ind]    = (1-s)*v[j0*num_nodes + i] + s*v[j0*num_nodes + i+1];
+          params.ce[ind]    = params.c0[ind];
+        }
+        if (OPTIMIZE_C1)
+          params.c1[ind]    = (1-s)*v[j1*num_nodes + i] + s*v[j1*num_nodes + i+1];
+
+        if (OPTIMIZE_C2)
+        {
+          params.c2[ind]    = (1-s)*v[j2*num_nodes + i] + s*v[j2*num_nodes + i+1];
+          params.c3[ind]    = params.c2[ind];
+        }
       }
     }
+  }
+  else
+  {
+    for (int i = 0; i < num_nodes; ++i)
+    {
+      const int ind0 = i*interval_size;
+      const int ind1 = (i < num_nodes-1) ? (i+1)*interval_size : nt_opt;
+      for (int ind = ind0; ind < ind1; ++ind)
+      {
+        params.betaN[ind] = v[i];
+
+        if (OPTIMIZE_C0)
+        {
+          params.c0[ind] = v[j0*num_nodes + i];
+          params.ce[ind] = params.c0[ind];
+        }
+        if (OPTIMIZE_C1)
+          params.c1[ind] = v[j1*num_nodes + i];
+
+        if (OPTIMIZE_C2)
+        {
+          params.c2[ind] = v[j2*num_nodes + i];
+          params.c3[ind] = params.c2[ind];
+        }
+      }
+    }
+  }
+
+  int off = (1 + num_c_params)*num_nodes;
+
+  for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
+  {
+    const int ind1 = (i < (int)IFR_SEG_STARTS.size()-1) ? IFR_SEG_STARTS[i+1] : nt_opt;
+    for (int ind = IFR_SEG_STARTS[i]; ind < ind1; ++ind)
+      params.IFR[ind] = v[off + i];
   }
 
   const int N = params.nt_hist + params.nt_pred;
@@ -373,9 +421,10 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
     params.c1[i]    = params.c1[params.nt_hist-1];
     params.c2[i]    = params.c2[params.nt_hist-1];
     params.c3[i]    = params.c3[params.nt_hist-1];
+    params.IFR[i]   = params.IFR[params.nt_hist-1];
   }
 #if 0
-  const int off = (1 + num_c_params)*num_nodes;
+  off += IFR_SEG_STARTS.size();
   params.T_incub0        = v[off  ];
   params.T_incub1        = v[off+1];
   params.T_asympt        = v[off+2];
@@ -385,7 +434,6 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
   params.f               = v[off+6];
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
-  params.IFR             = v[off+9];
 #endif
 }
 

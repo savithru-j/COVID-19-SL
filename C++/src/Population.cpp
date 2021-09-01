@@ -18,7 +18,7 @@ Population::evolve(const ModelParams& params, int t)
   const double prob_I2_R  = params.frac_recover_I2; //severe to recovered  //0.75
   const double prob_I2_I3 = 1 - prob_I2_R;          //severe to critical //0.25
   const double prob_I3_D  = (prob_E1_I1 == 0 || prob_I1_I2 == 0 || prob_I2_I3 == 0) ?
-                            0.0 : std::min(params.IFR/(prob_E1_I1*prob_I1_I2*prob_I2_I3), 1.0); //critical to dead //0.40
+                            0.0 : std::min(params.IFR[t]/(prob_E1_I1*prob_I1_I2*prob_I2_I3), 1.0); //critical to dead //0.40
   const double prob_I3_R  = 1 - prob_I3_D;          //critical to recovered //0.6
 
   //set rate parameters [1/day]

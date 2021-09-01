@@ -496,7 +496,7 @@ OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
 void
 OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
 {
-  const int m = 4*num_basis + 10;
+  const int m = 5*num_basis + 9;
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
@@ -510,10 +510,11 @@ OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
       v[  num_basis + i] += transform_matrix(i,j) * params.c0[j];
       v[2*num_basis + i] += transform_matrix(i,j) * params.c1[j];
       v[3*num_basis + i] += transform_matrix(i,j) * params.c2[j];
+      v[4*num_basis + i] += transform_matrix(i,j) * params.IFR[j];
     }
   }
 
-  const int off = 4*num_basis;
+  const int off = 5*num_basis;
   v[off  ] = params.T_incub0;
   v[off+1] = params.T_incub1;
   v[off+2] = params.T_asympt;
@@ -523,14 +524,13 @@ OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
   v[off+6] = params.f;
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
-  v[off+9] = params.IFR;
 }
 
 void
 OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
 {
   const int nt = params.nt_hist;
-  const int m = 4*num_basis + 10;
+  const int m = 5*num_basis + 9;
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
@@ -540,6 +540,7 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
     params.c0[i] = 0.0;
     params.c1[i] = 0.0;
     params.c2[i] = 0.0;
+    params.IFR[i] = 0.0;
 
     for (int j = 0; j < num_basis; ++j)
     {
@@ -547,6 +548,7 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
       params.c0[i]    += inv_transform_matrix(i,j) * v[  num_basis + j];
       params.c1[i]    += inv_transform_matrix(i,j) * v[2*num_basis + j];
       params.c2[i]    += inv_transform_matrix(i,j) * v[3*num_basis + j];
+      params.IFR[i]   += inv_transform_matrix(i,j) * v[4*num_basis + j];
     }
   }
 
@@ -585,9 +587,10 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
     params.c1[i]    = params.c1[nt-1];
     params.c2[i]    = params.c2[nt-1];
     params.c3[i]    = params.c3[nt-1];
+    params.IFR[i]   = params.IFR[nt-1];
   }
 
-  const int off = 4*num_basis;
+  const int off = 5*num_basis;
   params.T_incub0        = v[off  ];
   params.T_incub1        = v[off+1];
   params.T_asympt        = v[off+2];
@@ -597,7 +600,6 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
   params.f               = v[off+6];
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
-  params.IFR             = v[off+9];
 }
 
 void

@@ -13,9 +13,9 @@ public:
 
   using Array2 = std::array<double,2>;
 
-  Population(double N_, double E0_0 = 0.0, double Rd_0 = 0.0)
-    : N(N_), S(N - E0_0 - Rd_0), E0(E0_0), E1({0,0}),
-      I0({0,0}), I1({0,0}), I2({0,0}), I3({0,0}), R({0, Rd_0}), D({0,0}) {}
+  Population(double N_, double E0_0 = 0.0, double I1d_0 = 0.0, double Rd_0 = 0.0, double Dd_0 = 0.0)
+    : N(N_), S(N - E0_0 - I1d_0 - Rd_0 - Dd_0), E0(E0_0), E1({0,0}),
+      I0({0,0}), I1({0, I1d_0}), I2({0,0}), I3({0,0}), R({0, Rd_0}), D({0,Dd_0}) {}
 
   void evolve(const ModelParams& params, int t);
   void report(const ModelParams& params, int t);
