@@ -13,7 +13,7 @@ struct OptimizerPiecewise
   static constexpr bool OPTIMIZE_C0 = true;
   static constexpr bool OPTIMIZE_C1 = true;
   static constexpr bool OPTIMIZE_C2 = false;
-  static constexpr std::array<int,3> IFR_SEG_STARTS = {0, 182};//, 273};
+  static constexpr std::array<int,3> IFR_SEG_STARTS = {0, 151, 273};
 
   OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
                            const Vector& quarantine_input, int interval_size_, bool linear_basis_ = false,

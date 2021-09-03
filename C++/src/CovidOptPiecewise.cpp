@@ -69,7 +69,7 @@ main(int argc, char *argv[])
   file_popsmooth.close();
 
   Population pop_init(pop_observed.N, 100,
-                      pop_observed.confirmed[0] - pop_observed.recovered[0],
+                      pop_observed.confirmed[0] - pop_observed.recovered[0] - pop_observed.deaths[0],
                       pop_observed.recovered[0],
                       pop_observed.deaths[0]);
 
@@ -116,6 +116,8 @@ main(int argc, char *argv[])
   std::vector<std::vector<Population>> predictions(opt.cost_min.size());
   std::vector<Vector> param_vecs_full(opt.cost_min.size());
 
+  std::vector<Vector> Reff_vector(predictions.size(), Vector(nt_hist));
+
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
     ModelParams params(nt_hist, 0);
@@ -124,6 +126,10 @@ main(int argc, char *argv[])
 
     param_vecs_full[i].resize(6*params.nt_hist + 9);
     copyParam2FullVector(params, param_vecs_full[i]);
+
+    //Calculate R-eff
+    for (std::size_t t = 0; t < predictions[0].size(); ++t)
+      Reff_vector[i][t] = calcEffectiveReproductionRatio(params, predictions[i], t);
   }
 
   file_opt_params << std::scientific << std::setprecision(6);
@@ -140,11 +146,13 @@ main(int argc, char *argv[])
   for (std::size_t j = 0; j < predictions.size(); ++j)
   {
     file_predictions << "TotalR" << j
+                     << ", TotalU" << j
                      << ", RecoveredR" << j
                      << ", FatalR" << j
                      << ", InfectedU" << j
                      << ", RecoveredU" << j
-                     << ", FatalU" << j;
+                     << ", FatalU" << j
+                     << ", Reff" << j;
     if (j < predictions.size()-1)
       file_predictions << ", ";
   }
@@ -156,11 +164,13 @@ main(int argc, char *argv[])
     for (std::size_t j = 0; j < predictions.size(); ++j)
     {
       file_predictions << predictions[j][i].getNumReported() << ", "
+                       << predictions[j][i].getNumUnreported() << ", "
                        << predictions[j][i].getNumRecoveredReported() << ", "
                        << predictions[j][i].getNumFatalReported() << ", "
                        << predictions[j][i].getNumInfectedUnreported() << ", "
                        << predictions[j][i].getNumRecoveredUnreported() << ", "
-                       << predictions[j][i].getNumFatalUnreported();
+                       << predictions[j][i].getNumFatalUnreported() << ", "
+                       << Reff_vector[j][i];
       if (j < predictions.size()-1)
         file_predictions << ", ";
     }

@@ -25,6 +25,7 @@ public:
   inline double getNumRecoveredReported() const { return R[1]; }
   inline double getNumFatalReported() const { return D[1]; }
 
+  inline double getNumUnreported() const { return E1[0] + I0[0] + I1[0] + I2[0] + I3[0] + R[0] + D[0]; }
   inline double getNumInfectedUnreported() const { return I0[0] + I1[0] + I2[0] + I3[0]; }
   inline double getNumRecoveredUnreported() const { return R[0]; }
   inline double getNumFatalUnreported() const { return D[0]; }
