@@ -81,7 +81,7 @@ var custom_country_data = {
   "Sri Lanka-2020-09-15" : {
               //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15, Apr 28, May 8, May 16, Jun 3, Jul 7, Jul 20, Aug 10
       t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212, 225, 235, 243, 261, 295, 308, 328], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.425, 0.405, 0.36, 0.437, 0.52, 0.57], //values of b1N for each intervention segment defined in t_start
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.425, 0.405, 0.36, 0.437, 0.52, 0.58], //values of b1N for each intervention segment defined in t_start
       b2N: new Array(18).fill(0), //values of b2N
       b3N: new Array(18).fill(0),
       ce: new Array(18).fill(0.176),
@@ -552,7 +552,7 @@ function setupChart()
           order: 4
         },
 				{
-					label: 'Actual reported',
+					label: 'Actual reported (avg)',
 					backgroundColor: 'rgba(1,1,1,0)',
 					borderColor: '#3465a4',
 					type: 'line',
@@ -616,10 +616,10 @@ function setupChart()
           order: 12
         },
         {
-          label: '7-day moving average',
+          label: 'Actual reported',
           backgroundColor: 'rgba(1,1,1,0)',
           borderColor: '#3465a4',
-          borderDash: [5, 5],
+          borderDash: [1, 1],
           type: 'line',
           fill: true,
           borderWidth: 1,
@@ -886,7 +886,7 @@ function move_handler(event)
 
       if (active_control_parameter == "vaccine_rate") {
         yval_new = Math.round(yval_new/1000)*1000; //round to nearest thousand
-        yval_new = Math.min(Math.max(yval_new, 0.0), 200000); //limit to [0,200000]
+        yval_new = Math.min(Math.max(yval_new, 0.0), 300000); //limit to [0,300000]
       }
       else { //parameters in [0,1] range
         yval_new = Math.round(yval_new*1000)/1000; //round to nearest 0.001
@@ -955,7 +955,7 @@ function refreshMainChartData()
     for (let i = 0; i < n_cat; ++i)
       main_chart.data.datasets[i].data = copyDataArray(data_predicted[array_name][i]);
 
-    main_chart.data.datasets[n_cat].data = copyDataArray(data_real.total);
+    main_chart.data.datasets[n_cat].data = copyDataArray(data_real.total); //This will be time-averaged below
     main_chart.data.datasets[n_cat+1].data = copyDataArray(data_predicted.total);
 
     main_chart.data.datasets[n_cat+2].data = copyDataArray(data_real.fatal);
@@ -964,9 +964,11 @@ function refreshMainChartData()
     main_chart.data.datasets[n_cat+4].data = copyDataArray(data_predicted.lower);
     main_chart.data.datasets[n_cat+5].data = copyDataArray(data_predicted.upper);
 
+    main_chart.data.datasets[n_cat+6].data = copyDataArray(data_real.total); //Actual reported data
+
     if (data_freq == "daily")
     {
-      for (let i = 0; i < main_chart.data.datasets.length-1; ++i)
+      for (let i = 0; i < main_chart.data.datasets.length; ++i)
       {
         for (let j = main_chart.data.datasets[i].data.length-1; j > 0; --j)
           main_chart.data.datasets[i].data[j].y -= main_chart.data.datasets[i].data[j-1].y;
@@ -985,7 +987,7 @@ function refreshMainChartData()
         sum += real_data_vec[i-j].y;
       moving_avg.push({t: real_data_vec[i].t, y: Math.round(sum/T_avg)});
     }
-    main_chart.data.datasets[n_cat+6].data = moving_avg;
+    main_chart.data.datasets[n_cat].data = moving_avg;
 
     for (let i = 0; i < 7; ++i)
       main_chart.data.datasets[i].hidden = calibration_mode || (data_freq == "daily");
@@ -1031,8 +1033,8 @@ function refreshControlChartData()
     control_chart.options.scales.yAxes[0].scaleLabel.labelString = param_to_labelstring[active_control_parameter];
     if (active_control_parameter=="vaccine_rate")
     {
-      control_chart.options.scales.yAxes[0].ticks.max = 200000;
-      control_chart.options.plugins.zoom.zoom.rangeMax.y = 200000;
+      control_chart.options.scales.yAxes[0].ticks.max = 300000;
+      control_chart.options.plugins.zoom.zoom.rangeMax.y = 300000;
     }
     else
     {
