@@ -16,9 +16,10 @@ struct OptimizerPiecewise
   static constexpr std::array<int,3> IFR_SEG_STARTS = {0, 151, 273};
 
   OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                           const Vector& quarantine_input, int interval_size_, bool linear_basis_ = false,
-                           double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
-                           int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
+                     const Vector& quarantine_input, const Vector& vaccination_data,
+                     int interval_size_, bool linear_basis_ = false,
+                     double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
+                     int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
   inline int nDim() const { return param_vec.size(); };
 

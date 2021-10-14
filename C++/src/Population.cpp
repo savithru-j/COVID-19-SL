@@ -102,6 +102,14 @@ Population::report(const ModelParams& params, int t)
   I3[1] += delta;
 }
 
+void
+Population::vaccinate(const ModelParams& params, int t)
+{
+  S -= params.vaccine_eff*params.daily_vaccinations[t];
+  if (S < 0.0)
+    S = 0.0;
+}
+
 std::ostream& operator<<(std::ostream& os, const Population& pop)
 {
   os << std::scientific << std::setprecision(3);
@@ -171,5 +179,42 @@ ObservedPopulation::smooth(const int T_smooth)
     recovered[i] = std::round(sum_r / denom);
     deaths[i]    = std::round(sum_d / denom);
   }
+}
+
+Vector
+getDailyVaccinations(const std::string& filepath, const int T_smooth)
+{
+  assert(T_smooth % 2 == 1);
+  const int r = (T_smooth-1)/2;
+
+  std::ifstream in(filepath);
+  if (!in)
+    return Vector(); //return empty vector
+
+  Vector num_total_vaccinated;
+  double val;
+  while (in >> val)
+    num_total_vaccinated.push_back(val);
+  in.close();
+
+  Vector daily_vaccinated_smooth(num_total_vaccinated.size(), 0.0);
+  for (int i = 0; i < (int) num_total_vaccinated.size(); ++i)
+  {
+    int js = std::max(i-r, 0);
+    int je = std::min(i+r, (int)num_total_vaccinated.size()-1);
+    int r_i = std::min(i-js, je-i);
+    double sum_v = 0;
+    double denom = 2*r_i + 1;
+    for (int j = i-r_i; j <= i+r_i; ++j)
+      sum_v += num_total_vaccinated[j];
+    daily_vaccinated_smooth[i] = std::round(sum_v / denom);
+  }
+
+  //Compute diff to get daily values
+//  for (int i = (int)num_total_vaccinated.size()-1; i > 0; --i)
+//    daily_vaccinated_smooth[i] -= daily_vaccinated_smooth[i-1];
+//  daily_vaccinated_smooth[0] = 0;
+
+  return daily_vaccinated_smooth;
 }
 

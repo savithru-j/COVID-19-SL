@@ -6,12 +6,14 @@
 struct ModelParams
 {
   ModelParams(int nt_hist_, int nt_pred_, const Vector& external_quarantine_input = {},
+              const Vector& vaccination_data = {},
               double betaN_val = 0.3, double ce_val = 0.0, double c0_val = 0.0,
               double c1_val = 0.0, double c2_val = 1.0, double c3_val = 1.0)
     : nt_hist(nt_hist_), nt_pred(nt_pred_)
   {
     const int nt = nt_hist + nt_pred;
     quarantine_input.resize(nt, 0);
+    daily_vaccinations.resize(nt, 0);
     betaN.resize(nt);
     ce.resize(nt);
     c0.resize(nt);
@@ -32,12 +34,16 @@ struct ModelParams
 
       if (i < (int) external_quarantine_input.size())
         quarantine_input[i] = external_quarantine_input[i];
+
+      if (i < (int) vaccination_data.size())
+        daily_vaccinations[i] = vaccination_data[i];
     }
   }
 
   int nt_hist, nt_pred;
   static constexpr double dt = 1.0/24.0;
   Vector quarantine_input;
+  Vector daily_vaccinations;
   Vector betaN;
   Vector ce;
   Vector c0;
@@ -55,6 +61,7 @@ struct ModelParams
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
   Vector IFR;                     //infection fatality ratio (for each day)
   double S_Reff          = 0.0;   //susceptible population at a given time - only used for R-effective calc
+  double vaccine_eff     = 1.0;   //effectiveness of vaccines
 };
 
 void copyParam2FullVector(const ModelParams& params, Vector& v);

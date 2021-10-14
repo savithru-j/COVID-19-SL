@@ -61,6 +61,7 @@ calcEffectiveReproductionRatio(const ModelParams& params_orig,
     for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
       pop.evolve(params, t);
     pop.report(params, t); //report once daily
+    pop.vaccinate(params, t); //remove vaccinated individuals daily
   }
 
   return pop.dS_exit_Reff / E0_init;

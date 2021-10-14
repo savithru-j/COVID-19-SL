@@ -51,15 +51,17 @@ main(int argc, char *argv[])
   std::cout << "Random seed: " << seed << std::endl;
   std::cout << std::endl;
 
-	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
+  std::string input_data_folder = "csv_data/";
+	ObservedPopulation pop_observed(input_data_folder + country + ".txt");
 
 	std::string folder_path = "results";
 	mkdir(folder_path.c_str(), 0777);
 
+	int T_smooth = 7;
   std::ofstream file_popsmooth(folder_path + "/" + country + "_popsmooth.txt");
   auto confirmed_vec = pop_observed.confirmed;
   auto death_vec = pop_observed.deaths;
-  pop_observed.smooth(7);
+  pop_observed.smooth(T_smooth);
 
   for (std::size_t i = 0; i < pop_observed.confirmed.size(); ++i)
   {
@@ -86,12 +88,18 @@ main(int argc, char *argv[])
 
   auto t0 = std::chrono::high_resolution_clock::now();
 
-  std::string filepath_quarantine_input = "csv_data/" + country + "_external.txt";
+  std::string filepath_quarantine_input = input_data_folder + country + "_external.txt";
   std::cout << "Checking for external quarantine input data at " << filepath_quarantine_input << std::endl;
   auto pop_quarantine_input = getQuarantineInputVector(filepath_quarantine_input);
   std::cout << "External quarantine input vector length: " << pop_quarantine_input.size() << std::endl << std::endl;
 
-  OptimizerPiecewise opt(pop_observed, pop_init, pop_quarantine_input, interval_size, linear_basis,
+  std::string filepath_vaccine_data = input_data_folder + country + "_vaccinations.txt";
+  std::cout << "Checking for vaccination data at " << filepath_vaccine_data << std::endl;
+  auto pop_vaccine_data = getDailyVaccinations(filepath_vaccine_data, T_smooth);
+  std::cout << "Vaccination data vector length: " << pop_vaccine_data.size() << std::endl << std::endl;
+
+  OptimizerPiecewise opt(pop_observed, pop_init, pop_quarantine_input, pop_vaccine_data,
+                         interval_size, linear_basis,
                          weight_conf, weight_recov, weight_fatal,
                          max_iter_per_pass, max_passes, seed);
 
@@ -124,7 +132,7 @@ main(int argc, char *argv[])
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
-    param_vecs_full[i].resize(6*params.nt_hist + 9);
+    param_vecs_full[i].resize(6*params.nt_hist + 10);
     copyParam2FullVector(params, param_vecs_full[i]);
 
     //Calculate R-eff

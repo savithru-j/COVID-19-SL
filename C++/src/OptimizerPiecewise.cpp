@@ -7,14 +7,15 @@
 constexpr std::array<int,3> OptimizerPiecewise::IFR_SEG_STARTS;
 
 OptimizerPiecewise::OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                                 const Vector& quarantine_input, int interval_size_, bool linear_basis_,
-                                 double wconf, double wrecov, double wfatal,
-                                 int max_iter_per_pass_, int max_passes_, int seed) :
+                                       const Vector& quarantine_input, const Vector& vaccination_data,
+                                       int interval_size_, bool linear_basis_,
+                                       double wconf, double wrecov, double wfatal,
+                                       int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
     nt_opt(pop_observed.getNumDays()), interval_size(interval_size_), linear_basis(linear_basis_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal),
     max_iter_per_pass(max_iter_per_pass_), max_passes(max_passes_),
-    params(pop_observed.getNumDays(), 0, quarantine_input),
+    params(pop_observed.getNumDays(), 0, quarantine_input, vaccination_data),
     rand_engine(seed), uniform_rand(0,1)
 {
   if (pop_observed.N != pop_init.N)
@@ -246,7 +247,7 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
 {
   int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
-  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size(); //[beta values, c_params values, IFR segment values]
+  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size() + 1; //[beta values, c_params values, IFR segment values, vaccine_eff]
   std::vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
@@ -258,13 +259,16 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
     for (int i = 0; i < num_nodes; ++i)
       bounds[j*num_nodes + i] = ParamBound(0, 1, delta); //(c0 = ce), c1, (c2 = c3)
 
-  const int off = (1 + num_c_params)*num_nodes;
+  int off = (1 + num_c_params)*num_nodes;
 
   for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
     bounds[off + i] = ParamBound(0, 0.02, delta); //IFR in [0%, 2%]
 
+  off += IFR_SEG_STARTS.size();
+  bounds[off] = ParamBound(0.4, 1.0, delta); //vaccine_eff
+
 #if 0
-  off += NUM_IFR_SEGMENTS;
+  off += 1;
   bounds[off  ] = ParamBound(3.0, 3.0, delta); //T_incub0
   bounds[off+1] = ParamBound(2.0, 2.0, delta); //T_incub1
   bounds[off+2] = ParamBound(6.0, 6.0, delta); //T_asympt
@@ -283,7 +287,7 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
-  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size(); //[beta values, c_params values, IFR segment values]
+  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size() + 1; //[beta values, c_params values, IFR segment values, vaccine_eff]
   if (v.m() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
@@ -319,8 +323,11 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
   for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
     v[off + i] = params.IFR[IFR_SEG_STARTS[i]];
 
-#if 0
   off += IFR_SEG_STARTS.size();
+  v[off] = params.vaccine_eff;
+
+#if 0
+  off += 1;
   v[off  ] = params.T_incub0;
   v[off+1] = params.T_incub1;
   v[off+2] = params.T_asympt;
@@ -338,7 +345,7 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
-  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size(); //[beta values, c_params values, IFR segment values]
+  const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size() + 1; //[beta values, c_params values, IFR segment values, vaccine_eff]
   if (v.m() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
@@ -423,8 +430,12 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
     params.c3[i]    = params.c3[params.nt_hist-1];
     params.IFR[i]   = params.IFR[params.nt_hist-1];
   }
-#if 0
+
   off += IFR_SEG_STARTS.size();
+  params.vaccine_eff = v[off];
+
+#if 0
+  off += 1;
   params.T_incub0        = v[off  ];
   params.T_incub1        = v[off+1];
   params.T_asympt        = v[off+2];

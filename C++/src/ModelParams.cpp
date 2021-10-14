@@ -3,7 +3,7 @@
 void copyParam2FullVector(const ModelParams& params, Vector& v)
 {
   const int nt = params.nt_hist + params.nt_pred;
-  const int m = 6*nt + 9;
+  const int m = 6*nt + 10;
   if (v.m() != m)
     throwError("copyParam2FullVector - inconsistent dimensions!\n"
                + std::to_string(v.m()) + " != " + std::to_string(m));
@@ -27,12 +27,13 @@ void copyParam2FullVector(const ModelParams& params, Vector& v)
   v[off+6] = params.f;
   v[off+7] = params.frac_recover_I1;
   v[off+8] = params.frac_recover_I2;
+  v[off+9] = params.vaccine_eff;
 }
 
 void copyFullVector2Param(const Vector& v, ModelParams& params)
 {
   const int nt = params.nt_hist;
-  const int m = 6*nt + 9;
+  const int m = 6*nt + 10;
   if (v.m() != m)
     throwError("copyFullVector2Param - inconsistent dimensions!");
 
@@ -69,4 +70,5 @@ void copyFullVector2Param(const Vector& v, ModelParams& params)
   params.f               = v[off+6];
   params.frac_recover_I1 = v[off+7];
   params.frac_recover_I2 = v[off+8];
+  params.vaccine_eff     = v[off+9];
 }

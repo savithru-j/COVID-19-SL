@@ -19,6 +19,7 @@ public:
 
   void evolve(const ModelParams& params, int t);
   void report(const ModelParams& params, int t);
+  void vaccinate(const ModelParams& params, int t);
 
   inline double getNumReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1] + D[1]; }
   inline double getNumActiveReported() const { return E1[1] + I0[1] + I1[1] + I2[1] + I3[1] + R[1]; }
@@ -82,5 +83,6 @@ public:
 };
 
 Vector getQuarantineInputVector(const std::string& filepath);
+Vector getDailyVaccinations(const std::string& filepath, const int T_smooth);
 
 #endif

@@ -29,6 +29,8 @@ public:
 
   void resize(int m, const double& val = 0.0) { data_.resize(m, val); }
 
+  void push_back(const double& val) { data_.push_back(val); }
+
   std::vector<double>& getDataVector() { return data_; }
 
 protected:
