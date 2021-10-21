@@ -128,7 +128,7 @@ main(int argc, char *argv[])
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams params(nt_hist, 0);
+    ModelParams params(nt_hist, 0, pop_quarantine_input, pop_vaccine_data);
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
@@ -166,20 +166,20 @@ main(int argc, char *argv[])
   }
   file_predictions << std::endl;
 
-  file_predictions << std::scientific << std::setprecision(6);
-  for (std::size_t i = 0; i < predictions[0].size(); ++i)
+  file_predictions << std::scientific << std::setprecision(10);
+  for (std::size_t t = 0; t < predictions[0].size(); ++t)
   {
-    for (std::size_t j = 0; j < predictions.size(); ++j)
+    for (std::size_t isol = 0; isol < predictions.size(); ++isol)
     {
-      file_predictions << predictions[j][i].getNumReported() << ", "
-                       << predictions[j][i].getNumUnreported() << ", "
-                       << predictions[j][i].getNumRecoveredReported() << ", "
-                       << predictions[j][i].getNumFatalReported() << ", "
-                       << predictions[j][i].getNumInfectedUnreported() << ", "
-                       << predictions[j][i].getNumRecoveredUnreported() << ", "
-                       << predictions[j][i].getNumFatalUnreported() << ", "
-                       << Reff_vector[j][i];
-      if (j < predictions.size()-1)
+      file_predictions << predictions[isol][t].getNumReported() << ", "
+                       << predictions[isol][t].getNumUnreported() << ", "
+                       << predictions[isol][t].getNumRecoveredReported() << ", "
+                       << predictions[isol][t].getNumFatalReported() << ", "
+                       << predictions[isol][t].getNumInfectedUnreported() << ", "
+                       << predictions[isol][t].getNumRecoveredUnreported() << ", "
+                       << predictions[isol][t].getNumFatalUnreported() << ", "
+                       << Reff_vector[isol][t];
+      if (isol < predictions.size()-1)
         file_predictions << ", ";
     }
     file_predictions << std::endl;

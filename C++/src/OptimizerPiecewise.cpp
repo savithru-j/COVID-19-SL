@@ -63,7 +63,7 @@ OptimizerPiecewise::optimizeParametersNLOPT()
   optimal_param_vec.clear();
   std::array<double,3> subcosts_dummy;
 
-  std::cout << std::scientific << std::setprecision(4);
+  std::cout << std::scientific << std::setprecision(5);
 
   for (int pass = 0; pass < max_passes; ++pass)
   {
@@ -129,10 +129,9 @@ OptimizerPiecewise::getCost()
   std::array<double,3> sub_costs = {0.0, 0.0, 0.0};
 
   double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
-
 #if 1 //L2
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
-  for (int i = 1; i < nt; ++i)
+  for (int i = 0; i < nt; ++i)
   {
     double err_total = (pop_hist[i].getNumReported() - pop_observed.confirmed[i]);
     double err_recov = (pop_hist[i].getNumRecoveredReported() - pop_observed.recovered[i]);
@@ -414,7 +413,7 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
 
   for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
   {
-    const int ind1 = (i < (int)IFR_SEG_STARTS.size()-1) ? IFR_SEG_STARTS[i+1] : nt_opt;
+    const int ind1 = ((int)i < (int)IFR_SEG_STARTS.size()-1) ? IFR_SEG_STARTS[i+1] : nt_opt;
     for (int ind = IFR_SEG_STARTS[i]; ind < ind1; ++ind)
       params.IFR[ind] = v[off + i];
   }
