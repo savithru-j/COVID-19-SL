@@ -3,15 +3,16 @@
 #include "Population.h"
 #include "ModelParams.h"
 
-std::vector<Population>
-predictModel(const ModelParams& params, const Population& pop_init)
+template<class T>
+std::vector<Population<T>>
+predictModel(const ModelParams<T>& params, const Population<T>& pop_init)
 {
-  std::vector<Population> population_hist;
+  std::vector<Population<T>> population_hist;
 
   const int nt = params.nt_hist + params.nt_pred;
   const int nt_sub = 1.0/params.dt;
 
-  Population pop = pop_init;
+  Population<T> pop = pop_init;
 
   population_hist.reserve(nt);
   population_hist.push_back(pop);
@@ -30,9 +31,10 @@ predictModel(const ModelParams& params, const Population& pop_init)
   return population_hist;
 }
 
-double
-calcEffectiveReproductionRatio(const ModelParams& params_orig,
-                               const std::vector<Population>& pop_hist_orig, const int t)
+template<class T>
+T
+calcEffectiveReproductionRatio(const ModelParams<T>& params_orig,
+                               const std::vector<Population<T>>& pop_hist_orig, const int t)
 {
   assert( t >= 0 && t < params_orig.nt_hist + params_orig.nt_pred);
 
@@ -40,8 +42,8 @@ calcEffectiveReproductionRatio(const ModelParams& params_orig,
   const double E0_init = 10000;
   const int nt_sub = 1.0/params_orig.dt;
 
-  ModelParams params(0, T_pred_Reff, {}, params_orig.betaN[t], params_orig.ce[t], params_orig.c0[t],
-                     params_orig.c1[t], params_orig.c2[t], params_orig.c3[t]);
+  ModelParams<T> params(0, T_pred_Reff, {}, params_orig.betaN[t], params_orig.ce[t], params_orig.c0[t],
+                        params_orig.c1[t], params_orig.c2[t], params_orig.c3[t]);
   params.T_incub0        = params_orig.T_incub0;
   params.T_incub1        = params_orig.T_incub1;
   params.T_asympt        = params_orig.T_asympt;
@@ -54,7 +56,7 @@ calcEffectiveReproductionRatio(const ModelParams& params_orig,
   params.IFR             = params_orig.IFR;
   params.S_Reff          = pop_hist_orig[t].S;
 
-  Population pop(pop_hist_orig[t].N, E0_init);
+  Population<T> pop(pop_hist_orig[t].N, E0_init);
   pop.S = 0; //susceptible population should be set to zero for R-eff simulation
 
   for (int t = 0; t < T_pred_Reff-1; t++)
@@ -66,3 +68,8 @@ calcEffectiveReproductionRatio(const ModelParams& params_orig,
 
   return pop.dS_exit_Reff / E0_init;
 }
+
+//Explicit instantiations
+template std::vector<Population<double>> predictModel(const ModelParams<double>&, const Population<double>&);
+
+template double calcEffectiveReproductionRatio(const ModelParams<double>&, const std::vector<Population<double>>&, const int);

@@ -70,7 +70,7 @@ main(int argc, char *argv[])
   }
   file_popsmooth.close();
 
-  Population pop_init(pop_observed.N, 100,
+  Population<double> pop_init(pop_observed.N, 100,
                       pop_observed.confirmed[0] - pop_observed.recovered[0] - pop_observed.deaths[0],
                       pop_observed.recovered[0],
                       pop_observed.deaths[0]);
@@ -98,10 +98,9 @@ main(int argc, char *argv[])
   auto pop_vaccine_data = getDailyVaccinations(filepath_vaccine_data, T_smooth);
   std::cout << "Vaccination data vector length: " << pop_vaccine_data.size() << std::endl << std::endl;
 
-  OptimizerPiecewise opt(pop_observed, pop_init, pop_quarantine_input, pop_vaccine_data,
-                         interval_size, linear_basis,
-                         weight_conf, weight_recov, weight_fatal,
-                         max_iter_per_pass, max_passes, seed);
+  OptimizerPiecewise<double> opt(pop_observed, pop_init, pop_quarantine_input, pop_vaccine_data,
+                                 interval_size, linear_basis, weight_conf, weight_recov, weight_fatal,
+                                 max_iter_per_pass, max_passes, seed);
 
 #if 0 //Initialize to true params
   std::string filepath = "csv_data/" + country + "_params.txt";
@@ -121,14 +120,14 @@ main(int argc, char *argv[])
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
   const int nt_hist = pop_observed.getNumDays();
-  std::vector<std::vector<Population>> predictions(opt.cost_min.size());
-  std::vector<Vector> param_vecs_full(opt.cost_min.size());
+  std::vector<std::vector<Population<double>>> predictions(opt.cost_min.size());
+  std::vector<Vector<double>> param_vecs_full(opt.cost_min.size());
 
-  std::vector<Vector> Reff_vector(predictions.size(), Vector(nt_hist));
+  std::vector<Vector<double>> Reff_vector(predictions.size(), Vector<double>(nt_hist));
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams params(nt_hist, 0, pop_quarantine_input, pop_vaccine_data);
+    ModelParams<double> params(nt_hist, 0, pop_quarantine_input, pop_vaccine_data);
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 

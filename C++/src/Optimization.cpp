@@ -11,14 +11,14 @@
 //  return min + (max - min)*uniform_rand(gen);
 //}
 
-Matrix getHaarMatrix(int m)
+Matrix<double> getHaarMatrix(int m)
 {
   const int num_levels = std::ceil(std::log2(m));
   const int n = std::pow(2, num_levels);
 //  if (std::pow(2,num_levels) != n)
 //    throw("N is not a power of 2!");
 
-  Matrix A(n, n, 0.0);
+  Matrix<double> A(n, n, 0.0);
   const double inv_sqrtn = 1.0 / std::sqrt(n);
 
   for (int j = 0; j < n; ++j)
@@ -43,7 +43,7 @@ Matrix getHaarMatrix(int m)
   return A;
 }
 
-Matrix getDCTMatrix(int N, int num_coeff)
+Matrix<double> getDCTMatrix(int N, int num_coeff)
 {
   if (num_coeff == 0)
     throw("getDCTMatrix: the number of coefficients cannot be zero!");
@@ -51,7 +51,7 @@ Matrix getDCTMatrix(int N, int num_coeff)
   const double scale_row0 = 1.0 / std::sqrt(N);
   const double scale_rowk = std::sqrt(2.0) / std::sqrt(N);
 
-  Matrix A(N, N, 0.0);
+  Matrix<double> A(N, N, 0.0);
 
   //A(0,:)
   for (int n = 0; n < N; ++n)
@@ -65,7 +65,7 @@ Matrix getDCTMatrix(int N, int num_coeff)
   return A;
 }
 
-Matrix getInverseDCTMatrix(int N, int num_coeff)
+Matrix<double> getInverseDCTMatrix(int N, int num_coeff)
 {
   if (num_coeff == 0)
     throw("getInverseDCTMatrix: the number of coefficients cannot be zero!");
@@ -73,7 +73,7 @@ Matrix getInverseDCTMatrix(int N, int num_coeff)
   const double scale_col0 = 1.0 / std::sqrt(N);
   const double scale_colk = std::sqrt(2.0) / std::sqrt(N);
 
-  Matrix A(N, num_coeff, 0.0);
+  Matrix<double> A(N, num_coeff, 0.0);
 
   for (int n = 0; n < N; ++n)
   {

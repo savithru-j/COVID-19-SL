@@ -7,6 +7,7 @@
 #include "Population.h"
 #include "LinearAlgebra.h"
 
+template<class T>
 struct OptimizerPiecewise
 {
 //  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
@@ -15,8 +16,8 @@ struct OptimizerPiecewise
   static constexpr bool OPTIMIZE_C2 = false;
   static constexpr std::array<int,3> IFR_SEG_STARTS = {0, 151, 273};
 
-  OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                     const Vector& quarantine_input, const Vector& vaccination_data,
+  OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
+                     const Vector<double>& quarantine_input, const Vector<double>& vaccination_data,
                      int interval_size_, bool linear_basis_ = false,
                      double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
                      int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
@@ -56,43 +57,43 @@ struct OptimizerPiecewise
   void optimizeParametersNLOPT();
 
   const ObservedPopulation& pop_observed;
-  const Population& pop_init;
+  const Population<double>& pop_init;
   const int nt_opt, interval_size;
   const bool linear_basis = false;
   double weight_conf, weight_recov, weight_fatal;
   int max_iter_per_pass = 1000;
   int max_passes = 1;
 
-  std::vector<ParamBound> param_bounds;
-  Vector param_vec; //current solution vector
-  ModelParams params;
+  Vector<ParamBound> param_bounds;
+  Vector<T> param_vec; //current solution vector
+  ModelParams<T> params;
 
   int f_eval_count = 0;
   int nlopt_iter = 0;
 
-  std::vector<Vector> optimal_param_vec;
-  std::vector<double> cost_min;
-  std::vector<std::array<double,3>> sub_costs_min;
+  Vector<Vector<double>> optimal_param_vec;
+  Vector<double> cost_min;
+  Vector<std::array<double,3>> sub_costs_min;
 
   std::mt19937 rand_engine; //Standard mersenne_twister_engine seeded with rd()
   std::uniform_real_distribution<double> uniform_rand;
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
-  void copyParam2Vector(const ModelParams& params, Vector& v);
-  void copyVector2Param(const Vector& v, ModelParams& params);
+  void copyParam2Vector(const ModelParams<T>& params, Vector<T>& v);
+  void copyVector2Param(const Vector<T>& v, ModelParams<T>& params);
 
 protected:
 
-  std::pair<double, std::array<double, 3>> getCost();
+  std::pair<T, std::array<T, 3>> getCost();
 
   double getCostGradient(std::vector<double>& grad);
-  double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
+  double getCostGradient(Vector<double>& grad) { return getCostGradient(grad.getDataVector()); }
 
-  static std::vector<ParamBound> getParameterBounds(int nt, int num_basis, bool linear_basis);
+  static Vector<ParamBound> getParameterBounds(int nt, int num_basis, bool linear_basis);
 
-  void updateOptimalSolution(const double& cost_rel, const std::array<double,3>& sub_costs,
-                             const Vector& param_vec);
+  void updateOptimalSolution(const T& cost_rel, const std::array<T,3>& sub_costs,
+                             const Vector<T>& param_vec);
 
   inline double uniformRand(double min = 0.0, double max = 1.0)
   {

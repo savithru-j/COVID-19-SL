@@ -3,12 +3,18 @@
 
 #include <vector>
 
+template<class T>
 class ModelParams;
+
+template<class T>
 class Population;
 
-std::vector<Population> predictModel(const ModelParams& params, const Population& pop_init);
+template<class T>
+std::vector<Population<T>>
+predictModel(const ModelParams<T>& params, const Population<T>& pop_init);
 
-double calcEffectiveReproductionRatio(const ModelParams& params_orig,
-                                      const std::vector<Population>& pop_hist_orig, const int t);
+template<class T>
+T calcEffectiveReproductionRatio(const ModelParams<T>& params_orig,
+                                 const std::vector<Population<T>>& pop_hist_orig, const int t);
 
 #endif

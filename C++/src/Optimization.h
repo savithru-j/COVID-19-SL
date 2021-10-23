@@ -3,6 +3,7 @@
 
 #include <nlopt.hpp>
 
+template<class T>
 class Matrix;
 
 struct ParamBound {
@@ -15,9 +16,9 @@ struct ParamBound {
 
 //double uniformRand(double min = 0.0, double max = 1.0);
 
-Matrix getHaarMatrix(int m);
-Matrix getDCTMatrix(int N, int num_coeff);
-Matrix getInverseDCTMatrix(int N, int num_coeff);
+Matrix<double> getHaarMatrix(int m);
+Matrix<double> getDCTMatrix(int N, int num_coeff);
+Matrix<double> getInverseDCTMatrix(int N, int num_coeff);
 
 std::string getNLOPTResultDescription(nlopt::result resultcode);
 

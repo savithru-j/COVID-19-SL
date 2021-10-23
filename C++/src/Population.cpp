@@ -5,8 +5,9 @@
 
 #include "Population.h"
 
+template<class T>
 void
-Population::evolve(const ModelParams& params, int t)
+Population<T>::evolve(const ModelParams<T>& params, int t)
 {
   //Probabilities
   const double prob_E0_E1 = 1;                      //non-infectious exposed to infectious exposed
@@ -78,8 +79,9 @@ Population::evolve(const ModelParams& params, int t)
     E0 = 0.0;
 }
 
+template<class T>
 void
-Population::report(const ModelParams& params, int t)
+Population<T>::report(const ModelParams<T>& params, int t)
 {
   double delta = E1[0] * params.ce[t];
   E1[0] -= delta;
@@ -102,15 +104,17 @@ Population::report(const ModelParams& params, int t)
   I3[1] += delta;
 }
 
+template<class T>
 void
-Population::vaccinate(const ModelParams& params, int t)
+Population<T>::vaccinate(const ModelParams<T>& params, int t)
 {
   S -= params.vaccine_eff*params.daily_vaccinations[t];
   if (S < 0.0)
     S = 0.0;
 }
 
-std::ostream& operator<<(std::ostream& os, const Population& pop)
+template<class T>
+std::ostream& operator<<(std::ostream& os, const Population<T>& pop)
 {
   os << std::scientific << std::setprecision(3);
   return os << "S : " << pop.S << std::endl
@@ -124,12 +128,12 @@ std::ostream& operator<<(std::ostream& os, const Population& pop)
             << "D : " << pop.D[0] << ", " << pop.D[1] << std::endl;
 }
 
-Vector
+Vector<double>
 getQuarantineInputVector(const std::string& filepath)
 {
   std::ifstream in(filepath);
   if (!in)
-    return Vector(); //return empty vector
+    return Vector<double>(); //return empty vector
 
   std::vector<int> indices;
   std::vector<double> values;
@@ -145,7 +149,7 @@ getQuarantineInputVector(const std::string& filepath)
   }
   in.close();
 
-  Vector vec(max_ind+1, 0.0);
+  Vector<double> vec(max_ind+1, 0.0);
   for (std::size_t i = 0; i < indices.size(); ++i)
     vec[indices[i]] = values[i];
 
@@ -181,7 +185,7 @@ ObservedPopulation::smooth(const int T_smooth)
   }
 }
 
-Vector
+Vector<double>
 getDailyVaccinations(const std::string& filepath, const int T_smooth)
 {
   assert(T_smooth % 2 == 1);
@@ -189,15 +193,15 @@ getDailyVaccinations(const std::string& filepath, const int T_smooth)
 
   std::ifstream in(filepath);
   if (!in)
-    return Vector(); //return empty vector
+    return Vector<double>(); //return empty vector
 
-  Vector num_total_vaccinated;
+  Vector<double> num_total_vaccinated;
   double val;
   while (in >> val)
     num_total_vaccinated.push_back(val);
   in.close();
 
-  Vector daily_vaccinated_smooth(num_total_vaccinated.size(), 0.0);
+  Vector<double> daily_vaccinated_smooth(num_total_vaccinated.size(), 0.0);
   for (int i = 0; i < (int) num_total_vaccinated.size(); ++i)
   {
     int js = std::max(i-r, 0);
@@ -218,3 +222,5 @@ getDailyVaccinations(const std::string& filepath, const int T_smooth)
   return daily_vaccinated_smooth;
 }
 
+//Explicit instantiations
+template class Population<double>;

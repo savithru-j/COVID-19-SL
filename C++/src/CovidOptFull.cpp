@@ -50,7 +50,7 @@ main(int argc, char *argv[])
 
 	ObservedPopulation pop_observed("csv_data/" + country + ".txt");
 
-	Population pop_init(pop_observed.N, 5, 1);
+	Population<double> pop_init(pop_observed.N, 5, 1);
 
 	std::string folder_path = "results";
 	mkdir(folder_path.c_str(), 0777);
@@ -95,12 +95,12 @@ main(int argc, char *argv[])
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
   const int nt_hist = pop_observed.getNumDays();
-  std::vector<std::vector<Population>> predictions(opt.num_results);
-  std::vector<Vector> param_vecs_full(opt.num_results);
+  std::vector<std::vector<Population<double>>> predictions(opt.num_results);
+  std::vector<Vector<double>> param_vecs_full(opt.num_results);
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams params(nt_hist, opt.t_buffer);
+    ModelParams<double> params(nt_hist, opt.t_buffer);
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 

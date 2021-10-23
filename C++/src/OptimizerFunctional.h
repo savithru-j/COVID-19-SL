@@ -9,8 +9,8 @@
 
 struct OptimizerFunctional
 {
-  OptimizerFunctional(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                      const Vector& quarantine_input, const int T_avg_, const int T_unopt_,
+  OptimizerFunctional(const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
+                      const Vector<double>& quarantine_input, const int T_avg_, const int T_unopt_,
                       int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
   inline int nDim() const { return param_vec.size(); };
@@ -28,7 +28,7 @@ struct OptimizerFunctional
   void optimizeParametersNLOPT();
 
   const ObservedPopulation& pop_observed;
-  const Population& pop_init;
+  const Population<double>& pop_init;
   int T_avg, T_unopt;
   int max_iter_per_pass;
   int max_passes;
@@ -37,14 +37,14 @@ struct OptimizerFunctional
 //  double min_eta = 1e-5;
 
   std::vector<ParamBound> param_bounds;
-  Vector param_vec; //current solution vector
-  ModelParams params;
+  Vector<double> param_vec; //current solution vector
+  ModelParams<double> params;
 
   int f_eval_count = 0;
   int nlopt_iter = 0;
 
   int num_results; //no. of optimal results to store (best to worst)
-  std::vector<Vector> optimal_param_vec;
+  std::vector<Vector<double>> optimal_param_vec;
   std::vector<double> cost_min;
   std::vector<std::array<double,6>> sub_costs_min;
 
@@ -53,22 +53,22 @@ struct OptimizerFunctional
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
-  static void copyParam2Vector(const ModelParams& params, Vector& v);
-  static void copyVector2Param(const Vector& v, ModelParams& params);
+  static void copyParam2Vector(const ModelParams<double>& params, Vector<double>& v);
+  static void copyVector2Param(const Vector<double>& v, ModelParams<double>& params);
 
 protected:
 
   std::pair<double, std::array<double, 6>> getCost();
 
   double getCostGradient(std::vector<double>& grad);
-  double getCostGradient(Vector& grad) { return getCostGradient(grad.getDataVector()); }
+  double getCostGradient(Vector<double>& grad) { return getCostGradient(grad.getDataVector()); }
 
   static std::vector<ParamBound> getParameterBounds(int nt);
 
   void updateOptimalSolution(const double& cost, const std::array<double,6>& sub_costs,
-                             const Vector& param_vec);
+                             const Vector<double>& param_vec);
 
-  double limitUpdate(Vector& dparam_vec);
+  double limitUpdate(Vector<double>& dparam_vec);
 
   inline double uniformRand(double min = 0.0, double max = 1.0)
   {

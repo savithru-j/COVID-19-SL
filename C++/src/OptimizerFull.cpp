@@ -5,8 +5,8 @@
 #include "OptimizerFull.h"
 #include "Simulator.h"
 
-OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                             const Vector& quarantine_input,
+OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
+                             const Vector<double>& quarantine_input,
                              double wconf, double wrecov, double wfatal, double wreg,
                              int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
@@ -44,13 +44,13 @@ OptimizerFull::optimizeParameters()
 
   double jump_energy = 1.0;
 
-  Vector param_vec0 = param_vec;
+  Vector<double> param_vec0 = param_vec;
   std::fill(optimal_param_vec.begin(), optimal_param_vec.end(), param_vec);
 
   double cost0 = -1;
   std::fill(cost_min.begin(), cost_min.end(), 1.0); //relative cost
 
-  Vector cost_grad(nDim(), 0.0); //storage vector for cost gradient
+  Vector<double> cost_grad(nDim(), 0.0); //storage vector for cost gradient
 
   std::cout << std::scientific << std::setprecision(4);
 
@@ -353,7 +353,7 @@ OptimizerFull::getCost()
 double
 OptimizerFull::getCostGradient(std::vector<double>& grad)
 {
-  ModelParams params_orig = params; //create a copy of the current parameters
+  ModelParams<double> params_orig = params; //create a copy of the current parameters
 
   double norm_sq = 0.0;
   for (int j = 0; j < param_vec.m(); ++j)
@@ -383,7 +383,7 @@ OptimizerFull::getCostGradient(std::vector<double>& grad)
 
 void
 OptimizerFull::updateOptimalSolution(
-    const double& cost, const std::array<double,6>& sub_costs, const Vector& param_vec_cur)
+    const double& cost, const std::array<double,6>& sub_costs, const Vector<double>& param_vec_cur)
 {
   int min_ind = 0;
   for (min_ind = 0; min_ind < num_results; ++min_ind)
@@ -402,7 +402,7 @@ OptimizerFull::updateOptimalSolution(
 }
 
 double
-OptimizerFull::limitUpdate(Vector& dparam_vec)
+OptimizerFull::limitUpdate(Vector<double>& dparam_vec)
 {
   double eta = 1.0;
 
@@ -426,7 +426,7 @@ OptimizerFull::limitUpdate(Vector& dparam_vec)
 }
 
 void
-OptimizerFull::copyParam2Vector(const ModelParams& params, Vector& v)
+OptimizerFull::copyParam2Vector(const ModelParams<double>& params, Vector<double>& v)
 {
   const int nt = params.nt_hist + params.nt_pred;
   const int m = nt + 2;
@@ -453,7 +453,7 @@ OptimizerFull::copyParam2Vector(const ModelParams& params, Vector& v)
 }
 
 void
-OptimizerFull::copyVector2Param(const Vector& v, ModelParams& params)
+OptimizerFull::copyVector2Param(const Vector<double>& v, ModelParams<double>& params)
 {
   const int nt = params.nt_hist + params.nt_pred;
   const int m = nt + 2;
@@ -488,11 +488,11 @@ OptimizerFull::copyVector2Param(const Vector& v, ModelParams& params)
 //  params.IFR             = v[off+9];
 }
 
-std::vector<ParamBound>
+Vector<ParamBound>
 OptimizerFull::getParameterBounds(int nt)
 {
   const int m = nt + 2;
-  std::vector<ParamBound> bounds(m);
+  Vector<ParamBound> bounds(m);
 
   const double delta = 1e-4;
 

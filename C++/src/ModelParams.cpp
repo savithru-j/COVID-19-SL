@@ -1,6 +1,7 @@
 #include "ModelParams.h"
 
-void copyParam2FullVector(const ModelParams& params, Vector& v)
+template<class T>
+void copyParam2FullVector(const ModelParams<T>& params, Vector<T>& v)
 {
   const int nt = params.nt_hist + params.nt_pred;
   const int m = 6*nt + 10;
@@ -30,7 +31,8 @@ void copyParam2FullVector(const ModelParams& params, Vector& v)
   v[off+9] = params.vaccine_eff;
 }
 
-void copyFullVector2Param(const Vector& v, ModelParams& params)
+template<class T>
+void copyFullVector2Param(const Vector<T>& v, ModelParams<T>& params)
 {
   const int nt = params.nt_hist;
   const int m = 6*nt + 10;
@@ -72,3 +74,10 @@ void copyFullVector2Param(const Vector& v, ModelParams& params)
   params.frac_recover_I2 = v[off+8];
   params.vaccine_eff     = v[off+9];
 }
+
+//Explicit instantiations
+template class ModelParams<double>;
+
+template void copyParam2FullVector(const ModelParams<double>& params, Vector<double>& v);
+
+template void copyFullVector2Param(const Vector<double>& v, ModelParams<double>& params);

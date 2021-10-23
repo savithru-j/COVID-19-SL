@@ -3,10 +3,11 @@
 
 #include "LinearAlgebra.h"
 
+template<class T = double>
 struct ModelParams
 {
-  ModelParams(int nt_hist_, int nt_pred_, const Vector& external_quarantine_input = {},
-              const Vector& vaccination_data = {},
+  ModelParams(int nt_hist_, int nt_pred_, const Vector<double>& external_quarantine_input = {},
+              const Vector<double>& vaccination_data = {},
               double betaN_val = 0.3, double ce_val = 0.0, double c0_val = 0.0,
               double c1_val = 0.0, double c2_val = 1.0, double c3_val = 1.0)
     : nt_hist(nt_hist_), nt_pred(nt_pred_)
@@ -42,14 +43,14 @@ struct ModelParams
 
   int nt_hist, nt_pred;
   static constexpr double dt = 1.0/24.0;
-  Vector quarantine_input;
-  Vector daily_vaccinations;
-  Vector betaN;
-  Vector ce;
-  Vector c0;
-  Vector c1;
-  Vector c2;
-  Vector c3;
+  Vector<double> quarantine_input;
+  Vector<double> daily_vaccinations;
+  Vector<T> betaN;
+  Vector<T> ce;
+  Vector<T> c0;
+  Vector<T> c1;
+  Vector<T> c2;
+  Vector<T> c3;
   double T_incub0        = 3.0;
   double T_incub1        = 2.0;
   double T_asympt        = 6.0;
@@ -59,12 +60,15 @@ struct ModelParams
   double f               = 0.3;   //exposed to asymptomatic probability
   double frac_recover_I1 = 0.80;  //fraction of cases that recover from mild-infected stage I1
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
-  Vector IFR;                     //infection fatality ratio (for each day)
+  Vector<T> IFR;                  //infection fatality ratio (for each day)
   double S_Reff          = 0.0;   //susceptible population at a given time - only used for R-effective calc
-  double vaccine_eff     = 1.0;   //effectiveness of vaccines
+  T vaccine_eff     = 1.0;   //effectiveness of vaccines
 };
 
-void copyParam2FullVector(const ModelParams& params, Vector& v);
-void copyFullVector2Param(const Vector& v, ModelParams& params);
+template<class T>
+void copyParam2FullVector(const ModelParams<T>& params, Vector<T>& v);
+
+template<class T>
+void copyFullVector2Param(const Vector<T>& v, ModelParams<T>& params);
 
 #endif

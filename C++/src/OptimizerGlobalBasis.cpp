@@ -5,10 +5,11 @@
 #include "OptimizerGlobalBasis.h"
 #include "Simulator.h"
 
-OptimizerGlobalBasis::OptimizerGlobalBasis(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                                 const Vector& quarantine_input, int num_basis_,
-                                 double wconf, double wrecov, double wfatal,
-                                 int max_iter_per_pass_, int max_passes_, int seed) :
+OptimizerGlobalBasis::OptimizerGlobalBasis(
+    const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
+    const Vector<double>& quarantine_input, int num_basis_,
+    double wconf, double wrecov, double wfatal,
+    int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
     nt_opt(pop_observed.getNumDays()), num_basis(num_basis_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal),
@@ -279,7 +280,7 @@ OptimizerGlobalBasis::getCost()
 double
 OptimizerGlobalBasis::getCostGradient(std::vector<double>& grad)
 {
-  ModelParams params_orig = params; //create a copy of the current parameters
+  ModelParams<double> params_orig = params; //create a copy of the current parameters
 
   double norm_sq = 0.0;
   for (int j = 0; j < param_vec.m(); ++j)
@@ -314,7 +315,7 @@ OptimizerGlobalBasis::getConstraints(double* constraints, double* grad)
   const int off = 4*num_cpts; //index offset for maximum constraints
   const int ndim = nDim();
 
-  Vector phi(num_basis, 0.0);
+  Vector<double> phi(num_basis, 0.0);
 
   /* Constraint equation form:
    *    sum( u[i]*phi[i] ) - u_max <= 0.0
@@ -422,7 +423,7 @@ OptimizerGlobalBasis::getPenalty()
 
 void
 OptimizerGlobalBasis::updateOptimalSolution(
-    const double& cost, const std::array<double,3>& sub_costs, const Vector& param_vec_cur)
+    const double& cost, const std::array<double,3>& sub_costs, const Vector<double>& param_vec_cur)
 {
   int min_ind = 0;
   for (min_ind = 0; min_ind < NUM_RESULTS; ++min_ind)
@@ -494,7 +495,7 @@ OptimizerGlobalBasis::getParameterBounds(int nt, int nbasis)
 }
 
 void
-OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
+OptimizerGlobalBasis::copyParam2Vector(const ModelParams<double>& params, Vector<double>& v)
 {
   const int m = 5*num_basis + 9;
   if (v.m() != m)
@@ -527,7 +528,7 @@ OptimizerGlobalBasis::copyParam2Vector(const ModelParams& params, Vector& v)
 }
 
 void
-OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
+OptimizerGlobalBasis::copyVector2Param(const Vector<double>& v, ModelParams<double>& params)
 {
   const int nt = params.nt_hist;
   const int m = 5*num_basis + 9;
@@ -603,7 +604,7 @@ OptimizerGlobalBasis::copyVector2Param(const Vector& v, ModelParams& params)
 }
 
 void
-OptimizerGlobalBasis::getBasisLegendre(const double& x, Vector& phi)
+OptimizerGlobalBasis::getBasisLegendre(const double& x, Vector<double>& phi)
 {
   switch (phi.size())
   {

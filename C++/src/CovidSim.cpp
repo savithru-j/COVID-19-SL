@@ -36,7 +36,7 @@ main(int argc, char *argv[])
     param_vec.push_back(val);
   in.close();
 
-	Population pop_init(N_population, 5);
+	Population<double> pop_init(N_population, 5);
 
 	std::string folder_path = "results";
 	mkdir(folder_path.c_str(), 0777);
@@ -50,8 +50,8 @@ main(int argc, char *argv[])
   if (nt_hist <= 0)
     throwError("nt_hist <= 0!");
 
-  ModelParams params(nt_hist, 0);
-  copyFullVector2Param(param_vec, params);
+  ModelParams<double> params(nt_hist, 0);
+  copyFullVector2Param<double>(param_vec, params);
 
   auto t0 = std::chrono::high_resolution_clock::now();
 

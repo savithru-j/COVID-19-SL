@@ -4,13 +4,16 @@
 #include "OptimizerPiecewise.h"
 #include "Simulator.h"
 
-constexpr std::array<int,3> OptimizerPiecewise::IFR_SEG_STARTS;
+template<class T>
+constexpr std::array<int,3> OptimizerPiecewise<T>::IFR_SEG_STARTS;
 
-OptimizerPiecewise::OptimizerPiecewise(const ObservedPopulation& pop_observed_, const Population& pop_init_,
-                                       const Vector& quarantine_input, const Vector& vaccination_data,
-                                       int interval_size_, bool linear_basis_,
-                                       double wconf, double wrecov, double wfatal,
-                                       int max_iter_per_pass_, int max_passes_, int seed) :
+template<class T>
+OptimizerPiecewise<T>::OptimizerPiecewise(
+    const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
+    const Vector<double>& quarantine_input, const Vector<double>& vaccination_data,
+    int interval_size_, bool linear_basis_,
+    double wconf, double wrecov, double wfatal,
+    int max_iter_per_pass_, int max_passes_, int seed) :
     pop_observed(pop_observed_), pop_init(pop_init_),
     nt_opt(pop_observed.getNumDays()), interval_size(interval_size_), linear_basis(linear_basis_),
     weight_conf(wconf), weight_recov(wrecov), weight_fatal(wfatal),
@@ -26,9 +29,9 @@ OptimizerPiecewise::OptimizerPiecewise(const ObservedPopulation& pop_observed_, 
   copyParam2Vector(params, param_vec);
 }
 
-
+template<class T>
 void
-OptimizerPiecewise::optimizeParametersNLOPT()
+OptimizerPiecewise<T>::optimizeParametersNLOPT()
 {
   std::cout << "Optimizing parameters for " << params.nt_hist << " days..." << std::endl;
   std::cout << "No. of parameters: " << nDim() << std::endl;
@@ -97,8 +100,9 @@ OptimizerPiecewise::optimizeParametersNLOPT()
   std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
 }
 
+template<class T>
 double
-OptimizerPiecewise::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
+OptimizerPiecewise<T>::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
   OptimizerPiecewise* opt = reinterpret_cast<OptimizerPiecewise*>(data);
 
@@ -118,9 +122,9 @@ OptimizerPiecewise::getCostNLOPT(const std::vector<double>& x, std::vector<doubl
   return cost.first;
 }
 
-
-std::pair<double, std::array<double, 3>>
-OptimizerPiecewise::getCost()
+template<class T>
+std::pair<T, std::array<T, 3>>
+OptimizerPiecewise<T>::getCost()
 {
   auto pop_hist = predictModel(params, pop_init);
 
@@ -196,10 +200,11 @@ OptimizerPiecewise::getCost()
   return {cost, sub_costs};
 }
 
+template<class T>
 double
-OptimizerPiecewise::getCostGradient(std::vector<double>& grad)
+OptimizerPiecewise<T>::getCostGradient(std::vector<double>& grad)
 {
-  ModelParams params_orig = params; //create a copy of the current parameters
+  ModelParams<T> params_orig = params; //create a copy of the current parameters
 
   double norm_sq = 0.0;
   for (int j = 0; j < param_vec.m(); ++j)
@@ -227,9 +232,10 @@ OptimizerPiecewise::getCostGradient(std::vector<double>& grad)
   return std::sqrt(norm_sq);
 }
 
+template<class T>
 void
-OptimizerPiecewise::updateOptimalSolution(
-    const double& cost, const std::array<double,3>& sub_costs, const Vector& param_vec_cur)
+OptimizerPiecewise<T>::updateOptimalSolution(
+    const T& cost, const std::array<T,3>& sub_costs, const Vector<T>& param_vec_cur)
 {
   std::size_t min_ind = 0;
   for (min_ind = 0; min_ind < cost_min.size(); ++min_ind)
@@ -241,8 +247,9 @@ OptimizerPiecewise::updateOptimalSolution(
   optimal_param_vec.insert(optimal_param_vec.begin() + min_ind, param_vec_cur);
 }
 
-std::vector<ParamBound>
-OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_basis)
+template<class T>
+Vector<ParamBound>
+OptimizerPiecewise<T>::getParameterBounds(int nt, int interval_size, bool linear_basis)
 {
   int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
@@ -264,7 +271,7 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
     bounds[off + i] = ParamBound(0, 0.02, delta); //IFR in [0%, 2%]
 
   off += IFR_SEG_STARTS.size();
-  bounds[off] = ParamBound(0.4, 1.0, delta); //vaccine_eff
+  bounds[off] = ParamBound(0.0, 1.0, delta); //vaccine_eff
 
 #if 0
   off += 1;
@@ -281,8 +288,9 @@ OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_ba
   return bounds;
 }
 
+template<class T>
 void
-OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
+OptimizerPiecewise<T>::copyParam2Vector(const ModelParams<T>& params, Vector<T>& v)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
@@ -339,8 +347,9 @@ OptimizerPiecewise::copyParam2Vector(const ModelParams& params, Vector& v)
 #endif
 }
 
+template<class T>
 void
-OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
+OptimizerPiecewise<T>::copyVector2Param(const Vector<T>& v, ModelParams<T>& params)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
@@ -447,3 +456,5 @@ OptimizerPiecewise::copyVector2Param(const Vector& v, ModelParams& params)
 #endif
 }
 
+//Explicit instantiations
+template class OptimizerPiecewise<double>;

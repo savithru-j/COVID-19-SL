@@ -5,38 +5,50 @@
 #include <array>
 #include "ErrorHandler.h"
 
+template<class T = double>
 class Vector
 {
 public:
 
   Vector() = default;
-  Vector(int m, double val = 0.0) : data_(m, val) {}
+  Vector(int m) : data_(m) {}
+  Vector(int m, const T& val) : data_(m, val) {}
 
-  Vector(const std::vector<double>& v) : data_(v) {}
+  Vector(const std::vector<T>& v) : data_(v) {}
 
-  int m() const { return data_.size(); }
-  int size() const { return data_.size(); }
+  inline int m() const { return data_.size(); }
+  inline std::size_t size() const { return data_.size(); }
 
-  const double& operator()(int i) const { return data_[i]; }
-  double& operator()(int i) { return data_[i]; }
+  inline const T& operator()(int i) const { return data_[i]; }
+  inline T& operator()(int i) { return data_[i]; }
 
-  const double& operator[](int i) const { return data_[i]; }
-  double& operator[](int i) { return data_[i]; }
+  inline const T& operator[](int i) const { return data_[i]; }
+  inline T& operator[](int i) { return data_[i]; }
 
-  const double& back() const { return data_.back(); }
-  std::vector<double>::iterator begin() { return data_.begin(); }
-  std::vector<double>::iterator end() { return data_.end(); }
+  inline const T& back() const { return data_.back(); }
 
-  void resize(int m, const double& val = 0.0) { data_.resize(m, val); }
+  inline typename std::vector<T>::iterator begin() { return data_.begin(); }
+  inline typename std::vector<T>::iterator end() { return data_.end(); }
 
-  void push_back(const double& val) { data_.push_back(val); }
+  inline void resize(int m, const T& val = 0.0) { data_.resize(m, val); }
 
-  std::vector<double>& getDataVector() { return data_; }
+  inline void clear() { data_.clear(); }
+
+  inline void push_back(const T& val) { data_.push_back(val); }
+
+  inline void insert(typename std::vector<T>::const_iterator pos, const T& val)
+  {
+    data_.insert(pos, val);
+  }
+
+  inline const std::vector<T>& getDataVector() const { return data_; }
+  inline std::vector<T>& getDataVector() { return data_; }
 
 protected:
-  std::vector<double> data_;
+  std::vector<T> data_;
 };
 
+template<class T = double>
 class Matrix
 {
 public:
@@ -45,25 +57,26 @@ public:
   Matrix(int m, int n, double val = 0.0)
     : m_(m), n_(n), data_(m*n, val) {}
 
-  int m() const { return m_; }
-  int n() const { return n_; }
+  inline int m() const { return m_; }
+  inline int n() const { return n_; }
 
-  const double& operator()(int i, int j) const { return data_[n_*i + j]; }
-  double& operator()(int i, int j) { return data_[n_*i + j]; }
+  inline const T& operator()(int i, int j) const { return data_[n_*i + j]; }
+  inline T& operator()(int i, int j) { return data_[n_*i + j]; }
 
 protected:
   int m_ = 0, n_ = 0;
-  std::vector<double> data_;
+  std::vector<T> data_;
 };
 
-inline Vector operator*(const Matrix& A, const Vector& x)
+template<class T>
+inline Vector<T> operator*(const Matrix<T>& A, const Vector<T>& x)
 {
   if (A.n() != x.m())
     throwError("Dimension mismatch for matrix vector multiplication!");
 
   int m = A.m();
   int n = A.n();
-  Vector y(m, 0.0);
+  Vector<T> y(m, 0.0);
 
   for (int i = 0; i < m; ++i)
     for (int j = 0; j < n; ++j)
@@ -72,7 +85,8 @@ inline Vector operator*(const Matrix& A, const Vector& x)
   return y;
 }
 
-inline std::ostream& operator<<(std::ostream& os, const Vector& v)
+template<class T>
+inline std::ostream& operator<<(std::ostream& os, const Vector<T>& v)
 {
   for (int i = 0; i < v.m()-1; ++i)
     os << v[i] << ", ";
