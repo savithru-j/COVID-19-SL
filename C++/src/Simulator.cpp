@@ -2,10 +2,11 @@
 #include "Simulator.h"
 #include "Population.h"
 #include "ModelParams.h"
+#include "SurrealS.h"
 
 template<class T>
 std::vector<Population<T>>
-predictModel(const ModelParams<T>& params, const Population<T>& pop_init)
+predictModel(const ModelParams<T>& params, const Population<double>& pop_init)
 {
   std::vector<Population<T>> population_hist;
 
@@ -27,6 +28,9 @@ predictModel(const ModelParams<T>& params, const Population<T>& pop_init)
 
     population_hist.push_back(pop); //save solution daily
   }
+
+//  std::array<double> b{2.0, 3.0};
+//  std::array<SurrealS<1,double>> x(b.begin(), b.end());
 
   return population_hist;
 }
@@ -71,5 +75,6 @@ calcEffectiveReproductionRatio(const ModelParams<T>& params_orig,
 
 //Explicit instantiations
 template std::vector<Population<double>> predictModel(const ModelParams<double>&, const Population<double>&);
+template std::vector<Population<SurrealS<1,double>>> predictModel(const ModelParams<SurrealS<1,double>>&, const Population<double>&);
 
 template double calcEffectiveReproductionRatio(const ModelParams<double>&, const std::vector<Population<double>>&, const int);

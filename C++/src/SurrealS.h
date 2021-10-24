@@ -810,6 +810,20 @@ min( const SurrealS<N,T>& a, const double& b )
     return b;
 }
 
+template<int N, class T>
+inline bool
+isnan( const SurrealS<N,T>& z )
+{
+  if (std::isnan(z.v_))
+    return true;
+
+  for (int i = 0; i < N; i++)
+    if (std::isnan(z.d_[i]))
+      return true;
+
+  return false;
+}
+
 // I/O
 
 template<int N, class T>
@@ -867,4 +881,4 @@ operator<<( std::ostream& os, const SurrealS<N,T>& z )
 #undef SURREALS_FUNC1
 #undef SURREALS_FUNC2
 
-#endif // SURREALS_TRAD_H
+#endif // SURREALS_H

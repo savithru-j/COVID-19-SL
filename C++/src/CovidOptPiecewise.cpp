@@ -98,9 +98,9 @@ main(int argc, char *argv[])
   auto pop_vaccine_data = getDailyVaccinations(filepath_vaccine_data, T_smooth);
   std::cout << "Vaccination data vector length: " << pop_vaccine_data.size() << std::endl << std::endl;
 
-  OptimizerPiecewise<double> opt(pop_observed, pop_init, pop_quarantine_input, pop_vaccine_data,
-                                 interval_size, linear_basis, weight_conf, weight_recov, weight_fatal,
-                                 max_iter_per_pass, max_passes, seed);
+  OptimizerPiecewise opt(pop_observed, pop_init, pop_quarantine_input, pop_vaccine_data,
+                         interval_size, linear_basis, weight_conf, weight_recov, weight_fatal,
+                         max_iter_per_pass, max_passes, seed);
 
 #if 0 //Initialize to true params
   std::string filepath = "csv_data/" + country + "_params.txt";

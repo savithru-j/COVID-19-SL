@@ -3,12 +3,11 @@
 
 #include "OptimizerPiecewise.h"
 #include "Simulator.h"
+#include "SurrealS.h"
 
-template<class T>
-constexpr std::array<int,3> OptimizerPiecewise<T>::IFR_SEG_STARTS;
+constexpr std::array<int,3> OptimizerPiecewise::IFR_SEG_STARTS;
 
-template<class T>
-OptimizerPiecewise<T>::OptimizerPiecewise(
+OptimizerPiecewise::OptimizerPiecewise(
     const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
     const Vector<double>& quarantine_input, const Vector<double>& vaccination_data,
     int interval_size_, bool linear_basis_,
@@ -25,15 +24,14 @@ OptimizerPiecewise<T>::OptimizerPiecewise(
     throwError("Initial population mismatch!");
 
   param_bounds = getParameterBounds(nt_opt, interval_size, linear_basis);
-  param_vec.resize(param_bounds.size());
-  copyParam2Vector(params, param_vec);
+//  param_vec.resize(param_bounds.size());
+//  copyParam2Vector(params, param_vec);
 }
 
-template<class T>
 void
-OptimizerPiecewise<T>::optimizeParametersNLOPT()
+OptimizerPiecewise::optimizeParametersNLOPT()
 {
-  std::cout << "Optimizing parameters for " << params.nt_hist << " days..." << std::endl;
+  std::cout << "Optimizing parameters for " << nt_opt << " days..." << std::endl;
   std::cout << "No. of parameters: " << nDim() << std::endl;
 
   f_eval_count = 0;
@@ -66,13 +64,15 @@ OptimizerPiecewise<T>::optimizeParametersNLOPT()
   optimal_param_vec.clear();
   std::array<double,3> subcosts_dummy;
 
+  std::vector<double> x(nDim());
+  copyParam2Vector(params, x);
+
   std::cout << std::scientific << std::setprecision(5);
 
   for (int pass = 0; pass < max_passes; ++pass)
   {
-    std::cout << std::endl << "Pass " << pass << "/" << max_passes << " ----------------" << std::endl;
+    std::cout << std::endl << "Pass " << (pass+1) << "/" << max_passes << " ----------------" << std::endl;
 
-    std::vector<double> x = param_vec.getDataVector();
     double cost_opt;
     nlopt::result result = nlopt::result::FAILURE;
     nlopt_iter = 0;
@@ -91,8 +91,7 @@ OptimizerPiecewise<T>::optimizeParametersNLOPT()
 
     updateOptimalSolution(cost_opt, subcosts_dummy, x);
 
-    randomizeParameters();
-    x = param_vec.getDataVector();
+    randomizeParameters(x);
   }
 
   std::cout << std::endl;
@@ -100,20 +99,17 @@ OptimizerPiecewise<T>::optimizeParametersNLOPT()
   std::cout << "Cost function evaluation count: " << f_eval_count << std::endl;
 }
 
-template<class T>
 double
-OptimizerPiecewise<T>::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
+OptimizerPiecewise::getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data)
 {
   OptimizerPiecewise* opt = reinterpret_cast<OptimizerPiecewise*>(data);
+  opt->copyVector2Param(x, opt->params);
 
-  opt->param_vec = x;
-  opt->copyVector2Param(opt->param_vec, opt->params);
-
-  auto cost = opt->getCost();
+  auto cost = opt->getCost(opt->params);
 
   double grad_norm = 0.0;
   if (!grad.empty())
-    grad_norm = opt->getCostGradient(grad);
+    grad_norm = opt->getCostGradientAD(opt->params, grad);
 
   std::cout << "  Iter: " << opt->nlopt_iter << ", Cost: " << cost.first
             << " = [" << cost.second << "], Grad-norm: " << grad_norm << std::endl;
@@ -124,30 +120,38 @@ OptimizerPiecewise<T>::getCostNLOPT(const std::vector<double>& x, std::vector<do
 
 template<class T>
 std::pair<T, std::array<T, 3>>
-OptimizerPiecewise<T>::getCost()
+OptimizerPiecewise::getCost(const ModelParams<T>& params_tmp)
 {
-  auto pop_hist = predictModel(params, pop_init);
+  using namespace std;
 
-  const int nt = params.nt_hist + params.nt_pred;
+  auto pop_hist = predictModel(params_tmp, pop_init);
 
-  std::array<double,3> sub_costs = {0.0, 0.0, 0.0};
+  const int nt = params_tmp.nt_hist + params_tmp.nt_pred;
 
-  double err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
+  std::array<T,3> sub_costs = {0.0, 0.0, 0.0};
+  double obs_confirmed, obs_recovered, obs_deaths;
+  T err_total, err_recov, err_fatal;
+  T err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
+
 #if 1 //L2
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
   for (int i = 0; i < nt; ++i)
   {
-    double err_total = (pop_hist[i].getNumReported() - pop_observed.confirmed[i]);
-    double err_recov = (pop_hist[i].getNumRecoveredReported() - pop_observed.recovered[i]);
-    double err_fatal = (pop_hist[i].getNumFatalReported() - pop_observed.deaths[i]);
+    obs_confirmed = pop_observed.confirmed[i];
+    obs_recovered = pop_observed.recovered[i];
+    obs_deaths    = pop_observed.deaths[i];
+
+    err_total = (pop_hist[i].getNumReported() - obs_confirmed);
+    err_recov = (pop_hist[i].getNumRecoveredReported() - obs_recovered);
+    err_fatal = (pop_hist[i].getNumFatalReported() - obs_deaths);
 
     err_sq_total += err_total*err_total;
     err_sq_recov += err_recov*err_recov;
     err_sq_fatal += err_fatal*err_fatal;
 
-    sq_total += (double)pop_observed.confirmed[i]*(double)pop_observed.confirmed[i];
-    sq_recov += (double)pop_observed.recovered[i]*(double)pop_observed.recovered[i];
-    sq_fatal += (double)pop_observed.deaths[i]   *(double)pop_observed.deaths[i];
+    sq_total += obs_confirmed*obs_confirmed;
+    sq_recov += obs_recovered*obs_recovered;
+    sq_fatal += obs_deaths   *obs_deaths;
   }
   sub_costs[0] = weight_conf*(err_sq_total/sq_total);
   sub_costs[1] = weight_recov*(err_sq_recov/sq_recov);
@@ -194,17 +198,19 @@ OptimizerPiecewise<T>::getCost()
   sub_costs[2] = -scaling * weight_fatal* err_sq_fatal / denom;
 #endif
 
-  const double cost = sub_costs[0] + sub_costs[1] + sub_costs[2];
+  const T cost = sub_costs[0] + sub_costs[1] + sub_costs[2];
 
   f_eval_count++;
   return {cost, sub_costs};
 }
 
-template<class T>
 double
-OptimizerPiecewise<T>::getCostGradient(std::vector<double>& grad)
+OptimizerPiecewise::getCostGradientFD(const ModelParams<double>& params_orig, std::vector<double>& grad)
 {
-  ModelParams<T> params_orig = params; //create a copy of the current parameters
+  ModelParams<double> params_tmp = params_orig; //create a copy of the current parameters
+
+  Vector<double> param_vec(nDim());
+  copyParam2Vector(params_tmp, param_vec);
 
   double norm_sq = 0.0;
   for (int j = 0; j < param_vec.m(); ++j)
@@ -213,12 +219,12 @@ OptimizerPiecewise<T>::getCostGradient(std::vector<double>& grad)
 
     //Compute finite difference
     param_vec[j] += delta;
-    copyVector2Param(param_vec, params);
-    double fp = getCost().first;
+    copyVector2Param(param_vec, params_tmp);
+    double fp = getCost(params_tmp).first;
 
     param_vec[j] -= 2*delta;
-    copyVector2Param(param_vec, params);
-    double fm = getCost().first;
+    copyVector2Param(param_vec, params_tmp);
+    double fm = getCost(params_tmp).first;
 
     param_vec[j] += delta;
 
@@ -226,16 +232,32 @@ OptimizerPiecewise<T>::getCostGradient(std::vector<double>& grad)
     norm_sq += grad[j]*grad[j];
   }
 
-  params = params_orig; //Restore current parameters
-  copyParam2Vector(params, param_vec);
-
   return std::sqrt(norm_sq);
 }
 
-template<class T>
+double
+OptimizerPiecewise::getCostGradientAD(const ModelParams<double>& params_orig, std::vector<double>& grad)
+{
+  ModelParams<SurrealS<1,double>> params_tmp(params_orig); //create a copy of the current parameters
+  Vector<SurrealS<1,double>> param_vec(nDim());
+  copyParam2Vector(params_tmp, param_vec);
+
+  double norm_sq = 0.0;
+  for (int j = 0; j < param_vec.m(); ++j)
+  {
+    param_vec[j].deriv(0) = 1.0; //derivative w.r.t parameter j
+    copyVector2Param(param_vec, params_tmp);
+    auto f = getCost(params_tmp).first;
+    grad[j] = f.deriv(0);
+    norm_sq += grad[j]*grad[j];
+    param_vec[j].deriv(0) = 0.0; //reset derivative
+  }
+  return std::sqrt(norm_sq);
+}
+
 void
-OptimizerPiecewise<T>::updateOptimalSolution(
-    const T& cost, const std::array<T,3>& sub_costs, const Vector<T>& param_vec_cur)
+OptimizerPiecewise::updateOptimalSolution(
+    const double& cost, const std::array<double,3>& sub_costs, const Vector<double>& param_vec_cur)
 {
   std::size_t min_ind = 0;
   for (min_ind = 0; min_ind < cost_min.size(); ++min_ind)
@@ -247,9 +269,8 @@ OptimizerPiecewise<T>::updateOptimalSolution(
   optimal_param_vec.insert(optimal_param_vec.begin() + min_ind, param_vec_cur);
 }
 
-template<class T>
 Vector<ParamBound>
-OptimizerPiecewise<T>::getParameterBounds(int nt, int interval_size, bool linear_basis)
+OptimizerPiecewise::getParameterBounds(int nt, int interval_size, bool linear_basis)
 {
   int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
@@ -290,12 +311,12 @@ OptimizerPiecewise<T>::getParameterBounds(int nt, int interval_size, bool linear
 
 template<class T>
 void
-OptimizerPiecewise<T>::copyParam2Vector(const ModelParams<T>& params, Vector<T>& v)
+OptimizerPiecewise::copyParam2Vector(const ModelParams<T>& params, std::vector<T>& v)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
   const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size() + 1; //[beta values, c_params values, IFR segment values, vaccine_eff]
-  if (v.m() != m)
+  if ((int) v.size() != m)
     throwError("copyParam2Vector - inconsistent dimensions!");
 
   constexpr int j0 = OPTIMIZE_C0;
@@ -319,11 +340,11 @@ OptimizerPiecewise<T>::copyParam2Vector(const ModelParams<T>& params, Vector<T>&
   v[  num_nodes-1] = params.betaN[nt_opt-1];
 
   if (OPTIMIZE_C0)
-    v[j0*num_nodes-1] = params.c0[nt_opt-1];
+    v[(j0+1)*num_nodes-1] = params.c0[nt_opt-1];
   if (OPTIMIZE_C1)
-    v[j1*num_nodes-1] = params.c1[nt_opt-1];
+    v[(j1+1)*num_nodes-1] = params.c1[nt_opt-1];
   if (OPTIMIZE_C2)
-    v[j2*num_nodes-1] = params.c2[nt_opt-1];
+    v[(j2+1)*num_nodes-1] = params.c2[nt_opt-1];
 
   int off = (1 + num_c_params)*num_nodes;
 
@@ -349,12 +370,12 @@ OptimizerPiecewise<T>::copyParam2Vector(const ModelParams<T>& params, Vector<T>&
 
 template<class T>
 void
-OptimizerPiecewise<T>::copyVector2Param(const Vector<T>& v, ModelParams<T>& params)
+OptimizerPiecewise::copyVector2Param(const std::vector<T>& v, ModelParams<T>& params)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
   constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
   const int m = (1 + num_c_params)*num_nodes + IFR_SEG_STARTS.size() + 1; //[beta values, c_params values, IFR segment values, vaccine_eff]
-  if (v.m() != m)
+  if ((int)v.size() != m)
     throwError("copyVector2Param - inconsistent dimensions!");
 
   constexpr int j0 = OPTIMIZE_C0;
@@ -455,6 +476,3 @@ OptimizerPiecewise<T>::copyVector2Param(const Vector<T>& v, ModelParams<T>& para
   params.frac_recover_I2 = v[off+8];
 #endif
 }
-
-//Explicit instantiations
-template class OptimizerPiecewise<double>;

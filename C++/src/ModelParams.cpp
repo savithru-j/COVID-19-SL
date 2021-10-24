@@ -1,4 +1,8 @@
 #include "ModelParams.h"
+#include "SurrealS.h"
+
+template<class T>
+constexpr double ModelParams<T>::dt;
 
 template<class T>
 void copyParam2FullVector(const ModelParams<T>& params, Vector<T>& v)
@@ -77,7 +81,7 @@ void copyFullVector2Param(const Vector<T>& v, ModelParams<T>& params)
 
 //Explicit instantiations
 template class ModelParams<double>;
+template class ModelParams<SurrealS<1,double>>;
 
 template void copyParam2FullVector(const ModelParams<double>& params, Vector<double>& v);
-
 template void copyFullVector2Param(const Vector<double>& v, ModelParams<double>& params);

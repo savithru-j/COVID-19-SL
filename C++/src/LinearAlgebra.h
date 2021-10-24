@@ -30,6 +30,9 @@ public:
   inline typename std::vector<T>::iterator begin() { return data_.begin(); }
   inline typename std::vector<T>::iterator end() { return data_.end(); }
 
+  inline typename std::vector<T>::const_iterator cbegin() const { return data_.cbegin(); }
+  inline typename std::vector<T>::const_iterator cend() const { return data_.cend(); }
+
   inline void resize(int m, const T& val = 0.0) { data_.resize(m, val); }
 
   inline void clear() { data_.clear(); }

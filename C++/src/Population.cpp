@@ -4,11 +4,14 @@
 #include <cmath>
 
 #include "Population.h"
+#include "SurrealS.h"
 
 template<class T>
 void
 Population<T>::evolve(const ModelParams<T>& params, int t)
 {
+  using namespace std; //for min(double,double)
+
   //Probabilities
   const double prob_E0_E1 = 1;                      //non-infectious exposed to infectious exposed
   const double prob_E1_I0 = params.f;               //exposed to asymptomatic
@@ -18,9 +21,9 @@ Population<T>::evolve(const ModelParams<T>& params, int t)
   const double prob_I1_I2 = 1 - prob_I1_R;          //mild to severe  //0.2
   const double prob_I2_R  = params.frac_recover_I2; //severe to recovered  //0.75
   const double prob_I2_I3 = 1 - prob_I2_R;          //severe to critical //0.25
-  const double prob_I3_D  = (prob_E1_I1 == 0 || prob_I1_I2 == 0 || prob_I2_I3 == 0) ?
-                            0.0 : std::min(params.IFR[t]/(prob_E1_I1*prob_I1_I2*prob_I2_I3), 1.0); //critical to dead //0.40
-  const double prob_I3_R  = 1 - prob_I3_D;          //critical to recovered //0.6
+  const T      prob_I3_D  = (prob_E1_I1 == 0 || prob_I1_I2 == 0 || prob_I2_I3 == 0) ?
+                            0.0 : min(params.IFR[t]/(prob_E1_I1*prob_I1_I2*prob_I2_I3), 1.0); //critical to dead //0.40
+  const T      prob_I3_R  = 1 - prob_I3_D;          //critical to recovered //0.6
 
   //set rate parameters [1/day]
   const double a0  = (1/params.T_incub0) * prob_E0_E1;
@@ -31,16 +34,16 @@ Population<T>::evolve(const ModelParams<T>& params, int t)
   const double p1  = (1/params.T_mild)   * prob_I1_I2;
   const double g2  = (1/params.T_severe) * prob_I2_R;
   const double p2  = (1/params.T_severe) * prob_I2_I3;
-  const double g3  = (1/params.T_icu)    * prob_I3_R;
-  const double mu  = (1/params.T_icu)    * prob_I3_D;
+  const T      g3  = (1/params.T_icu)    * prob_I3_R;
+  const T      mu  = (1/params.T_icu)    * prob_I3_D;
 
   double a1 = a10 + a11;
-  double b = params.betaN[t] / N;
+  T b = params.betaN[t] / N;
 
   //Only individuals in layer 0 (unreported) contribute to dS
-  double dS      = -b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * S;
-  double dS_exit =  b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * params.S_Reff;
-  double dE0 = -dS - a0*E0;
+  T dS      = -b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * S;
+  T dS_exit =  b*(E1[0] + I0[0] + I1[0] + I2[0] + I3[0]) * params.S_Reff;
+  T dE0 = -dS - a0*E0;
   Array2 dE1 = {a0*E0, 0};
   Array2 dI0 = {0, 0};
   Array2 dI1 = {0, params.quarantine_input[t]};
@@ -83,7 +86,7 @@ template<class T>
 void
 Population<T>::report(const ModelParams<T>& params, int t)
 {
-  double delta = E1[0] * params.ce[t];
+  T delta = E1[0] * params.ce[t];
   E1[0] -= delta;
   E1[1] += delta;
 
@@ -224,3 +227,4 @@ getDailyVaccinations(const std::string& filepath, const int T_smooth)
 
 //Explicit instantiations
 template class Population<double>;
+template class Population<SurrealS<1,double>>;

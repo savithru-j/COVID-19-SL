@@ -11,7 +11,7 @@ class Population;
 
 template<class T>
 std::vector<Population<T>>
-predictModel(const ModelParams<T>& params, const Population<T>& pop_init);
+predictModel(const ModelParams<T>& params, const Population<double>& pop_init);
 
 template<class T>
 T calcEffectiveReproductionRatio(const ModelParams<T>& params_orig,

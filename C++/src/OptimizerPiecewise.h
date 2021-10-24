@@ -7,10 +7,8 @@
 #include "Population.h"
 #include "LinearAlgebra.h"
 
-template<class T>
 struct OptimizerPiecewise
 {
-//  static constexpr int NUM_RESULTS = 40;  //no. of optimal results to store (best to worst)
   static constexpr bool OPTIMIZE_C0 = true;
   static constexpr bool OPTIMIZE_C1 = true;
   static constexpr bool OPTIMIZE_C2 = false;
@@ -22,10 +20,13 @@ struct OptimizerPiecewise
                      double wconf_ = 1, double wrecov_ = 1, double wfatal_ = 1,
                      int max_iter_per_pass_ = 1000, int max_passes_ = 1, int seed = 1);
 
-  inline int nDim() const { return param_vec.size(); };
+  inline int nDim() const { return param_bounds.size(); };
 
-  inline void randomizeParameters()
+  inline void randomizeParameters(std::vector<double>& param_vec)
   {
+    if (param_vec.size() != param_bounds.size())
+      throwError("randomizeParameters - inconsistent dimensions!");
+
     const int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
     constexpr int num_c_params = OPTIMIZE_C0 + OPTIMIZE_C1 + OPTIMIZE_C2;
     for (int i = 0; i < (1+num_c_params); ++i)
@@ -48,10 +49,8 @@ struct OptimizerPiecewise
       param_vec[off + i] = param_vec[off];
 
     off += IFR_SEG_STARTS.size();
-    for (int i = off; i < param_vec.m(); ++i)
+    for (std::size_t i = off; i < param_vec.size(); ++i)
       param_vec[i] = uniformRand(param_bounds[i].min, param_bounds[i].max);
-
-    copyVector2Param(param_vec, params);
   }
 
   void optimizeParametersNLOPT();
@@ -65,8 +64,7 @@ struct OptimizerPiecewise
   int max_passes = 1;
 
   Vector<ParamBound> param_bounds;
-  Vector<T> param_vec; //current solution vector
-  ModelParams<T> params;
+  ModelParams<double> params;
 
   int f_eval_count = 0;
   int nlopt_iter = 0;
@@ -80,20 +78,37 @@ struct OptimizerPiecewise
 
   static double getCostNLOPT(const std::vector<double>& x, std::vector<double>& grad, void* data);
 
-  void copyParam2Vector(const ModelParams<T>& params, Vector<T>& v);
-  void copyVector2Param(const Vector<T>& v, ModelParams<T>& params);
+  template<class T>
+  void copyParam2Vector(const ModelParams<T>& params, std::vector<T>& v);
+
+  template<class T>
+  inline void copyParam2Vector(const ModelParams<T>& params, Vector<T>& v) {
+    copyParam2Vector(params, v.getDataVector());
+  }
+
+  template<class T>
+  void copyVector2Param(const std::vector<T>& v, ModelParams<T>& params);
+
+  template<class T>
+  inline void copyVector2Param(const Vector<T>& v, ModelParams<T>& params) {
+    copyVector2Param(v.getDataVector(), params);
+  }
 
 protected:
 
-  std::pair<T, std::array<T, 3>> getCost();
+  template<class T>
+  std::pair<T, std::array<T, 3>> getCost(const ModelParams<T>& params_tmp);
 
-  double getCostGradient(std::vector<double>& grad);
-  double getCostGradient(Vector<double>& grad) { return getCostGradient(grad.getDataVector()); }
+  //Evaluates the cost gradient using finite differences
+  double getCostGradientFD(const ModelParams<double>& params, std::vector<double>& grad);
+
+  //Evaluates the cost gradient using automatic differentiation
+  double getCostGradientAD(const ModelParams<double>& params, std::vector<double>& grad);
 
   static Vector<ParamBound> getParameterBounds(int nt, int num_basis, bool linear_basis);
 
-  void updateOptimalSolution(const T& cost_rel, const std::array<T,3>& sub_costs,
-                             const Vector<T>& param_vec);
+  void updateOptimalSolution(const double& cost_rel, const std::array<double,3>& sub_costs,
+                             const Vector<double>& param_vec);
 
   inline double uniformRand(double min = 0.0, double max = 1.0)
   {

@@ -41,6 +41,37 @@ struct ModelParams
     }
   }
 
+  template<class T2>
+  ModelParams(const ModelParams<T2>& other) :
+    nt_hist(other.nt_hist), nt_pred(other.nt_pred),
+    quarantine_input(other.quarantine_input), daily_vaccinations(other.daily_vaccinations),
+    T_incub0(other.T_incub0), T_incub1(other.T_incub1), T_asympt(other.T_asympt),
+    T_mild(other.T_mild), T_severe(other.T_severe), T_icu(other.T_icu), f(other.f),
+    frac_recover_I1(other.frac_recover_I1), frac_recover_I2(other.frac_recover_I2),
+    S_Reff(other.S_Reff), vaccine_eff(other.vaccine_eff)
+  {
+    betaN.resize(other.betaN.size());
+    std::copy(other.betaN.cbegin(), other.betaN.cend(), betaN.begin());
+
+    ce.resize(other.ce.size());
+    std::copy(other.ce.cbegin(), other.ce.cend(), ce.begin());
+
+    c0.resize(other.c0.size());
+    std::copy(other.c0.cbegin(), other.c0.cend(), c0.begin());
+
+    c1.resize(other.c1.size());
+    std::copy(other.c1.cbegin(), other.c1.cend(), c1.begin());
+
+    c2.resize(other.c2.size());
+    std::copy(other.c2.cbegin(), other.c2.cend(), c2.begin());
+
+    c3.resize(other.c3.size());
+    std::copy(other.c3.cbegin(), other.c3.cend(), c3.begin());
+
+    IFR.resize(other.IFR.size());
+    std::copy(other.IFR.cbegin(), other.IFR.cend(), IFR.begin());
+  }
+
   int nt_hist, nt_pred;
   static constexpr double dt = 1.0/24.0;
   Vector<double> quarantine_input;
@@ -62,7 +93,7 @@ struct ModelParams
   double frac_recover_I2 = 0.75;  //fraction of cases that recover from severe-infected stage I2
   Vector<T> IFR;                  //infection fatality ratio (for each day)
   double S_Reff          = 0.0;   //susceptible population at a given time - only used for R-effective calc
-  T vaccine_eff     = 1.0;   //effectiveness of vaccines
+  T vaccine_eff          = 1.0;   //effectiveness of vaccines
 };
 
 template<class T>
