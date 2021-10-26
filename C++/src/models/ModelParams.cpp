@@ -1,5 +1,6 @@
 #include "ModelParams.h"
-#include "SurrealS.h"
+#include "linearalgebra/SurrealS.h"
+#include "utils/ErrorHandler.h"
 
 template<class T>
 constexpr double ModelParams<T>::dt;

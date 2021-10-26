@@ -1,7 +1,7 @@
 #ifndef MODELPARAMS_H
 #define MODELPARAMS_H
 
-#include "LinearAlgebra.h"
+#include "linearalgebra/Vector.h"
 
 template<class T = double>
 struct ModelParams

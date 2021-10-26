@@ -4,8 +4,8 @@
 #include <sys/stat.h>
 #include <iomanip>
 
-#include "Simulator.h"
-#include "OptimizerPiecewise.h"
+#include "models/Simulator.h"
+#include "optimizers/OptimizerPiecewise.h"
 
 int
 main(int argc, char *argv[])

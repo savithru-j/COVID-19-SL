@@ -2,7 +2,7 @@
 #include "Simulator.h"
 #include "Population.h"
 #include "ModelParams.h"
-#include "SurrealS.h"
+#include "linearalgebra/SurrealS.h"
 
 template<class T>
 std::vector<Population<T>>

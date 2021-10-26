@@ -4,8 +4,8 @@
 #include <sys/stat.h>
 #include <iomanip>
 
-#include "Simulator.h"
-#include "OptimizerFull.h"
+#include "models/Simulator.h"
+#include "optimizers/OptimizerFull.h"
 
 int
 main(int argc, char *argv[])

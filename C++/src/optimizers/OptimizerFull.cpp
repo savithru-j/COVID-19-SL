@@ -3,7 +3,7 @@
 #include <limits>
 
 #include "OptimizerFull.h"
-#include "Simulator.h"
+#include "models/Simulator.h"
 
 OptimizerFull::OptimizerFull(const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,
                              const Vector<double>& quarantine_input,

@@ -4,9 +4,9 @@
 #include <sys/stat.h>
 #include <cmath>
 
-#include "Simulator.h"
-#include "Population.h"
-#include "ModelParams.h"
+#include "models/Simulator.h"
+#include "models/Population.h"
+#include "models/ModelParams.h"
 
 int
 main(int argc, char *argv[])

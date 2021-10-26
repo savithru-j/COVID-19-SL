@@ -4,8 +4,10 @@
 #include <random>
 
 #include "Optimization.h"
-#include "Population.h"
-#include "LinearAlgebra.h"
+#include "models/Population.h"
+#include "models/ObservedPopulation.h"
+#include "linearalgebra/Vector.h"
+#include "linearalgebra/Matrix.h"
 
 struct OptimizerFull
 {

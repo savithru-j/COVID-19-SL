@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "OptimizerGlobalBasis.h"
-#include "Simulator.h"
+#include "models/Simulator.h"
 
 OptimizerGlobalBasis::OptimizerGlobalBasis(
     const ObservedPopulation& pop_observed_, const Population<double>& pop_init_,

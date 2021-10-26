@@ -1,15 +1,5 @@
-//#include <random>
-
-#include "Optimization.h"
-#include "LinearAlgebra.h"
-
-//double uniformRand(double min, double max)
-//{
-////  static std::random_device rd;  //Will be used to obtain a seed for the random number engine
-//  static std::mt19937 gen(2.0); //Standard mersenne_twister_engine seeded with rd()
-//  static std::uniform_real_distribution<> uniform_rand(0, 1);
-//  return min + (max - min)*uniform_rand(gen);
-//}
+#include <cmath>
+#include "Matrix.h"
 
 Matrix<double> getHaarMatrix(int m)
 {
@@ -83,60 +73,4 @@ Matrix<double> getInverseDCTMatrix(int N, int num_coeff)
       A(n,k) = std::cos(M_PI*(n + 0.5)*k / N) * scale_colk;
   }
   return A;
-}
-
-std::string
-getNLOPTResultDescription(nlopt::result resultcode)
-{
-  switch (resultcode)
-  {
-    case nlopt::result::FAILURE:
-      return "Failed - Generic result code";
-      break;
-
-    case nlopt::result::INVALID_ARGS:
-      return "Failed - Invalid arguments";
-      break;
-
-    case nlopt::result::OUT_OF_MEMORY:
-      return "Failed - Out of memory";
-      break;
-
-    case nlopt::result::ROUNDOFF_LIMITED:
-      return "Failed - Round-off limited";
-      break;
-
-    case nlopt::result::FORCED_STOP:
-      return "Failed - Forcefully stopped";
-      break;
-
-    case nlopt::result::SUCCESS:
-      return "Success - Generic result code";
-      break;
-
-    case nlopt::result::STOPVAL_REACHED:
-      return "Success - Stop value reached";
-      break;
-
-    case nlopt::result::FTOL_REACHED:
-      return "Success - Relative f-tolerance reached";
-      break;
-
-    case nlopt::result::XTOL_REACHED:
-      return "Success - Relative x-tolerance reached";
-      break;
-
-    case nlopt::result::MAXEVAL_REACHED:
-      return "Success - Maximum evaluation count reached";
-      break;
-
-    case nlopt::result::MAXTIME_REACHED:
-      return "Success - Maximum time reached";
-      break;
-
-    default:
-      break;
-  }
-
-  return "Unknown result code";
 }

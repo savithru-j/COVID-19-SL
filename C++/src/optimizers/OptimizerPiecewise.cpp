@@ -2,8 +2,8 @@
 #include <iomanip>
 
 #include "OptimizerPiecewise.h"
-#include "Simulator.h"
-#include "SurrealS.h"
+#include "models/Simulator.h"
+#include "linearalgebra/SurrealS.h"
 
 constexpr std::array<int,3> OptimizerPiecewise::IFR_SEG_STARTS;
 

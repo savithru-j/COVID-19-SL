@@ -31,7 +31,9 @@ INCLUDE( CMakeInclude/FindNLOPT.cmake )
 INCLUDE( CMakeInclude/CompileFlags.cmake )
 
 SET(LIBS
-    CovidLib
+    OptimizersLib
+    ModelsLib
+    LinearAlgebraLib
     ${NLOPT_LIBRARIES}
    )
    
