@@ -2,9 +2,11 @@ INCLUDE( ${CMAKE_SOURCE_DIR}/CMakeInclude/ForceOutOfSource.cmake ) #This must be
 
 SET( ModelsLib_SRC
     Population.cpp
+    Population4Layer.cpp
     ObservedPopulation.cpp
     Simulator.cpp
     ModelParams.cpp
+    ModelParams4Layer.cpp
   )
 
 ADD_LIBRARY( ModelsLib STATIC ${ModelsLib_SRC} )

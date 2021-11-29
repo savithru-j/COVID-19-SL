@@ -1,7 +1,9 @@
 #include <cassert>
 #include "Simulator.h"
 #include "Population.h"
+#include "Population4Layer.h"
 #include "ModelParams.h"
+#include "ModelParams4Layer.h"
 #include "linearalgebra/SurrealS.h"
 
 template<class T>
@@ -22,16 +24,37 @@ predictModel(const ModelParams<T>& params, const Population<double>& pop_init)
   {
     for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
       pop.evolve(params, t);
-
     pop.report(params, t); //report once daily
     pop.vaccinate(params, t); //remove vaccinated individuals daily
 
     population_hist.push_back(pop); //save solution daily
   }
+  return population_hist;
+}
 
-//  std::array<double> b{2.0, 3.0};
-//  std::array<SurrealS<1,double>> x(b.begin(), b.end());
+template<class T>
+std::vector<Population4Layer<T>>
+predictModel(const ModelParams4Layer<T>& params, const Population4Layer<double>& pop_init)
+{
+  std::vector<Population4Layer<T>> population_hist;
 
+  const int nt = params.nt_hist + params.nt_pred;
+  const int nt_sub = 1.0/params.dt;
+
+  Population4Layer<T> pop = pop_init;
+
+  population_hist.reserve(nt);
+  population_hist.push_back(pop);
+
+  for (int t = 0; t < nt-1; t++)
+  {
+    for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
+      pop.evolve(params, t);
+    pop.report(params, t); //report once daily
+    pop.vaccinate(params, t); //remove vaccinated individuals daily
+
+    population_hist.push_back(pop); //save solution daily
+  }
   return population_hist;
 }
 
@@ -76,5 +99,8 @@ calcEffectiveReproductionRatio(const ModelParams<T>& params_orig,
 //Explicit instantiations
 template std::vector<Population<double>> predictModel(const ModelParams<double>&, const Population<double>&);
 template std::vector<Population<SurrealS<1,double>>> predictModel(const ModelParams<SurrealS<1,double>>&, const Population<double>&);
+
+template std::vector<Population4Layer<double>> predictModel(const ModelParams4Layer<double>&, const Population4Layer<double>&);
+template std::vector<Population4Layer<SurrealS<1,double>>> predictModel(const ModelParams4Layer<SurrealS<1,double>>&, const Population4Layer<double>&);
 
 template double calcEffectiveReproductionRatio(const ModelParams<double>&, const std::vector<Population<double>>&, const int);
