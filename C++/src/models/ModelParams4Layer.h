@@ -22,8 +22,8 @@ struct ModelParams4Layer
       c[i]    = c_val;
       IFR[i]   = 0.005; //default value of 0.5%
 
-      if (i < (int) vaccination_data.size())
-        daily_vaccinations[i] = vaccination_data[i];
+      if (i > 0 && i < (int) vaccination_data.size())
+        daily_vaccinations[i] = vaccination_data[i] - vaccination_data[i-1]; //Compute diff to get daily values
     }
   }
 
@@ -50,8 +50,8 @@ struct ModelParams4Layer
   Vector<double> daily_vaccinations;
   Vector<T> beta;
   Vector<T> c;
-  double T_incub     = 5.0;   //time period from exposed state to infected state [days]
-  double T_recov     = 6.0;   //time period from infected state to recovered state [days]
+  T T_incub          = 5.0;   //time period from exposed state to infected state [days]
+  T T_recov          = 6.0;   //time period from infected state to recovered state [days]
   Vector<T> IFR;              //infection fatality ratio (for each day)
   double S_Reff      = 0.0;   //susceptible population at a given time - only used for R-effective calc
   T beta_vac_scaling = 1.0;   //scaling to obtain beta for vaccinated infected people

@@ -1,5 +1,6 @@
 {
     "cmake.configureOnOpen": true,
+    "cmake.buildDirectory": "${workspaceFolder}/build/debug/",
     "files.associations": {
         "ostream": "cpp",
         "iomanip": "cpp",

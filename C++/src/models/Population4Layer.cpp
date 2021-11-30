@@ -19,7 +19,7 @@ Population4Layer<T>::evolve(const ModelParams4Layer<T>& params, int t)
   const T prob_Iv_Rv = 1 - prob_Iv_Dv;
 
   //set rate parameters [1/day]
-  const double theta  = (1/params.T_incub) * prob_E_I;
+  const T theta  = (1/params.T_incub) * prob_E_I;
   const T gamma  = (1/params.T_recov) * prob_I_R;
   const T mu     = (1/params.T_recov) * prob_I_D;
   const T gamma_v = (1/params.T_recov) * prob_Iv_Rv;
@@ -44,6 +44,10 @@ Population4Layer<T>::evolve(const ModelParams4Layer<T>& params, int t)
   Array4 dD = {mu  *I[0], mu  *I[1], 
                mu_v*I[2], mu_v*I[3]};
 
+  // using namespace std;
+  // if (isnan(dS) || isnan(dSv) || isnan(dE) || isnan(dEv))
+  //   std::cout << "Found nan!" << std::endl;
+
   //Update states
   S  += dS  * params.dt;
   Sv += dSv * params.dt;
@@ -61,6 +65,8 @@ Population4Layer<T>::evolve(const ModelParams4Layer<T>& params, int t)
     E = 0.0;
   if (Ev < 0.1)
     Ev = 0.0;
+
+
 }
 
 template<class T>
@@ -69,6 +75,8 @@ Population4Layer<T>::report(const ModelParams4Layer<T>& params, int t)
 {
   T num_reported_total = params.c[t] * N;
   T num_reportable = S + E + I[0] + I[2];
+  if (num_reportable == 0.0)
+    return;
 
   T delta = std::min((I[0]/num_reportable) * num_reported_total, I[0]);
   I[0] -= delta;
@@ -84,6 +92,9 @@ void
 Population4Layer<T>::vaccinate(const ModelParams4Layer<T>& params, int t)
 {
   T num_active_unvac = S + E + I[0] + I[1] + R[0] + R[1];
+  if (num_active_unvac == 0.0)
+    return;
+
   T num_vaccinated_S  = std::min((S   /num_active_unvac) * params.daily_vaccinations[t], S);
   T num_vaccinated_E  = std::min((E   /num_active_unvac) * params.daily_vaccinations[t], E);
   T num_vaccinated_Iu = std::min((I[0]/num_active_unvac) * params.daily_vaccinations[t], I[0]);

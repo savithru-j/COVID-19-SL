@@ -4,6 +4,7 @@ SET( OptimizersLib_SRC
     Optimization.cpp
     OptimizerFull.cpp
     OptimizerPiecewise.cpp
+    OptimizerPiecewise4Layer.cpp
     OptimizerGlobalBasis.cpp
   )
 

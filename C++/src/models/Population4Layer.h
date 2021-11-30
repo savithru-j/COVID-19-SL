@@ -42,6 +42,8 @@ public:
   inline T getNumRecoveredUnreported() const { return R[0] + R[2]; }
   inline T getNumFatalUnreported() const { return D[0] + D[2]; }
 
+  inline T getNumVaccinated() const { return Sv + Ev + I[2] + I[3] + R[2] + R[3] + D[2] + D[3]; }
+
   double N = 0;
   T S = 0, Sv = 0; //susceptible (unvaccinated, vaccinated)
   T E = 0, Ev = 0; //exposed (unvaccinated, vaccinated)

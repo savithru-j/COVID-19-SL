@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/src",
                 "${workspaceFolder}/src/linearalgebra",
-                "${workspaceFolder}/src/models"
+                "${workspaceFolder}/src/models",
+                "${workspaceFolder}/src/optimizers"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
