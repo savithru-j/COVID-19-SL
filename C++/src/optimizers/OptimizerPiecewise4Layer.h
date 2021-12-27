@@ -10,10 +10,8 @@
 
 struct OptimizerPiecewise4Layer
 {
-  // static constexpr bool OPTIMIZE_C0 = true;
-  // static constexpr bool OPTIMIZE_C1 = true;
-  // static constexpr bool OPTIMIZE_C2 = false;
-  static constexpr std::array<int,3> IFR_SEG_STARTS = {0, 151, 273};
+  static constexpr bool OPTIMIZE_C = false;
+  static constexpr std::array<int,3> IFR_SEG_STARTS = {0};//, 151, 273};
 
   OptimizerPiecewise4Layer(const ObservedPopulation& pop_observed_, const Population4Layer<double>& pop_init_,
                            const Vector<double>& vaccination_data,
@@ -29,7 +27,7 @@ struct OptimizerPiecewise4Layer
       throwError("randomizeParameters - inconsistent dimensions!");
 
     const int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
-    constexpr int num_dynamic_params = 2; //beta, c
+    constexpr int num_dynamic_params = 1 + OPTIMIZE_C; //beta, c
     for (int i = 0; i < num_dynamic_params; ++i)
     {
 #if 1 //Constant random solutions

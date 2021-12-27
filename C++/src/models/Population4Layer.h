@@ -29,11 +29,11 @@ public:
   }
 
   void evolve(const ModelParams4Layer<T>& params, int t);
-  void report(const ModelParams4Layer<T>& params, int t);
+  void report(const ModelParams4Layer<T>& params, int t, bool Reff_calc = false);
   void vaccinate(const ModelParams4Layer<T>& params, int t);
 
   inline T getNumReported() const { return I[1] + I[3] + R[1] + R[3] + D[1] + D[3]; }
-  inline T getNumActiveReported() const { return I[1] + I[3] + R[1] + R[3]; }
+  inline T getNumInfectedReported() const { return I[1] + I[3]; }
   inline T getNumRecoveredReported() const { return R[1] + R[3]; }
   inline T getNumFatalReported() const { return D[1] + D[3]; }
 

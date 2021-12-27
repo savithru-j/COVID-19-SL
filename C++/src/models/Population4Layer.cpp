@@ -31,7 +31,8 @@ Population4Layer<T>::evolve(const ModelParams4Layer<T>& params, int t)
   //Only infected individuals in layers 0 and 2 (unreported) contribute to dS
   T dS      = -(beta_N*I[0] + beta_v_N*I[2]) * S;
   T dSv     = -params.vaccine_alpha*(beta_N*I[0] + beta_v_N*I[2]) * Sv;
-  T dS_exit =  (beta_N*I[0] + beta_v_N*I[2]) * params.S_Reff;
+  T dS_exit =  (beta_N*I[0] + beta_v_N*I[2]) * params.S_Reff
+              + params.vaccine_alpha*(beta_N*I[0] + beta_v_N*I[2]) * params.Sv_Reff;
 
   T dE      = -dS  - theta*E;
   T dEv     = -dSv - theta*Ev;
@@ -65,17 +66,16 @@ Population4Layer<T>::evolve(const ModelParams4Layer<T>& params, int t)
     E = 0.0;
   if (Ev < 0.1)
     Ev = 0.0;
-
-
 }
 
 template<class T>
 void
-Population4Layer<T>::report(const ModelParams4Layer<T>& params, int t)
+Population4Layer<T>::report(const ModelParams4Layer<T>& params, int t, bool Reff_calc)
 {
   T num_reported_total = params.c[t] * N;
-  T num_reportable = S + E + I[0] + I[2];
-  if (num_reportable == 0.0)
+  T num_reportable = (Reff_calc) ? (params.S_Reff + params.Sv_Reff + E + Ev + I[0] + I[2])
+                                 : (S + Sv + E + Ev + I[0] + I[2]);
+  if (num_reportable == 0.0 || num_reported_total == 0.0)
     return;
 
   T delta = std::min((I[0]/num_reportable) * num_reported_total, I[0]);

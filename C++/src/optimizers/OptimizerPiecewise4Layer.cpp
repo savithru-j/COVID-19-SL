@@ -129,21 +129,30 @@ OptimizerPiecewise4Layer::getCost(const ModelParams4Layer<T>& params_tmp)
   const int nt = params_tmp.nt_hist + params_tmp.nt_pred;
 
   std::array<T,3> sub_costs = {0.0, 0.0, 0.0};
-  double obs_confirmed, obs_recovered, obs_deaths;
-  T err_total, err_recov, err_fatal;
   T err_sq_total = 0.0, err_sq_recov = 0.0, err_sq_fatal = 0.0;
 
 #if 1 //L2
   double sq_total = 0.0, sq_recov = 0.0, sq_fatal = 0.0;
+  double obs_confirmed, obs_recovered, obs_deaths;
+  T err_total, err_recov, err_fatal;
   for (int i = 0; i < nt; ++i)
   {
     obs_confirmed = pop_observed.confirmed[i];
     obs_recovered = pop_observed.recovered[i];
     obs_deaths    = pop_observed.deaths[i];
 
-    err_total = (pop_hist[i].getNumReported() - obs_confirmed);
-    err_recov = (pop_hist[i].getNumRecoveredReported() - obs_recovered);
-    err_fatal = (pop_hist[i].getNumFatalReported() - obs_deaths);
+    if (OPTIMIZE_C)
+    {
+      err_total = (pop_hist[i].getNumReported() - obs_confirmed);
+      err_recov = (pop_hist[i].getNumRecoveredReported() - obs_recovered);
+      err_fatal = (pop_hist[i].getNumFatalReported() - obs_deaths);
+    }
+    else
+    {
+      err_total = (pop_hist[i].getNumUnreported() - obs_confirmed);
+      err_recov = (pop_hist[i].getNumRecoveredUnreported() - obs_recovered);
+      err_fatal = (pop_hist[i].getNumFatalUnreported() - obs_deaths);
+    }
 
     err_sq_total += err_total*err_total;
     err_sq_recov += err_recov*err_recov;
@@ -156,18 +165,18 @@ OptimizerPiecewise4Layer::getCost(const ModelParams4Layer<T>& params_tmp)
   sub_costs[0] = weight_conf*(err_sq_total/sq_total);
   sub_costs[1] = weight_recov*(err_sq_recov/sq_recov);
   sub_costs[2] = weight_fatal*(err_sq_fatal/sq_fatal);
-#elif 0 //L2 of log
+#elif 1 //L2 of log
   for (int i = 1; i < nt; ++i)
   {
-    double logA_obs = std::log(std::max(pop_observed.getNumActive(i), 1));
-    double logR_obs = std::log(std::max(pop_observed.recovered[i], 1));
-    double logF_obs = std::log(std::max(pop_observed.deaths[i], 1));
+    T logC_obs = log(max(pop_observed.confirmed[i], 1));
+    T logR_obs = log(max(pop_observed.recovered[i], 1));
+    T logF_obs = log(max(pop_observed.deaths[i], 1));
 
-    double logA = std::log(std::max(pop_hist[i].getNumActiveReported(), 1.0));
-    double logR = std::log(std::max(pop_hist[i].getNumRecoveredReported(), 1.0));
-    double logF = std::log(std::max(pop_hist[i].getNumFatalReported(), 1.0));
+    T logC = log(max(pop_hist[i].getNumReported(), 1.0));
+    T logR = log(max(pop_hist[i].getNumRecoveredReported(), 1.0));
+    T logF = log(max(pop_hist[i].getNumFatalReported(), 1.0));
 
-    err_sq_total += (logA - logA_obs)*(logA - logA_obs);
+    err_sq_total += (logC - logC_obs)*(logC - logC_obs);
     err_sq_recov += (logR - logR_obs)*(logR - logR_obs);
     err_sq_fatal += (logF - logF_obs)*(logF - logF_obs);
   }
@@ -275,7 +284,7 @@ Vector<ParamBound>
 OptimizerPiecewise4Layer::getParameterBounds(int nt, int interval_size, bool linear_basis)
 {
   int num_nodes = (int)(nt/interval_size) + 1*linear_basis;
-  constexpr int num_dynamic_params = 2;
+  constexpr int num_dynamic_params = 1 + OPTIMIZE_C;
   //[beta values, c values, IFR segment values, T_incub, T_recov, beta_vac_scaling, vaccine_alpha, IFR_vac_scaling]
   const int m = num_dynamic_params*num_nodes + IFR_SEG_STARTS.size() + 5;
   std::vector<ParamBound> bounds(m);
@@ -284,8 +293,9 @@ OptimizerPiecewise4Layer::getParameterBounds(int nt, int interval_size, bool lin
 
   for (int i = 0; i < num_nodes; ++i)
   {
-    bounds[          i] = ParamBound(0, 1, delta); //beta
-    bounds[num_nodes+i] = ParamBound(0, 0.001, delta); //c in [0%, 0.1%] of population
+    bounds[          i] = ParamBound(0, 0.5, delta); //beta
+    if (OPTIMIZE_C)
+      bounds[num_nodes+i] = ParamBound(0, 0.01, delta); //c in [0%, 0.1%] of population
   }
   int off = num_dynamic_params*num_nodes;
   for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
@@ -306,7 +316,7 @@ void
 OptimizerPiecewise4Layer::copyParam2Vector(const ModelParams4Layer<T>& params, std::vector<T>& v)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
-  constexpr int num_dynamic_params = 2;
+  constexpr int num_dynamic_params = 1 + OPTIMIZE_C;
   //[beta values, c values, IFR segment values, T_incub, T_recov, beta_vac_scaling, vaccine_alpha, IFR_vac_scaling]
   const int m = num_dynamic_params*num_nodes + IFR_SEG_STARTS.size() + 5;
   if ((int) v.size() != m)
@@ -316,10 +326,12 @@ OptimizerPiecewise4Layer::copyParam2Vector(const ModelParams4Layer<T>& params, s
   {
     int ind = i*interval_size;
     v[            i] = params.beta[ind];
-    v[num_nodes + i] = params.c[ind];
+    if (OPTIMIZE_C)
+      v[num_nodes + i] = params.c[ind];
   }
   v[  num_nodes-1] = params.beta[nt_opt-1];
-  v[2*num_nodes-1] = params.c[nt_opt-1];
+  if (OPTIMIZE_C)
+    v[2*num_nodes-1] = params.c[nt_opt-1];
 
   int off = num_dynamic_params*num_nodes;
   for (std::size_t i = 0; i < IFR_SEG_STARTS.size(); ++i)
@@ -338,7 +350,7 @@ void
 OptimizerPiecewise4Layer::copyVector2Param(const std::vector<T>& v, ModelParams4Layer<T>& params)
 {
   int num_nodes = (int)(nt_opt/interval_size) + 1*linear_basis;
-  constexpr int num_dynamic_params = 2;
+  constexpr int num_dynamic_params = 1 + OPTIMIZE_C;
   //[beta values, c values, IFR segment values, T_incub, T_recov, beta_vac_scaling, vaccine_alpha, IFR_vac_scaling]
   const int m = num_dynamic_params*num_nodes + IFR_SEG_STARTS.size() + 5;
   if ((int)v.size() != m)
@@ -357,7 +369,8 @@ OptimizerPiecewise4Layer::copyVector2Param(const std::vector<T>& v, ModelParams4
         const double s = (double) j / L;
         const int ind = ind0 + j;
         params.beta[ind] = (1-s)*v[i] + s*v[i+1];
-        params.c[ind]    = (1-s)*v[num_nodes + i] + s*v[num_nodes + i+1];
+        if (OPTIMIZE_C)
+          params.c[ind]  = (1-s)*v[num_nodes + i] + s*v[num_nodes + i+1];
       }
     }
   }
@@ -370,7 +383,8 @@ OptimizerPiecewise4Layer::copyVector2Param(const std::vector<T>& v, ModelParams4
       for (int ind = ind0; ind < ind1; ++ind)
       {
         params.beta[ind] = v[i];
-        params.c[ind]    = v[num_nodes + i];
+        if (OPTIMIZE_C)
+          params.c[ind]  = v[num_nodes + i];
       }
     }
   }

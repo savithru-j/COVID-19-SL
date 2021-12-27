@@ -115,15 +115,17 @@ calcEffectiveReproductionRatio(const ModelParams4Layer<T>& params_orig,
   params.vaccine_alpha    = params_orig.vaccine_alpha;
   params.IFR_vac_scaling  = params_orig.IFR_vac_scaling;
   params.S_Reff           = pop_hist_orig[t].S;
+  params.Sv_Reff          = pop_hist_orig[t].Sv;
 
   Population4Layer<T> pop(pop_hist_orig[t].N, E_init);
   pop.S = 0; //susceptible population should be set to zero for R-eff simulation
+  pop.Sv = 0;
 
   for (int t = 0; t < T_pred_Reff-1; t++)
   {
     for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
       pop.evolve(params, t);
-    pop.report(params, t); //report once daily
+    pop.report(params, t, true); //report once daily
   }
 
   return pop.dS_exit_Reff / E_init;
