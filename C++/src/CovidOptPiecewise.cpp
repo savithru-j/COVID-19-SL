@@ -95,7 +95,7 @@ main(int argc, char *argv[])
 
   std::string filepath_vaccine_data = input_data_folder + country + "_vaccinations.txt";
   std::cout << "Checking for vaccination data at " << filepath_vaccine_data << std::endl;
-  auto pop_vaccine_data = getDailyVaccinations(filepath_vaccine_data, T_smooth);
+  auto pop_vaccine_data = readDataVectorFromFile(filepath_vaccine_data, T_smooth);
   std::cout << "Vaccination data vector length: " << pop_vaccine_data.size() << std::endl << std::endl;
 
   OptimizerPiecewise opt(pop_observed, pop_init, pop_quarantine_input, pop_vaccine_data,

@@ -5,7 +5,7 @@
 #include <iomanip>
 
 #include "models/Simulator.h"
-#include "optimizers/OptimizerPiecewise4Layer.h"
+#include "optimizers/OptimizerPiecewise2Layer.h"
 
 int
 main(int argc, char *argv[])
@@ -62,7 +62,7 @@ main(int argc, char *argv[])
   auto death_vec = pop_observed.deaths;
   pop_observed.smooth(T_smooth);
 
-  Population4Layer<double> pop_init(pop_observed.N, 100,
+  Population2Layer<double> pop_init(pop_observed.N, 100,
                                     pop_observed.confirmed[0] - pop_observed.recovered[0] - pop_observed.deaths[0],
                                     pop_observed.recovered[0],
                                     pop_observed.deaths[0]);
@@ -88,6 +88,14 @@ main(int argc, char *argv[])
   if (pop_vaccine_data.size() > 0 && (int) pop_vaccine_data.size() != pop_observed.getNumDays())
     throwError("Length of vaccine data does not match observed population data!");
 
+  std::string filepath_testing_data = input_data_folder + country + "_testing.txt";
+  std::cout << "Checking for testing data at " << filepath_testing_data << std::endl;
+  auto pop_testing_data = readDataVectorFromFile(filepath_testing_data, T_smooth);
+  std::cout << "Testing data vector length: " << pop_testing_data.size() << std::endl << std::endl;
+
+  if (pop_testing_data.size() > 0 && (int) pop_testing_data.size() != pop_observed.getNumDays())
+    throwError("Length of testing data does not match observed population data!");
+
   std::ofstream file_popsmooth(folder_path + "/" + country + "_popsmooth.txt");
   for (std::size_t i = 0; i < pop_observed.confirmed.size(); ++i)
   {
@@ -95,11 +103,13 @@ main(int argc, char *argv[])
                    << pop_observed.confirmed[i] << ", " << pop_observed.deaths[i];
     if (pop_vaccine_data.size() > 0)
       file_popsmooth << ", " << (int) pop_vaccine_data[i];
+    if (pop_testing_data.size() > 0)
+      file_popsmooth << ", " << (int) pop_testing_data[i];
     file_popsmooth << std::endl;
   }
   file_popsmooth.close();
 
-  OptimizerPiecewise4Layer opt(pop_observed, pop_init, pop_vaccine_data,
+  OptimizerPiecewise2Layer opt(pop_observed, pop_init, pop_testing_data, pop_vaccine_data,
                                interval_size, linear_basis, weight_conf, weight_recov, weight_fatal,
                                max_iter_per_pass, max_passes, seed);
 
@@ -121,18 +131,18 @@ main(int argc, char *argv[])
   std::cout << "Time: " << std::chrono::duration_cast<std::chrono::milliseconds>(t1-t0).count()/1000.0 << "s" << std::endl;
 
   const int nt_hist = pop_observed.getNumDays();
-  std::vector<std::vector<Population4Layer<double>>> predictions(opt.cost_min.size());
+  std::vector<std::vector<Population2Layer<double>>> predictions(opt.cost_min.size());
   std::vector<Vector<double>> param_vecs_full(opt.cost_min.size());
 
   std::vector<Vector<double>> Reff_vector(predictions.size(), Vector<double>(nt_hist));
 
   for (std::size_t i = 0; i < predictions.size(); ++i)
   {
-    ModelParams4Layer<double> params(nt_hist, 0, pop_vaccine_data);
+    ModelParams2Layer<double> params(nt_hist, 0, pop_testing_data, pop_vaccine_data);
     opt.copyVector2Param(opt.optimal_param_vec[i], params);
     predictions[i] = predictModel(params, pop_init);
 
-    param_vecs_full[i].resize(3*params.nt_hist + 5);
+    param_vecs_full[i].resize(2*params.nt_hist + 6);
     copyParam2FullVector(params, param_vecs_full[i]);
 
     //Calculate R-eff
@@ -155,11 +165,9 @@ main(int argc, char *argv[])
   {
     file_predictions << "TotalR" << j
                      << ", TotalU" << j
-                     << ", RecoveredR" << j
                      << ", FatalR" << j
+                     << ", InfectedR" << j
                      << ", InfectedU" << j
-                     << ", RecoveredU" << j
-                     << ", FatalU" << j
                      << ", TotalVac" << j
                      << ", Reff" << j;
     if (j < predictions.size()-1)
@@ -174,11 +182,9 @@ main(int argc, char *argv[])
     {
       file_predictions << predictions[isol][t].getNumReported() << ", "
                        << predictions[isol][t].getNumUnreported() << ", "
-                       << predictions[isol][t].getNumRecoveredReported() << ", "
                        << predictions[isol][t].getNumFatalReported() << ", "
+                       << predictions[isol][t].getNumInfectedReported() << ", "
                        << predictions[isol][t].getNumInfectedUnreported() << ", "
-                       << predictions[isol][t].getNumRecoveredUnreported() << ", "
-                       << predictions[isol][t].getNumFatalUnreported() << ", "
                        << predictions[isol][t].getNumVaccinated() << ", "
                        << Reff_vector[isol][t];
       if (isol < predictions.size()-1)

@@ -1,62 +1,12 @@
 #include <cassert>
 #include "Simulator.h"
 #include "Population.h"
+#include "Population2Layer.h"
 #include "Population4Layer.h"
 #include "ModelParams.h"
+#include "ModelParams2Layer.h"
 #include "ModelParams4Layer.h"
 #include "linearalgebra/SurrealS.h"
-
-template<class T>
-std::vector<Population<T>>
-predictModel(const ModelParams<T>& params, const Population<double>& pop_init)
-{
-  std::vector<Population<T>> population_hist;
-
-  const int nt = params.nt_hist + params.nt_pred;
-  const int nt_sub = 1.0/params.dt;
-
-  Population<T> pop = pop_init;
-
-  population_hist.reserve(nt);
-  population_hist.push_back(pop);
-
-  for (int t = 0; t < nt-1; t++)
-  {
-    for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
-      pop.evolve(params, t);
-    pop.report(params, t); //report once daily
-    pop.vaccinate(params, t); //remove vaccinated individuals daily
-
-    population_hist.push_back(pop); //save solution daily
-  }
-  return population_hist;
-}
-
-template<class T>
-std::vector<Population4Layer<T>>
-predictModel(const ModelParams4Layer<T>& params, const Population4Layer<double>& pop_init)
-{
-  std::vector<Population4Layer<T>> population_hist;
-
-  const int nt = params.nt_hist + params.nt_pred;
-  const int nt_sub = 1.0/params.dt;
-
-  Population4Layer<T> pop = pop_init;
-
-  population_hist.reserve(nt);
-  population_hist.push_back(pop);
-
-  for (int t = 0; t < nt-1; t++)
-  {
-    for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
-      pop.evolve(params, t);
-    pop.report(params, t); //report once daily
-    pop.vaccinate(params, t); //remove vaccinated individuals daily
-
-    population_hist.push_back(pop); //save solution daily
-  }
-  return population_hist;
-}
 
 template<class T>
 T
@@ -98,6 +48,44 @@ calcEffectiveReproductionRatio(const ModelParams<T>& params_orig,
 
 template<class T>
 T
+calcEffectiveReproductionRatio(const ModelParams2Layer<T>& params_orig,
+                               const std::vector<Population2Layer<T>>& pop_hist_orig, const int t)
+{
+  assert(t >= 0 && t < params_orig.nt_hist + params_orig.nt_pred);
+
+  const int T_pred_Reff = 90;
+  const double E_init = 10000;
+  const int nt_sub = 1.0/params_orig.dt;
+
+  // ModelParams2Layer<T> params(0, T_pred_Reff, {}, {}, params_orig.beta[t]);
+  // params.T_incub          = params_orig.T_incub;
+  // params.T_recov          = params_orig.T_recov;
+  // params.IFR              = params_orig.IFR;
+  // params.beta_vac_scaling = params_orig.beta_vac_scaling;
+  // params.vaccine_alpha    = params_orig.vaccine_alpha;
+  // params.IFR_vac_scaling  = params_orig.IFR_vac_scaling;
+  // params.S_Reff           = pop_hist_orig[t].S;
+  // params.Sv_Reff          = pop_hist_orig[t].Sv;
+
+  ModelParams2Layer<T> params(params_orig, t, T_pred_Reff);
+
+  Population2Layer<T> pop(pop_hist_orig[t].N, E_init);
+  pop.S = pop_hist_orig[t].S; //susceptible population should be set to zero for R-eff simulation
+  pop.Sv = pop_hist_orig[t].Sv;
+
+  for (int t = 0; t < T_pred_Reff-1; t++)
+  {
+    for (int j = 0; j < nt_sub; j++) //sub-timestepping [hrs]
+      pop.evolve(params, t, true);
+    pop.report(params, t); //report once daily
+    pop.vaccinate(params, t); //remove vaccinated individuals daily
+  }
+
+  return pop.dS_exit_Reff / E_init;
+}
+
+template<class T>
+T
 calcEffectiveReproductionRatio(const ModelParams4Layer<T>& params_orig,
                                const std::vector<Population4Layer<T>>& pop_hist_orig, const int t)
 {
@@ -132,11 +120,12 @@ calcEffectiveReproductionRatio(const ModelParams4Layer<T>& params_orig,
 }
 
 //Explicit instantiations
-template std::vector<Population<double>> predictModel(const ModelParams<double>&, const Population<double>&);
-template std::vector<Population<SurrealS<1,double>>> predictModel(const ModelParams<SurrealS<1,double>>&, const Population<double>&);
+// template std::vector<Population<double>> predictModel(const ModelParams<double>&, const Population<double>&);
+// template std::vector<Population<SurrealS<1,double>>> predictModel(const ModelParams<SurrealS<1,double>>&, const Population<double>&);
 
-template std::vector<Population4Layer<double>> predictModel(const ModelParams4Layer<double>&, const Population4Layer<double>&);
-template std::vector<Population4Layer<SurrealS<1,double>>> predictModel(const ModelParams4Layer<SurrealS<1,double>>&, const Population4Layer<double>&);
+// template std::vector<Population4Layer<double>> predictModel(const ModelParams4Layer<double>&, const Population4Layer<double>&);
+// template std::vector<Population4Layer<SurrealS<1,double>>> predictModel(const ModelParams4Layer<SurrealS<1,double>>&, const Population4Layer<double>&);
 
 template double calcEffectiveReproductionRatio(const ModelParams<double>&, const std::vector<Population<double>>&, const int);
+template double calcEffectiveReproductionRatio(const ModelParams2Layer<double>&, const std::vector<Population2Layer<double>>&, const int);
 template double calcEffectiveReproductionRatio(const ModelParams4Layer<double>&, const std::vector<Population4Layer<double>>&, const int);

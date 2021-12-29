@@ -43,6 +43,6 @@ public:
 };
 
 Vector<double> getQuarantineInputVector(const std::string& filepath);
-Vector<double> getDailyVaccinations(const std::string& filepath, const int T_smooth);
+Vector<double> readDataVectorFromFile(const std::string& filepath, const int T_smooth);
 
 #endif

@@ -63,38 +63,41 @@ getQuarantineInputVector(const std::string& filepath)
 }
 
 Vector<double>
-getDailyVaccinations(const std::string& filepath, const int T_smooth)
+readDataVectorFromFile(const std::string& filepath, const int T_smooth)
 {
-  assert(T_smooth % 2 == 1);
-  const int r = (T_smooth-1)/2;
-
   std::ifstream in(filepath);
   if (!in)
     return Vector<double>(); //return empty vector
 
-  Vector<double> num_total_vaccinated;
+  Vector<double> original_data;
   double val;
   while (in >> val)
-    num_total_vaccinated.push_back(val);
+    original_data.push_back(val);
   in.close();
 
-  Vector<double> daily_vaccinated_smooth(num_total_vaccinated.size(), 0.0);
-  for (int i = 0; i < (int) num_total_vaccinated.size(); ++i)
+  if (T_smooth == 0)
+    return original_data;
+
+  assert(T_smooth % 2 == 1);
+  const int r = (T_smooth-1)/2;
+
+  Vector<double> smoothed_data(original_data.size(), 0.0);
+  for (int i = 0; i < (int) original_data.size(); ++i)
   {
     int js = std::max(i-r, 0);
-    int je = std::min(i+r, (int)num_total_vaccinated.size()-1);
+    int je = std::min(i+r, (int)original_data.size()-1);
     int r_i = std::min(i-js, je-i);
     double sum_v = 0;
     double denom = 2*r_i + 1;
     for (int j = i-r_i; j <= i+r_i; ++j)
-      sum_v += num_total_vaccinated[j];
-    daily_vaccinated_smooth[i] = std::round(sum_v / denom);
+      sum_v += original_data[j];
+    smoothed_data[i] = std::round(sum_v / denom);
   }
 
   //Compute diff to get daily values
-//  for (int i = (int)num_total_vaccinated.size()-1; i > 0; --i)
+//  for (int i = (int)original_data.size()-1; i > 0; --i)
 //    daily_vaccinated_smooth[i] -= daily_vaccinated_smooth[i-1];
 //  daily_vaccinated_smooth[0] = 0;
 
-  return daily_vaccinated_smooth;
+  return smoothed_data;
 }
