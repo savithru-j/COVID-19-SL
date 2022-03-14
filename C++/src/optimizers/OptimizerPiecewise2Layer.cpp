@@ -5,7 +5,7 @@
 #include "models/Simulator.h"
 #include "linearalgebra/SurrealS.h"
 
-constexpr std::array<int,5> OptimizerPiecewise2Layer::IFR_SEG_STARTS;
+constexpr std::array<int,9> OptimizerPiecewise2Layer::IFR_SEG_STARTS;
 
 OptimizerPiecewise2Layer::OptimizerPiecewise2Layer(
     const ObservedPopulation& pop_observed_, const Population2Layer<double>& pop_init_,

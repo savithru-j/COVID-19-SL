@@ -10,8 +10,11 @@
 
 struct OptimizerPiecewise2Layer
 {
-  // static constexpr std::array<int,5> IFR_SEG_STARTS = {0, 131, 345, 435, 679}; //USA
-  static constexpr std::array<int,5> IFR_SEG_STARTS = {0, 92, 182, 273, 426}; //SL
+  // static constexpr std::array<int,9> IFR_SEG_STARTS = {0, 70, 161, 253, 345, 435, 526, 618, 710}; //USA 2020-01-22
+  // static constexpr std::array<int,9> IFR_SEG_STARTS = {0, 61, 152, 244, 336, 426, 517, 609, 701}; //UK 2020-01-31 
+  // static constexpr std::array<int,6> IFR_SEG_STARTS = {0, 92, 182, 273, 365, 457}; //SL 2020-10-01
+  static constexpr std::array<int,9> IFR_SEG_STARTS = {0, 62, 153, 245, 337, 427, 518, 610, 702}; //India 2020-01-30
+  // static constexpr std::array<int,9> IFR_SEG_STARTS = {0, 54, 145, 237, 329, 419, 510, 602, 694}; //South Africa 2020-02-07
 
   OptimizerPiecewise2Layer(const ObservedPopulation& pop_observed_, const Population2Layer<double>& pop_init_,
                            const Vector<double>& testing_data, const Vector<double>& vaccination_data,
