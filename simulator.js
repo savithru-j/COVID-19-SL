@@ -79,16 +79,16 @@ var custom_country_data = {
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },
   "Sri Lanka-2020-09-15" : {
-              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15, Apr 28, May 8, May 16, Jun 3, Jul 7, Jul 20, Aug 10
-      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212, 225, 235, 243, 261, 295, 308, 328], //indices to start dates of any interventions
-      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.425, 0.405, 0.36, 0.437, 0.52, 0.58], //values of b1N for each intervention segment defined in t_start
-      b2N: new Array(18).fill(0), //values of b2N
-      b3N: new Array(18).fill(0),
-      ce: new Array(18).fill(0.176),
-      c0: new Array(18).fill(0.2),
-      c1: new Array(18).fill(0.5),
-      c2: new Array(18).fill(1.0),
-      c3: new Array(18).fill(1.0),
+              //Sep 15, Oct 10, Nov 1, Nov 18, Dec 10, Jan 6, Feb 1, Feb 10, Mar 1, Apr 5, Apr 15, Apr 28, May 8, May 16, Jun 3, Jul 7, Jul 20, Aug 10, Sep 11, Sep 20, Oct 1, Oct 15, Jan 1, Feb 15
+      t_start: [0, 26, 47, 64, 86, 113, 139, 148, 167, 202, 212, 225, 235, 243, 261, 295, 308, 329, 361, 370, 381, 395, 473, 518], //indices to start dates of any interventions
+      b1N: [1.0, 0.44, 0.39, 0.425, 0.365, 0.43, 0.37, 0.31, 0.343, 0.53, 0.66, 0.477, 0.425, 0.405, 0.36, 0.437, 0.52, 0.58, 0.53, 0.4, 0.4, 0.55, 0.71, 0.45], //values of b1N for each intervention segment defined in t_start
+      b2N: new Array(24).fill(0), //values of b2N
+      b3N: new Array(24).fill(0),
+      ce: [0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.176, 0.1, 0.05, 0.05, 0.05, 0.05],
+      c0: [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.1, 0.05, 0.05, 0.05, 0.05],
+      c1: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.2, 0.1, 0.1, 0.1, 0.1, 0.1],
+      c2: new Array(24).fill(1.0),
+      c3: new Array(24).fill(1.0),
       E0_0: 5, //no. of individuals exposed at start
       // Rd_0: 1, //no. of recovered-diagnosed individuals at start
   },

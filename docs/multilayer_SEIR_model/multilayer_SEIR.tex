@@ -1,0 +1,180 @@
+% !TEX TS-program = pdflatex
+% !TEX encoding = UTF-8 Unicode
+
+% This is a simple template for a LaTeX document using the "article" class.
+% See "book", "report", "letter" for other types of document.
+
+\documentclass[11pt]{article} % use larger type; default would be 10pt
+\usepackage[utf8]{inputenc} % set input encoding (not needed with XeLaTeX)
+
+%%% Examples of Article customizations
+% These packages are optional, depending whether you want the features they provide.
+% See the LaTeX Companion or other references for full information.
+
+%%% PAGE DIMENSIONS
+\usepackage{geometry} % to change the page dimensions
+\geometry{a4paper} % or letterpaper (US) or a5paper or....
+\geometry{margin=0.8in} % for example, change the margins to 2 inches all round
+% \geometry{landscape} % set up the page for landscape
+%   read geometry.pdf for detailed page layout information
+
+\usepackage{graphicx} % support the \includegraphics command and options
+
+% \usepackage[parfill]{parskip} % Activate to begin paragraphs with an empty line rather than an indent
+
+%%% PACKAGES
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+%\usepackage{subfig} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{float}
+\usepackage{hyperref}
+
+\hypersetup{
+colorlinks=true,
+linkcolor=blue,          % color of internal links (change box color with linkbordercolor)
+citecolor=red        % color of links to bibliography
+}
+
+\hypersetup{hidelinks}
+
+% These packages are all incorporated in the memoir class to one degree or another...
+
+%%% HEADERS & FOOTERS
+\usepackage{fancyhdr} % This should be set AFTER setting up the page geometry
+\pagestyle{fancy} % options: empty , plain , fancy
+\renewcommand{\headrulewidth}{0pt} % customise the layout...
+\lhead{}\chead{}\rhead{}
+
+\lfoot{}\cfoot{\thepage}\rfoot{}
+
+%%% SECTION TITLE APPEARANCE
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\mdseries\upshape} % (See the fntguide.pdf for font help)
+% (This matches ConTeXt defaults)
+
+%%% ToC (table of contents) APPEARANCE
+\usepackage[nottoc,notlof,notlot]{tocbibind} % Put the bibliography in the ToC
+\usepackage[titles,subfigure]{tocloft} % Alter the style of the Table of Contents
+\renewcommand{\cftsecfont}{\rmfamily\mdseries\upshape}
+\renewcommand{\cftsecpagefont}{\rmfamily\mdseries\upshape} % No bold!
+
+\renewcommand{\arraystretch}{1.2}
+
+
+\usepackage{amsmath}
+\usepackage{amssymb}	% Math symbols such as \mathbb
+\usepackage{bm}
+\usepackage{cancel}
+\usepackage{framed}
+\usepackage{mdframed}
+\usepackage{stmaryrd}
+\usepackage{mathtools}
+%\usepackage{xcolor}
+\usepackage{subcaption}
+
+\mdfsetup{
+ skipabove=3pt,
+ skipbelow=3pt,
+ leftmargin=1pt,
+ rightmargin=1pt,
+ innertopmargin=0pt,
+ innerbottommargin=5pt,
+ innerleftmargin=5pt,
+ innerrightmargin=5pt
+}
+
+\newcommand{\abs}[1]{\left| #1 \right|} % for absolute value
+\newcommand{\avg}[1]{\left\{ #1 \right\}} % for average
+\newcommand{\norm}[1]{\lVert #1 \rVert} % for norm
+\let\underdot=\d % rename builtin command \d{} to \underdot{}
+\renewcommand{\d}[2]{\frac{d #1}{d #2}} % for derivatives
+\newcommand{\dd}[2]{\frac{d^2 #1}{d #2^2}} % for double derivatives
+\newcommand{\ddd}[2]{\frac{d^3 #1}{d #2^3}} % for triple derivatives
+\newcommand{\pd}[2]{\frac{\partial #1}{\partial #2}} % for partial derivatives
+\newcommand{\pdd}[2]{\frac{\partial^2 #1}{\partial #2^2}} % for double partial derivatives
+\newcommand{\pddd}[2]{\frac{\partial^3 #1}{\partial #2^3}} % for triple partial derivatives
+\newcommand{\pdc}[3]{\left( \frac{\partial #1}{\partial #2} \right)_{#3}} % for thermodynamic partial derivatives
+\newcommand{\grad}[1]{{\nabla} #1} % for gradient
+\let\divsymb=\div % rename builtin command \div to \divsymb
+\renewcommand{\div}[1]{{\nabla} \cdot #1} % for divergence
+\newcommand{\curl}[1]{{\nabla} \times #1} % for curl
+\newcommand{\lapl}[1]{{\nabla}^2 #1} % for laplacian
+\newcommand{\jump}[1]{\left\llbracket #1 \right\rrbracket} % for jump operator
+\newcommand{\half}{\frac{1}{2}}
+\newcommand{\divst}[1]{{\nabla^*} \cdot #1} % for divergence
+
+\newcommand{\bvec}[1]{\mathbf{#1}} %bold vectors
+\newcommand{\fvec}[1]{\vec{\mathbf{#1}}} %bold and arrow vectors
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+
+%%% END Article customizations
+
+%%% The "real" document content comes below...
+
+\title{Multi-layer SEIR model}
+%\author{Savithru Jayasinghe}
+%\date{} % Activate to display a given date or no date (if empty),
+         % otherwise the current date is printed 
+
+\begin{document}
+\maketitle
+\allowdisplaybreaks
+
+%\section{}
+
+\noindent
+Equations for the unvaccinated population ($S, E_u, I_u, R_u, D_u, E_r, I_r, R_r, D_r$):
+%
+\begin{align}
+\dot{S} &= -\beta(t) \frac{I_u}{N} S - v(t)  \\
+\dot{E}_u &= \beta(t) \frac{I_u}{N} S - \theta E_u - r_E(t) \\
+\dot{I}_u &= \theta E_u - (\gamma + \mu) I_u - r_I(t) \\
+\dot{R}_u &= \gamma I_u \\
+\dot{D}_u &= \mu I_u \\
+\dot{E}_r &= - \theta E_r + r_E(t) \\
+\dot{I}_r &= \theta E_r - (\gamma + \mu) I_r + r_I(t) \\
+\dot{R}_r &= \gamma I_r \\
+\dot{D}_r &= \mu I_r
+\end{align}
+%
+
+\noindent
+Equations for the vaccinated population ($S^*, E^*_u, I^*_u, R^*_u, D^*_u, E^*_r, I^*_r, R^*_r, D^*_r, V^*$):
+%
+\begin{align}
+\dot{S}^* &= -\beta^*(t) \frac{I^*_u}{N} S^* + \alpha v(t)  \\
+\dot{E}^*_u &= \beta^*(t) \frac{I^*_u}{N} S^* - \theta E^*_u - r^*_E(t) \\
+\dot{I}^*_u &= \theta E^*_u - (\gamma^* + \mu^*) I^*_u - r^*_I(t) \\
+\dot{R}^*_u &= \gamma^* I^*_u \\
+\dot{D}^*_u &= \mu^* I^*_u \\
+\dot{E}^*_r &= - \theta E^*_r + r^*_E(t) \\
+\dot{I}^*_r &= \theta E^*_r - (\gamma^* + \mu^*) I^*_r + r^*_I(t) \\
+\dot{R}^*_r &= \gamma^* I^*_r \\
+\dot{D}^*_r &= \mu^* I^*_r \\
+\dot{V}^* &= v(t) - \alpha v(t)
+\end{align}
+
+\noindent
+Merging unvaccinated and vaccinated equations:
+%
+\begin{align}
+\dot{\bar{S}} = \dot{S} + \dot{S}^* &= -\beta(t) \frac{I_u}{N} S -\beta^*(t) \frac{I^*_u}{N} S^* - (1-\alpha) v(t)  \\
+\dot{\bar{E}}_u  = \dot{E}_u + \dot{E}^*_u &= \beta(t) \frac{I_u}{N} S + \beta^*(t) \frac{I^*_u}{N} S^* - \theta (E_u + E^*_u) - r_E(t) - r^*_E(t) \\
+\dot{\bar{I}}_u = \dot{I}_u + \dot{I}^*_u &= \theta (E_u + E^*_u) - (\gamma + \mu) I_u - (\gamma^* + \mu^*) I^*_u - r_I(t) - r^*_I(t) \\
+\dot{\bar{R}}_u = \dot{R}_u + \dot{R}^*_u &= \gamma I_u + \gamma^* I^*_u \\
+\dot{\bar{D}}_u = \dot{D}_u + \dot{D}^*_u &= \mu I_u + \mu^* I^*_u \\
+\dot{\bar{E}}_r = \dot{E}_r + \dot{E}^*_r &= - \theta (E_r + E^*_r) + r_E(t) + r^*_E(t) \\
+\dot{\bar{I}}_r = \dot{I}_r + \dot{I}^*_r &= \theta (E_r + E^*_r) - (\gamma + \mu) I_r - (\gamma^* + \mu^*) I^*_r + r_I(t) + r^*_I(t) \\
+\dot{\bar{R}}_r = \dot{R}_r + \dot{R}^*_r &= \gamma I_r + \gamma^* I^*_r \\
+\dot{\bar{D}}_r  = \dot{D}_r + \dot{D}^*_r &= \mu I_r + \mu^* I^*_r \\
+\dot{\bar{V}} = \dot{V}^* &= (1 - \alpha) v(t)
+\end{align}
+
+\noindent
+Let $\chi_S = \frac{S^*}{\bar{S}}$
+%\bibliography{references}
+%\bibliographystyle{plain}
+
+\end{document}
